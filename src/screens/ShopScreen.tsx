@@ -9,7 +9,7 @@ import { CLOUDEE_PRICE, DEMO_TOPUP, MONTHLY_REWARDS, STAMP_REWARDS, WARDROBE } f
 import { CHARACTERS } from '../data/characters';
 import { screenMotion } from '../lib/motion';
 import { monthStudyDays } from '../lib/sessions';
-import { readStreak } from '../lib/streak';
+import { demoStreakDay, readStreak } from '../lib/streak';
 import { claimReward, claimStamp, demoTopUp, hasCloudee, markStampReady, ownsPart, setPlan, stampedToday, stampPending, unlockCloudee, unlockPart, useWallet } from '../lib/wallet';
 import { useLang, useT } from '../i18n';
 import styles from './ShopScreen.module.css';
@@ -264,6 +264,9 @@ export function ShopScreen({ onBack, onStudy }: { onBack: () => void; onStudy: (
           </button>
           <button type="button" onClick={() => (markStampReady() ? say(tx('Stamp ready (demo)')) : say(tx('Stamp already used today')))}>
             ★ {tx('Demo: study day')}
+          </button>
+          <button type="button" onClick={() => say(tx('{n}-day streak (demo)', { n: demoStreakDay().count }))}>
+            <FlameIcon width={14} height={14} /> {tx('Demo: +1 streak')}
           </button>
         </div>
       </div>

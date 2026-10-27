@@ -665,4 +665,6 @@ export const ko: Record<string, string> = {
   'Classroom at eye level, seen from behind your seat': '내 자리 뒤에서 본 눈높이 교실',
   'Code block': '코드 블록',
   'Table': '표',
+  'Demo: +1 streak': '데모: 연속 +1일',
+  '{n}-day streak (demo)': '{n}일 연속 (데모)',
 };

@@ -665,4 +665,6 @@ export const ja: Record<string, string> = {
   'Classroom at eye level, seen from behind your seat': '自分の席の後ろから見た、目線の高さの教室',
   'Code block': 'コードブロック',
   'Table': '表',
+  'Demo: +1 streak': 'デモ：連続+1日',
+  '{n}-day streak (demo)': '{n}日連続（デモ）',
 };

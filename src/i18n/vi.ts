@@ -665,4 +665,6 @@ export const vi: Record<string, string> = {
   'Classroom at eye level, seen from behind your seat': 'Lớp học ở tầm mắt, nhìn từ phía sau chỗ ngồi của bạn',
   'Code block': 'Khối mã',
   'Table': 'Bảng',
+  'Demo: +1 streak': 'Thử: +1 ngày chuỗi',
+  '{n}-day streak (demo)': 'Chuỗi {n} ngày (thử)',
 };

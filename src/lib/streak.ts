@@ -36,3 +36,10 @@ export function completeSession() {
   save(KEY, { count, lastDate: today, totalSessions: s.totalSessions + 1 });
   return readStreak();
 }
+
+// For demos: count today as one more study day in a row (no session needed)
+export function demoStreakDay() {
+  const s = load<StreakState>(KEY, EMPTY);
+  save(KEY, { ...s, count: readStreak().count + 1, lastDate: dayKey(new Date()) });
+  return readStreak();
+}
