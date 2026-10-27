@@ -19,7 +19,7 @@ interface Props {
 }
 
 const { width: W, height: H, top } = CLASSROOM;
-const SPEED = 140; // 이미지 px/초
+const SPEED = 220; // 이미지 px/초
 const NEAR = 38; // 이 거리 안이면 앉을 수 있음
 const ZOOM = 1.25; // 창문(햇살이 들어오는 곳)이 화면 왼쪽에 걸리도록
 

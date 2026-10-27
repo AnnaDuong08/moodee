@@ -60,7 +60,7 @@ interface Props {
   chatter?: Chatter; // 다른 Cloudee들의 대화
 }
 
-const SPEED = 140; // 플레이어 이미지 px/초(천천히 걷는 느낌)
+const SPEED = 220; // 플레이어 이미지 px/초
 const NPC_SPEED = 72;
 const NEAR = 56;
 const PLAYER_R = 30; // 발 위치 기준 충돌 반경
