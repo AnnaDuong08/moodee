@@ -1,5 +1,5 @@
-// 같은 공간의 사람들: 무엇을 공부 중인지 확인 + 친구 추가 + 친구 초대(포스트잇 "ADD FRIEND / Invite others to study")
-// 채팅은 없다 — 공부 상태만 공유한다
+// People in the same space: see what they're studying + add friends + invite friends (sticky note "ADD FRIEND / Invite others to study")
+// No chat — only study status is shared
 import { useState } from 'react';
 import { CLASSMATES, classmateLooks } from '../data/classmates';
 import type { Character } from '../data/characters';
@@ -12,7 +12,7 @@ interface Props {
   open: boolean;
   onClose: () => void;
   me: Character;
-  mySubject?: string; // 집중 중이면 내 주제도 맨 위에 표시
+  mySubject?: string; // When focusing, show my topic at the top too
   title?: string;
 }
 
@@ -29,7 +29,7 @@ export function PeopleSheet({ open, onClose, me, mySubject, title = 'Studying in
     save('friends', next);
   };
 
-  // 초대: 기기의 공유 시트, 없으면 링크 복사
+  // Invite: the device's share sheet, or copy the link if unavailable
   const invite = async () => {
     const data = { title: 'MOODEE', text: 'Come study with me on MOODEE — same room, no chat.', url: location.href };
     try {
@@ -38,7 +38,7 @@ export function PeopleSheet({ open, onClose, me, mySubject, title = 'Studying in
       setInvited(true);
       window.setTimeout(() => setInvited(false), 2400);
     } catch {
-      /* 사용자가 공유를 취소한 경우 */
+      /* When the user cancels sharing */
     }
   };
 

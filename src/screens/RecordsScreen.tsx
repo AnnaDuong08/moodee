@@ -1,4 +1,4 @@
-// Records: "What are you studying?"에서 고른 주제별 집중 시간(포스트잇: 2h coding, 3h chem, 1h reading)
+// Records: focus time per topic chosen in "What are you studying?" (sticky note: 2h coding, 3h chem, 1h reading)
 import { motion } from 'framer-motion';
 import { BackIcon, FlameIcon } from '../components/Icons';
 import { screenMotion } from '../lib/motion';
@@ -11,7 +11,7 @@ interface Props {
   onStudy: () => void;
 }
 
-// 주제별 막대 색(토큰 팔레트 순환)
+// Bar color per topic (cycles through the token palette)
 const COLORS = ['#9F88C4', '#E8955A', '#9BAE8C', '#F2C46B', '#6E86D8', '#E9A3B0'];
 
 export function RecordsScreen({ onBack, onStudy }: Props) {

@@ -1,5 +1,5 @@
-// 보드카페: 게임 선반 → 친구들이 테이블로 모임 → 상자가 놓이고 뚜껑이 열림 → 게임 → 결과 카드 → 테이블로
-// "이기는 게임"이 아니라 같이 하나를 완성하는 저압박 협동. 실패 화면·빨간 경고 없음
+// Board Café: game shelf → friends gather at the table → box is set down and the lid opens → game → result card → back to the table
+// Not a "winning game" but low-pressure co-op where you finish something together. No failure screen or red warnings
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
 import { CharacterSprite } from '../components/CharacterSprite';
@@ -42,7 +42,7 @@ export function BoardCafe({ me, luna, hieu, drink, onClose }: Props) {
     setGame(id);
     setPhase('gather');
     setBoxOpen(false);
-    // 상자가 테이블에 놓이고(0.5s) → 뚜껑이 열리고(1.3s) → 게임 시작
+    // Box lands on the table (0.5s) → lid opens (1.3s) → game starts
     window.setTimeout(() => setBoxOpen(true), 1300);
     window.setTimeout(() => setPhase('play'), 2400);
   };

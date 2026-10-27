@@ -1,5 +1,5 @@
-// Cloud Tiles(협동): 카페가 문 닫기 전(12바퀴)까지 셋이 함께 구름 3개 완성
-// 차례: YOU → Luna → Hieu. 조건에 맞는 빈 슬롯에 타일 1장, 또는 Pass(1장 뽑기). 틀려도 벌칙 없음
+// Cloud Tiles (co-op): the three of you make 3 clouds together before the café closes (12 rounds)
+// Turn order: YOU → Luna → Hieu. Place 1 tile in a matching empty slot, or Pass (draw 1). No penalty for mistakes
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState, type PointerEvent as RPointerEvent } from 'react';
 import { CharacterSprite } from '../components/CharacterSprite';
@@ -26,7 +26,7 @@ interface Game {
   pattern: Pattern;
   filled: (Tile | null)[];
   round: number;
-  turn: number; // ORDER 인덱스
+  turn: number; // ORDER index
   clouds: number;
   passStreak: number;
 }
@@ -44,20 +44,20 @@ interface Props {
   me: Character;
   luna: Character;
   hieu: Character;
-  drink: string[] | null; // 테이블 위 음료(층)
+  drink: string[] | null; // Drink on the table (layers)
   lang: Lang;
   onFinish: (clouds: number) => void;
 }
 
 export function CloudTiles({ me, luna, hieu, drink, lang, onFinish }: Props) {
   const [g, setG] = useState<Game>(newGame);
-  const [busy, setBusy] = useState(false); // 완성 연출·NPC 생각 중에는 입력을 막는다
+  const [busy, setBusy] = useState(false); // Block input during completion animations and while NPCs are thinking
   const [thinking, setThinking] = useState<Who | null>(null);
   const [speech, setSpeech] = useState<Partial<Record<Who, string>>>({});
   const [reaction, setReaction] = useState<Reaction>('idle');
   const [selected, setSelected] = useState<string | null>(null);
   const [drag, setDrag] = useState<{ tile: Tile; x: number; y: number; sx: number; sy: number; moved: boolean } | null>(null);
-  const [bounce, setBounce] = useState<string | null>(null); // 손패로 돌아오는 타일
+  const [bounce, setBounce] = useState<string | null>(null); // Tile returning to the hand
   const [justPlaced, setJustPlaced] = useState<number | null>(null);
   const [cloudPop, setCloudPop] = useState(false);
   const [finale, setFinale] = useState(false);
@@ -73,7 +73,7 @@ export function CloudTiles({ me, luna, hieu, drink, lang, onFinish }: Props) {
     window.setTimeout(() => setSpeech((s) => (s[who] === text ? { ...s, [who]: undefined } : s)), 1800);
   };
 
-  // 차례 넘기기: 한 바퀴가 돌면 라운드 +1, 12바퀴가 끝나면 종료
+  // Advance turn: one full loop adds +1 round; ends after 12 rounds
   const advance = (next: Game): Game => {
     const turn = (next.turn + 1) % ORDER.length;
     const round = turn === 0 ? next.round + 1 : next.round;
@@ -84,7 +84,7 @@ export function CloudTiles({ me, luna, hieu, drink, lang, onFinish }: Props) {
     if (g.round > ROUNDS && !finale) window.setTimeout(() => onFinish(g.clouds), 600);
   }, [g.round, g.clouds, finale, onFinish]);
 
-  // 타일 놓기(모든 플레이어 공통)
+  // Place a tile (shared by all players)
   const place = (who: Who, tile: Tile, slot: number) => {
     const cur = gRef.current;
     const filled = [...cur.filled];
@@ -101,7 +101,7 @@ export function CloudTiles({ me, luna, hieu, drink, lang, onFinish }: Props) {
       setG(advance({ ...cur, filled, hands, passStreak: 0 }));
       return;
     }
-    // 구름 완성: 잠깐 보여 준 뒤 새 패턴(같은 패턴 연속 금지)
+    // Cloud complete: show it briefly, then a new pattern (no repeating the same pattern back to back)
     const clouds = cur.clouds + 1;
     setG({ ...cur, filled, hands, clouds, passStreak: 0 });
     setBusy(true);
@@ -122,7 +122,7 @@ export function CloudTiles({ me, luna, hieu, drink, lang, onFinish }: Props) {
     }, 1500);
   };
 
-  // Pass: 1장 뽑기. 셋 모두 연속 Pass면 패턴 교체(턴 소모 없음)
+  // Pass: draw 1. If all three pass in a row, swap the pattern (doesn't use a turn)
   const pass = (who: Who) => {
     const cur = gRef.current;
     const deck = [...cur.deck];
@@ -131,7 +131,7 @@ export function CloudTiles({ me, luna, hieu, drink, lang, onFinish }: Props) {
     const passStreak = cur.passStreak + 1;
     if (who !== 'you') talk(who, say('pass', lang));
     if (passStreak >= ORDER.length) {
-      // 놓였던 타일은 더미 맨 아래로
+      // Placed tiles go to the bottom of the pile
       const back = cur.filled.filter((t): t is Tile => !!t);
       const pattern = nextPattern(cur.pattern.id);
       talk('hieu', say('swap', lang));
@@ -141,7 +141,7 @@ export function CloudTiles({ me, luna, hieu, drink, lang, onFinish }: Props) {
     setG(advance({ ...cur, deck, hands, passStreak }));
   };
 
-  // NPC 차례: 0.8~1.4초 생각 후 둔다
+  // NPC turn: think for 0.8–1.4 s, then play
   useEffect(() => {
     if (current === 'you' || busy || finale || g.round > ROUNDS) return;
     setThinking(current);
@@ -157,7 +157,7 @@ export function CloudTiles({ me, luna, hieu, drink, lang, onFinish }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [g.turn, g.round, busy, finale]);
 
-  // 내 차례가 오면 가끔 격려 한마디
+  // Occasionally a word of encouragement when it's my turn
   useEffect(() => {
     if (current !== 'you' || busy) return;
     setReaction((r) => (r === 'waiting' ? 'idle' : r));
@@ -165,7 +165,7 @@ export function CloudTiles({ me, luna, hieu, drink, lang, onFinish }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [g.turn]);
 
-  // 내 타일을 슬롯에: 맞으면 놓고, 아니면 손패로 부드럽게 돌아감
+  // My tile onto a slot: place it if it fits, otherwise it glides back to the hand
   const tryPlace = (tile: Tile, slot: number | null) => {
     setSelected(null);
     if (slot !== null && canPlace(g.pattern, g.filled, slot, tile)) {
@@ -187,7 +187,7 @@ export function CloudTiles({ me, luna, hieu, drink, lang, onFinish }: Props) {
     try {
       (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     } catch {
-      /* 캡처를 못 해도 드래그는 컨테이너에서 계속 받는다 */
+      /* Even without pointer capture, the container keeps receiving the drag */
     }
     setDrag({ tile, x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, moved: false });
   };
@@ -201,7 +201,7 @@ export function CloudTiles({ me, luna, hieu, drink, lang, onFinish }: Props) {
     const d = drag;
     setDrag(null);
     if (d.moved) tryPlace(d.tile, slotAt(e.clientX, e.clientY));
-    else setSelected((s) => (s === d.tile.id ? null : d.tile.id)); // 탭: 선택 → 슬롯 탭
+    else setSelected((s) => (s === d.tile.id ? null : d.tile.id)); // Tap: select → tap a slot
   };
 
   const active = drag?.tile ?? g.hands.you.find((t) => t.id === selected) ?? null;
@@ -239,7 +239,7 @@ export function CloudTiles({ me, luna, hieu, drink, lang, onFinish }: Props) {
         <Seat who="hieu" c={hieu} />
       </div>
 
-      {/* 테이블 위 패턴 카드 + 슬롯 */}
+      {/* Pattern card + slots on the table */}
       <div className={styles.tableTop} style={{ backgroundImage: `url(${base}assets/cafe/table-top.jpg)` }}>
         <AnimatePresence mode="popLayout">
           <motion.div key={`${g.pattern.id}-${g.clouds}`} className={styles.patternCard} initial={{ rotateY: 90, opacity: 0 }} animate={{ rotateY: 0, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} transition={{ duration: 0.45, ease: 'easeOut' }}>
@@ -290,7 +290,7 @@ export function CloudTiles({ me, luna, hieu, drink, lang, onFinish }: Props) {
         )}
       </div>
 
-      {/* 진행도 */}
+      {/* Progress */}
       <div className={styles.progress}>
         <div className={styles.cloudsRow} aria-label={`${g.clouds} of ${GOAL} clouds`}>
           {Array.from({ length: GOAL }, (_, i) => (
@@ -308,7 +308,7 @@ export function CloudTiles({ me, luna, hieu, drink, lang, onFinish }: Props) {
         </span>
       </div>
 
-      {/* 내 타일 */}
+      {/* My tiles */}
       <div className={styles.handArea}>
         <div className={styles.handHead}>
           <span>{lang === 'ko' ? '내 타일' : 'YOUR TILES'}</span>
@@ -338,7 +338,7 @@ export function CloudTiles({ me, luna, hieu, drink, lang, onFinish }: Props) {
         </div>
       </div>
 
-      {/* Cloudee(나) 리액션 + 말풍선 */}
+      {/* Cloudee (me) reaction + speech bubble */}
       <div className={styles.me}>
         <AnimatePresence mode="popLayout">
           <motion.img key={reaction} src={A(`reaction-${reaction}.png`)} alt={`Cloudee ${reaction}`} initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1, y: reaction === 'celebrate' ? [0, -14, 0] : 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }} />
@@ -353,12 +353,12 @@ export function CloudTiles({ me, luna, hieu, drink, lang, onFinish }: Props) {
       </div>
       <span className={styles.meName}>{me.name}</span>
 
-      {/* 끌고 있는 타일 */}
+      {/* Tile being dragged */}
       {drag?.moved && rect && (
         <img className={styles.dragGhost} src={tileImg(drag.tile)} alt="" style={{ left: drag.x - rect.left, top: drag.y - rect.top }} />
       )}
 
-      {/* 3/3 완성 배너 + 별 */}
+      {/* 3/3 complete banner + stars */}
       <AnimatePresence>
         {finale && (
           <motion.div className={styles.finale} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>

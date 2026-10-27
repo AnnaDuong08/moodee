@@ -1,18 +1,18 @@
-// 월드 채팅(마인크래프트식): 화면 왼쪽 아래에 "<이름> 말" 줄이 쌓였다가 잠시 뒤 흐려진다
-// 다른 Cloudee들은 실제 사람처럼 가끔 말을 걸고, 내가 말하면 누군가 대답한다(서버 없는 로컬 데모)
+// World chat (Minecraft-style): "<name> message" lines stack at the bottom left of the screen and fade after a while
+// Other Cloudees occasionally talk like real people, and when I speak someone answers (local demo without a server)
 import { useEffect, useRef, useState } from 'react';
 import styles from './WorldChat.module.css';
 
 export interface Chatter {
-  place: string; // 예: "the café"
-  speakers: { id?: string; name: string }[]; // id가 있으면 그 NPC 머리 위에 말풍선도 뜬다
-  lines: string[]; // 혼잣말·잡담
-  replies: string[]; // 내 말에 대한 대답
+  place: string; // e.g. "the café"
+  speakers: { id?: string; name: string }[]; // If there's an id, a speech bubble also appears above that NPC's head
+  lines: string[]; // Talking to themselves / small talk
+  replies: string[]; // Replies to what I say
 }
 
 interface Line {
   key: number;
-  who?: string; // 없으면 시스템 메시지(입장 등)
+  who?: string; // If absent, it's a system message (joined, etc.)
   text: string;
   at: number;
 }
@@ -44,7 +44,7 @@ export function WorldChat({ chatter, paused, onSay }: Props) {
   const pushRef = useRef(push);
   pushRef.current = push;
 
-  // 다른 Cloudee들의 말: 6~15초마다 누군가 한마디(같은 말이 연달아 나오지 않게)
+  // Other Cloudees' lines: someone says something every 6–15 s (never the same line twice in a row)
   useEffect(() => {
     if (!chatter.speakers.length) return;
     let timer = 0;
@@ -60,7 +60,7 @@ export function WorldChat({ chatter, paused, onSay }: Props) {
         next();
       }, 6000 + Math.random() * 9000);
     };
-    // 들어오자마자 한 명이 먼저 인사
+    // Someone says hello right after you enter
     const hello = window.setTimeout(() => {
       const s = pick(chatter.speakers);
       pushRef.current(s.name, pick(['hi!', 'oh hey :)', 'welcome~', 'hello hello']), s.id);
@@ -72,13 +72,13 @@ export function WorldChat({ chatter, paused, onSay }: Props) {
     };
   }, [chatter]);
 
-  // 오래된 줄이 흐려지도록 1초마다 다시 그림
+  // Re-render every second so old lines fade
   useEffect(() => {
     const id = window.setInterval(() => setNow((n) => n + 1), 1000);
     return () => clearInterval(id);
   }, []);
 
-  // T 또는 Enter로 채팅 열기(글을 쓰는 중이 아닐 때)
+  // Open chat with T or Enter (when not typing)
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (pausedRef.current || (e.target instanceof HTMLElement && /INPUT|TEXTAREA/.test(e.target.tagName))) return;
@@ -100,7 +100,7 @@ export function WorldChat({ chatter, paused, onSay }: Props) {
     setOpen(false);
     if (!text) return;
     push('You', text);
-    // 누군가 조금 있다가 대답한다(가끔은 두 명)
+    // Someone replies after a moment (sometimes two people)
     if (!chatter.speakers.length) return;
     const first = pick(chatter.speakers);
     window.setTimeout(() => pushRef.current(first.name, pick(chatter.replies), first.id), 1200 + Math.random() * 1500);

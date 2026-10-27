@@ -1,4 +1,4 @@
-// Word Relay(끝말잇기 / Last-letter chain): Luna → YOU → Hieu 순서로 이어 간다. 90초 뒤 끝, 승패 없음
+// Word Relay (끝말잇기 / Last-letter chain): goes Luna → YOU → Hieu. Ends after 90 s, no winners or losers
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { candidates, isValidNext, lastChar, pickRandom, WORDS, type RelayLang } from './wordPool';
@@ -13,7 +13,7 @@ const SECONDS = 90;
 interface Link {
   who: Who;
   word: string;
-  fresh?: boolean; // 새로 시작한 단어
+  fresh?: boolean; // Word that started fresh
 }
 
 export function WordRelay({ lang, onFinish }: { lang: RelayLang; onFinish: (words: number) => void }) {
@@ -31,7 +31,7 @@ export function WordRelay({ lang, onFinish }: { lang: RelayLang; onFinish: (word
   const prev = chain.length ? chain[chain.length - 1].word : null;
   const used = chain.map((c) => c.word);
 
-  // 부드러운 타이머(빨간 경고 없음)
+  // Gentle timer (no red warnings)
   useEffect(() => {
     if (done) {
       const id = window.setTimeout(() => onFinish(chainRef.current.length), 900);
@@ -50,7 +50,7 @@ export function WordRelay({ lang, onFinish }: { lang: RelayLang; onFinish: (word
     setTurn((t) => t + 1);
   };
 
-  // NPC 차례: 이어갈 단어가 없으면 "새로 시작!"
+  // NPC turn: if there's no word to continue with, "Start fresh!"
   useEffect(() => {
     if (done || who === 'you') return;
     const id = window.setTimeout(
@@ -72,7 +72,7 @@ export function WordRelay({ lang, onFinish }: { lang: RelayLang; onFinish: (word
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [turn, done]);
 
-  // 내 차례: 맞는 후보 3개
+  // My turn: 3 matching candidates
   useEffect(() => {
     if (who !== 'you') return;
     const opts = candidates(lang, prev, used);

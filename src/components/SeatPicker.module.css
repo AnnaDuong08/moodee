@@ -27,7 +27,7 @@
   pointer-events: none;
 }
 
-/* 앉을 수 있는 의자 표시: 금빛 테두리 링이 숨쉬듯 반짝 */
+/* Available-seat marker: a golden ring that sparkles like breathing */
 .seat {
   position: absolute;
   width: 84px;
@@ -41,7 +41,7 @@
   height: 100%;
   border-radius: 50%;
   border: 3px solid rgba(255, 236, 190, 0.95);
-  /* 가운데는 비워 의자 색을 살리고 테두리만 빛나게 */
+  /* Leave the center empty to keep the chair color and only light up the ring */
   background: radial-gradient(closest-side, rgba(242, 196, 107, 0) 62%, rgba(242, 196, 107, 0.4));
   box-shadow: 0 0 12px rgba(242, 196, 107, 0.75);
   animation: glow 2.2s ease-in-out infinite;
@@ -63,7 +63,7 @@
     scale: 1;
   }
 }
-/* 가까이 간 자리 번호: 캐릭터 발 아래쪽에 표시(캐릭터에 가리지 않게) */
+/* Number of the nearby seat: shown below the character's feet (so the character doesn't cover it) */
 .tag {
   position: absolute;
   top: 100%;
@@ -99,7 +99,7 @@
   }
 }
 
-/* 캐릭터: 발 위치(시트 컷의 78% 지점)를 좌표에 맞춤 */
+/* Character: align the foot position (78% of the sheet frame) to the coordinates */
 .me {
   position: absolute;
   aspect-ratio: 400 / 1086;
@@ -124,7 +124,7 @@
 .idle {
   animation: breathe 3s ease-in-out infinite;
 }
-/* 걷기: 콩콩 튀며 좌우로 뒤뚱 */
+/* Walking: hop and waddle side to side */
 .walking {
   animation: waddle 0.48s ease-in-out infinite alternate;
 }
@@ -191,7 +191,7 @@
   color: var(--charcoal);
 }
 
-/* 이미 앉아 있는 친구 */
+/* Friend already seated */
 .mate {
   position: absolute;
   aspect-ratio: 400 / 1086;

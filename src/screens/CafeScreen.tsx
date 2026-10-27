@@ -1,5 +1,5 @@
 // Café — Social / Connect
-// 탑뷰에서 걸어 다니다가 카운터에서 음료를 만들고(컵에 차오름), 빈 의자에 앉으면 테이블 위에 그 음료가 놓인다
+// Walk around the top view, make a drink at the counter (it fills the cup), and when you sit in an empty chair the drink is placed on the table
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMemo, useState } from 'react';
 import { CharacterSprite } from '../components/CharacterSprite';
@@ -19,7 +19,7 @@ import styles from './CafeScreen.module.css';
 
 const base = import.meta.env.BASE_URL;
 
-// 좌표는 카페 탑뷰 이미지(941×1672) 픽셀 기준
+// Coordinates are pixels of the café top-view image (941×1672)
 const CAFE: WorldConfig = {
   id: 'cafe',
   src: `${base}assets/places/cafe-topdown.jpg`,
@@ -27,7 +27,7 @@ const CAFE: WorldConfig = {
   width: 941,
   height: 1672,
   bounds: [95, 440, 850, 1390],
-  // 테이블 상판(의자는 지나갈 수 있음)
+  // Table tops (chairs can be walked through)
   blockers: [
     [205, 455, 345, 550], [185, 675, 340, 780], [160, 945, 315, 1060],
     [645, 465, 770, 580], [660, 690, 795, 810], [665, 950, 810, 1080],
@@ -49,14 +49,14 @@ const ZONES: Zone[] = [
   { id: 's6', kind: 'seat', x: 650, y: 1012, label: 'Sit here' },
 ];
 
-// 분위기용 손님(친구와는 구분): 둘이 마주 앉은 테이블, 혼자 앉은 테이블
+// Ambient customers (distinct from friends): a table of two facing each other, a table with one person
 const AMBIENT = [
   { id: 'a1', name: 'Mina', at: { x: 628, y: 528 }, pose: 'sideAlt' as const },
   { id: 'a2', name: 'Jun', at: { x: 792, y: 520 }, pose: 'side' as const },
   { id: 'a3', name: 'Theo', at: { x: 132, y: 1040 }, pose: 'sideAlt' as const },
 ];
 
-// 카페 잡담(무작위). 실제 사람이 있는 것처럼 가볍고 짧게
+// Café small talk (random). Light and short, as if real people were there
 const CAFE_LINES = [
   'this latte is so good', 'anyone tried the matcha?', 'the croissants just came out!!', 'brb getting a refill', 'it smells amazing in here',
   'finally done with my essay', 'who wants to share a table?', 'the sunlight by the window is perfect', 'lol same', 'strawberry milk > everything',
@@ -80,8 +80,8 @@ export function CafeScreen({ characterId, onBack, onChangeFriends, onSoundSettin
   const [drink, setDrink] = useState<CafeDrink | null>(() => loadValue<CafeDrink | null>('cafeDrink', null));
   const [friendsOpen, setFriendsOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
-  const [playing, setPlaying] = useState(false); // 보드카페 게임
-  const [quiet, setQuiet] = useState(false); // 조용히 머물기: 버튼을 숨기고 장면만
+  const [playing, setPlaying] = useState(false); // Board Café games
+  const [quiet, setQuiet] = useState(false); // Stay quietly: hide the buttons, scene only
 
   const friends = useMemo(() => getCompanions(character.id).filter((c) => c.space === 'cafe'), [character.id]);
   const npcs = useMemo<WorldNpc[]>(() => {
@@ -97,7 +97,7 @@ export function CafeScreen({ characterId, onBack, onChangeFriends, onSoundSettin
     [friends],
   );
 
-  // 보드게임 친구(Luna·Hieu): 내 모습과 겹치지 않게
+  // Board game friends (Luna, Hieu): not overlapping my look
   const boardLooks = PLAYABLE.filter((c) => c.id !== character.id);
 
   const say = (t: string) => {
@@ -112,12 +112,12 @@ export function CafeScreen({ characterId, onBack, onChangeFriends, onSoundSettin
     say('Carrying your drink — find a seat');
   };
 
-  // 테이블 맞은편: 카페에 있는 친구가 있으면 그 친구, 없으면 다른 손님
+  // Across the table: a friend in the café if there is one, otherwise another customer
   const across = friends[0]?.character ?? npcs[0].character;
 
   return (
     <motion.main className={`screen ${hud.space}`} {...screenMotion}>
-      {/* 월드: 활동 화면으로 갈 때 카운터/자리 쪽으로 다가가듯 확대되며 흐려진다 */}
+      {/* World: when going to an activity screen, zoom in toward the counter/seat and blur */}
       <motion.div className={hud.layer} animate={mode === 'top' ? { scale: 1, opacity: 1 } : { scale: 1.35, opacity: 0 }} transition={{ duration: 0.7, ease: [0.45, 0, 0.2, 1] }}>
         <WorldScene
           config={CAFE}
@@ -180,7 +180,7 @@ export function CafeScreen({ characterId, onBack, onChangeFriends, onSoundSettin
         )}
       </AnimatePresence>
 
-      {/* 보드게임 중에는 카페 HUD를 숨긴다(게임 화면이 자체 상단 바를 가짐) */}
+      {/* Hide the café HUD during board games (the game screen has its own top bar) */}
       <header className={hud.top} hidden={playing}>
         <button type="button" className={hud.glassBtn} onClick={mode === 'top' ? onBack : () => setMode('top')} aria-label={mode === 'top' ? 'Leave the café' : 'Back to the café floor'}>
           <BackIcon />
@@ -207,11 +207,11 @@ export function CafeScreen({ characterId, onBack, onChangeFriends, onSoundSettin
   );
 }
 
-// ───────── 음료 만들기: 재료를 고르면 줄기가 떨어지고, 그 재료의 액체 텍스처가 컵 안에 한 층 쌓인다 ─────────
+// ───────── Drink making: picking an ingredient drops a pour stream and stacks a layer of that ingredient's liquid texture in the cup ─────────
 function DrinkMaker({ initial, onCarry }: { initial: CafeDrink | null; onCarry: (d: CafeDrink) => void }) {
   const [steps, setSteps] = useState<string[]>(() => (initial ? drinkLayers(initial) : []));
   const [pouring, setPouring] = useState<string | null>(null);
-  const [glow, setGlow] = useState(0); // 완성 순간 컵이 반짝
+  const [glow, setGlow] = useState(0); // The cup sparkles the moment it's finished
   const level = levelOf(steps);
   const full = level >= MAX_LEVEL - 0.05;
   const ready = level >= 0.5 && !pouring;
@@ -230,7 +230,7 @@ function DrinkMaker({ initial, onCarry }: { initial: CafeDrink | null; onCarry: 
 
   return (
     <motion.section className={hud.activity} aria-label="Make a drink" initial={{ opacity: 0, scale: 1.15 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }}>
-      {/* 카운터 사진과 같은 비율의 무대: 컵을 나무 받침 위에 정확히 올린다 */}
+      {/* Stage at the same ratio as the counter photo: places the cup exactly on the wooden coaster */}
       <div className={styles.counter}>
         <img src={`${base}assets/cafe/counter-closeup.jpg`} alt="Café counter" draggable={false} />
         <motion.div className={styles.cupBox} animate={pouring ? { scaleY: [1, 0.97, 1.015, 1], scaleX: [1, 1.015, 0.99, 1] } : { scaleY: 1, scaleX: 1 }} transition={{ duration: 0.9, delay: 0.3 }}>
@@ -250,7 +250,7 @@ function DrinkMaker({ initial, onCarry }: { initial: CafeDrink | null; onCarry: 
             return (
               <li key={i.id}>
                 <button type="button" onClick={() => add(i.id)} disabled={(!!pouring && !active) || full} aria-label={`Add ${i.name}`} className={active ? styles.trayOn : ''}>
-                  {/* 고른 재료는 컵 쪽으로 기울어졌다 돌아온다 */}
+                  {/* The chosen ingredient tilts toward the cup and back */}
                   <motion.img src={i.img} alt="" draggable={false} animate={active ? { y: [0, -16, -16, 0], rotate: [0, -24, -24, 0], scale: [1, 1.12, 1.12, 1] } : { y: 0, rotate: 0, scale: 1 }} transition={{ duration: 1.3, times: [0, 0.2, 0.75, 1] }} />
                   {count > 0 && <b>{count}</b>}
                 </button>

@@ -1,5 +1,5 @@
-// 화면 흐름: (첫 실행) Character Select → Home(장소 휠) → Classroom 집중 루틴 / 다른 공간 둘러보기
-// 홈에서 Records(주제별 시간)와 Membership(코인·보상)으로 갈 수 있다
+// Screen flow: (first launch) Character Select → Home (place wheel) → Classroom focus routine / browse other spaces
+// From Home you can go to Records (time per topic) and Membership (coins & rewards)
 import { AnimatePresence, MotionConfig } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { LoadingSplash, pickSplash } from './components/LoadingSplash';
@@ -41,9 +41,9 @@ export function App() {
   const [soundSettingsOpen, setSoundSettingsOpen] = useState(false);
   useEffect(() => setSoundSettingsOpen(false), [screen]);
   const openSoundSettings = () => setSoundSettingsOpen(true);
-  // 앱을 열면 인트로 → 친구 수 → 캐릭터 고르기 순서로 한 번 지나간다
+  // Opening the app goes through intro → number of friends → character select once
   const [onboarding, setOnboarding] = useState(true);
-  // Membership에서 뒤로 갈 곳(홈 또는 둘러보던 공간)
+  // Where to go back to from Membership (Home or the space being browsed)
   const [membershipFrom, setMembershipFrom] = useState<Screen>('home');
   const [classroomSuggestion, setClassroomSuggestion] = useState<{ text: string; eventId?: string; date?: string }>({ text: '' });
   const [calendarMessage, setCalendarMessage] = useState('');
@@ -78,7 +78,7 @@ export function App() {
     });
   }, []);
 
-  // 로딩 화면: 앱을 열 때와 장소로 이동할 때(그림은 매번 무작위 한 장)
+  // Loading screen: on app open and when moving to a place (a random picture each time)
   const [splash, setSplash] = useState<{ image: string; label: string } | null>(null);
   const timers = useRef<number[]>([]);
   const showSplash = (label: string, then?: () => void) => {
@@ -114,7 +114,7 @@ export function App() {
   return (
     <MotionConfig reducedMotion="user">
       <div className="phone">
-        {/* 이전 화면이 사라지는 동안 새 화면이 겹쳐 떠오르는 크로스페이드(빈 화면 없음) */}
+        {/* Crossfade where the new screen fades in over the old one as it leaves (no blank screen) */}
         <AnimatePresence initial={false}>
           {screen === 'home' && (
             <HomeScreen

@@ -1,5 +1,5 @@
 .glass {
-  --tile: 340px; /* 거울 반복 타일 한 장의 크기: 이 주기로 흘러도 이음매가 없다 */
+  --tile: 340px; /* Size of one mirror-repeated tile: flowing at this period shows no seams */
   position: relative;
   aspect-ratio: 1036 / 1519;
   isolation: isolate;
@@ -17,7 +17,7 @@
   opacity: 0.42;
 }
 
-/* 컵 안쪽(위가 넓은 사다리꼴)만 보이게 자르는 마스크 */
+/* Mask that shows only the inside of the cup (a trapezoid wider at the top) */
 .inside {
   position: absolute;
   inset: 6% 0 17.5% 0;
@@ -38,7 +38,7 @@
   background-size: var(--tile) var(--tile);
   background-repeat: repeat;
 }
-/* 텍스처가 천천히 흐른다(층마다 방향·속도가 달라 섞여 보임) */
+/* The texture flows slowly (each layer has a different direction/speed so they look mixed) */
 .flowA {
   animation: flowA 16s linear infinite;
 }
@@ -55,7 +55,7 @@
     background-position: calc(var(--tile) * -1) var(--tile);
   }
 }
-/* 층 위쪽 경계: 액체 표면의 밝은 선 */
+/* Top edge of a layer: bright line on the liquid surface */
 .edge {
   position: absolute;
   left: 0;
@@ -129,7 +129,7 @@
   }
 }
 
-/* 위에서 컵 안으로 떨어지는 줄기 */
+/* Pour stream falling into the cup from above */
 .stream {
   position: absolute;
   left: 42.5%;
@@ -180,7 +180,7 @@
   border-radius: 50%;
 }
 
-/* 작은 컵(들고 다니기)은 움직임을 줄인다 */
+/* Reduce motion on the small (carried) cup */
 .still .flowA,
 .still .flowB,
 .still .surface i {

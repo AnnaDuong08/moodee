@@ -1,5 +1,5 @@
-// 교실 사운드스케이프: Web Audio API로 모든 소리를 실시간 합성
-// 구조: [각 소리 소스] → 채널 GainNode(개별 볼륨) → master GainNode(전체 볼륨) → 출력
+// Classroom soundscape: all sounds synthesized in real time with the Web Audio API
+// Structure: [each sound source] → channel GainNode (per-sound volume) → master GainNode (overall volume) → output
 import { load, save } from '../lib/storage';
 
 export type SoundId = 'clock' | 'pencil' | 'breeze' | 'hum';
@@ -8,7 +8,7 @@ export interface SoundMeta {
   id: SoundId;
   label: string;
   hint: string;
-  trim: number; // 소리별 기본 음량 보정
+  trim: number; // Per-sound default volume correction
 }
 
 export const SOUNDS: SoundMeta[] = [
@@ -28,7 +28,7 @@ export interface AudioSettings {
   sounds: Record<SoundId, ChannelSetting>;
 }
 
-// 소리는 사람마다 반대로 작용할 수 있어(근거 지도 자료 4) 기본은 모두 꺼 두고 사용자가 고른다
+// Sounds can have opposite effects on different people (evidence map, source 4), so everything starts off and the user chooses
 const DEFAULTS: AudioSettings = {
   master: 0.8,
   sounds: {
@@ -59,7 +59,7 @@ class Soundscape {
 
   settings: AudioSettings = (() => {
     const s = load<AudioSettings>('audio', DEFAULTS);
-    // 저장값 일부가 빠져 있어도 기본값으로 보완
+    // Fill in defaults if some saved values are missing
     return { master: s.master, sounds: { ...DEFAULTS.sounds, ...s.sounds } };
   })();
 
@@ -73,7 +73,7 @@ class Soundscape {
     this.listeners.forEach((fn) => fn(this.settings));
   }
 
-  // 반드시 사용자 제스처(탭) 안에서 호출해야 오디오가 열린다
+  // Must be called inside a user gesture (tap) for audio to start
   async start() {
     if (!this.ctx) this.build();
     const ctx = this.ctx!;
@@ -110,7 +110,7 @@ class Soundscape {
     this.emit();
   }
 
-  // 세션 완료 알림음(부드러운 3화음 아르페지오)
+  // Session-complete chime (soft three-note arpeggio)
   chime() {
     if (!this.ctx || !this.master) return;
     const ctx = this.ctx;
@@ -129,7 +129,7 @@ class Soundscape {
     });
   }
 
-  // ───────── 내부: 그래프 구성 ─────────
+  // ───────── Internal: graph setup ─────────
 
   private build() {
     const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
@@ -181,7 +181,7 @@ class Soundscape {
         last = (last + 0.02 * w) / 1.02;
         d[i] = last * 3.5;
       } else {
-        // 간이 핑크 노이즈 필터
+        // Simple pink-noise filter
         b0 = 0.99765 * b0 + w * 0.099046;
         b1 = 0.963 * b1 + w * 0.2965164;
         b2 = 0.57 * b2 + w * 1.0526913;
@@ -200,7 +200,7 @@ class Soundscape {
     return src;
   }
 
-  // 창밖 바람: 핑크 노이즈 + 느린 LFO로 세기가 오르내림
+  // Wind outside the window: pink noise + slow LFO so the strength rises and falls
   private buildBreeze() {
     const ctx = this.ctx!;
     const src = this.loopSource(this.makeNoise('pink', 4));
@@ -219,7 +219,7 @@ class Soundscape {
     src.connect(lp).connect(swell).connect(this.channels.breeze);
   }
 
-  // 교실 룸톤: 낮은 브라운 노이즈(공조) + 아주 작은 형광등 험
+  // Classroom room tone: low brown noise (HVAC) + a very faint fluorescent-light hum
   private buildHum() {
     const ctx = this.ctx!;
     const src = this.loopSource(this.makeNoise('brown', 4));
@@ -238,7 +238,7 @@ class Soundscape {
     }
   }
 
-  // ───────── 내부: 이벤트형 소리 스케줄러 ─────────
+  // ───────── Internal: event-based sound scheduler ─────────
 
   private schedule() {
     const ctx = this.ctx!;
@@ -279,7 +279,7 @@ class Soundscape {
     return f;
   }
 
-  // 시계 초침: 짧은 딸깍 + 나무 울림, 틱/톡 음높이 교대
+  // Clock second hand: short click + wooden resonance, alternating tick/tock pitch
   private tick(t: number, isTick: boolean) {
     const ctx = this.ctx!;
     const g = this.burst(t, 0.06, this.channels.clock, [this.filter('bandpass', isTick ? 3400 : 2700, 5)]);
@@ -296,7 +296,7 @@ class Soundscape {
     o.stop(t + 0.04);
   }
 
-  // 연필 필기: 불규칙한 사각거림 여러 획을 한 묶음으로, 묶음 끝 시각 반환
+  // Pencil writing: several irregular scratchy strokes as one bunch; returns the time the bunch ends
   private pencilGroup(t: number) {
     let at = t;
     const strokes = Math.floor(rand(2, 7));
@@ -307,7 +307,7 @@ class Soundscape {
         this.filter('bandpass', rand(3600, 5200), 0.9),
       ]);
       g.gain.setValueAtTime(0, at);
-      // 획 안에서 진폭을 잘게 흔들어 종이 긁히는 질감
+      // Finely jitter amplitude within a stroke for a paper-scratching texture
       for (let s = 0; s < dur; s += 0.025) g.gain.linearRampToValueAtTime(rand(0.25, 1), at + s);
       g.gain.linearRampToValueAtTime(0, at + dur);
       at += dur + rand(0.04, 0.22);
@@ -315,7 +315,7 @@ class Soundscape {
     return at;
   }
 
-  // 새소리: 짧게 위로 휘는 사인 음 2~5개
+  // Birdsong: 2–5 short upward-bending sine notes
   private birdCall(t: number) {
     const ctx = this.ctx!;
     const notes = Math.floor(rand(2, 6));
@@ -339,5 +339,5 @@ class Soundscape {
   }
 }
 
-// 앱 전체에서 하나의 오디오 엔진만 사용
+// A single audio engine for the whole app
 export const soundscape = new Soundscape();

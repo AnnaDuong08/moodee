@@ -1,5 +1,5 @@
-// 지갑·보관함 스토어: 코인, 플랜, 잠금 해제한 Cloudee·파츠·오브젝트, 방 배치
-// 화면 어디서든 useWallet()으로 구독하면 코인이 바뀔 때 바로 다시 그려진다(localStorage 저장)
+// Wallet & inventory store: coins, plan, unlocked Cloudees/parts/objects, room layout
+// Any screen that subscribes via useWallet() re-renders as soon as coins change (saved to localStorage)
 import { useSyncExternalStore } from 'react';
 import { CLOUDEE_PRICE, DEMO_TOPUP, MONTHLY_REWARDS, OBJECTS, ROOM_LOOKS, STAMP_REWARDS, WARDROBE } from '../config/economy';
 import type { Character, CharacterId } from '../data/characters';
@@ -10,23 +10,23 @@ export type Plan = 'free' | 'pro';
 export interface Wallet {
   coins: number;
   plan: Plan;
-  lastDaily: string | null; // (이전 버전) 마지막으로 하루 코인을 받은 날
-  stampCount: number; // 이번 7일 도장판에서 찍은 도장 수
-  stampReady: string | null; // 도장을 받을 수 있게 된 날(그날 첫 세션을 끝냄)
-  lastStamp: string | null; // 마지막으로 도장을 받은 날
-  cloudees: CharacterId[]; // 쓸 수 있는 캐릭터
-  parts: string[]; // 잠금 해제한 옷장 파츠
-  wearing: Record<string, string>; // 탭별로 고른 파츠
-  objects: string[]; // 가진 방 오브젝트
-  room: Record<string, string>; // 슬롯 → 오브젝트
-  rewards: string[]; // 받은 월간 보상
-  drinks: number; // 카페에서 주문한 잔 수
-  roomLooks: string[]; // 가진 방 스타일
-  roomLook: string; // 지금 방 스타일
+  lastDaily: string | null; // (Previous version) last day daily coins were received
+  stampCount: number; // Number of stamps on the current 7-day stamp card
+  stampReady: string | null; // Day the stamp became claimable (finished that day's first session)
+  lastStamp: string | null; // Last day a stamp was claimed
+  cloudees: CharacterId[]; // Characters available to use
+  parts: string[]; // Unlocked wardrobe parts
+  wearing: Record<string, string>; // Selected part per tab
+  objects: string[]; // Owned room objects
+  room: Record<string, string>; // Slot → object
+  rewards: string[]; // Monthly rewards claimed
+  drinks: number; // Number of cups ordered at the café
+  roomLooks: string[]; // Owned room styles
+  roomLook: string; // Current room style
 }
 
 const KEY = 'wallet';
-// 처음부터 쓸 수 있는 Cloudee(기본 4명), 무료 오브젝트
+// Cloudees available from the start (the default 4), free objects
 const EMPTY: Wallet = {
   coins: 0,
   plan: 'free',
@@ -46,10 +46,10 @@ const EMPTY: Wallet = {
 };
 
 let state: Wallet = load<Wallet>(KEY, EMPTY);
-// 이전 버전에서 이미 고른 캐릭터는 그대로 쓸 수 있게 한다
+// Characters already chosen in a previous version stay usable
 const current = loadValue<CharacterId | null>('character', null);
 if (current && !state.cloudees.includes(current)) state = { ...state, cloudees: [...state.cloudees, current] };
-// 기본 캐릭터 4명은 누구나 고를 수 있다(잠금은 프리미엄 Cloudy뿐)
+// Anyone can choose the 4 default characters (only premium Cloudy is locked)
 state = { ...state, cloudees: [...new Set([...EMPTY.cloudees, ...state.cloudees])] };
 
 const listeners = new Set<() => void>();
@@ -77,14 +77,14 @@ const today = () => {
 
 export const earn = (n: number) => set({ coins: state.coins + n });
 
-// 코인이 모자라면 false
+// false if coins are short
 export function spend(n: number) {
   if (state.coins < n) return false;
   set({ coins: state.coins - n });
   return true;
 }
 
-// 오늘 첫 세션을 끝냈을 때: 오늘 도장을 "받기" 상태로 만든다(코인은 상점에서 도장을 찍을 때 받는다). 새로 켜졌으면 true
+// When today's first session is finished: make today's stamp "claimable" (coins are received when stamping in the shop). true if it was newly enabled
 export function markStampReady() {
   if (state.lastStamp === today() || state.stampReady === today()) return false;
   set({ stampReady: today(), stampCount: state.stampCount >= STAMP_REWARDS.free.length ? 0 : state.stampCount });
@@ -93,7 +93,7 @@ export function markStampReady() {
 export const stampedToday = (w: Wallet) => w.lastStamp === today();
 export const stampPending = (w: Wallet) => w.stampReady === today() && w.lastStamp !== today();
 
-// 상점에서 오늘 도장 받기. 받은 코인(없으면 0)
+// Claim today's stamp in the shop. Coins received (0 if none)
 export function claimStamp() {
   if (!stampPending(state)) return 0;
   const i = Math.min(state.stampCount, STAMP_REWARDS.free.length - 1);
@@ -105,7 +105,7 @@ export function claimStamp() {
 export const setPlan = (plan: Plan) => set({ plan });
 export const demoTopUp = () => earn(DEMO_TOPUP);
 
-// 이 Cloudee를 쓸 수 있는지: 프리미엄(Cloudy)은 Pro 플랜이면, 나머지는 해제한 목록에 있으면
+// Whether this Cloudee can be used: premium (Cloudy) on the Pro plan, others if in the unlocked list
 export const hasCloudee = (w: Wallet, c: Pick<Character, 'id' | 'premium'>) => (c.premium ? w.plan === 'pro' : w.cloudees.includes(c.id));
 
 export function unlockCloudee(id: CharacterId) {
@@ -141,7 +141,7 @@ export const placeInRoom = (slot: string, id: string | null) => {
   set({ room });
 };
 
-// 월간 보상 받기(Pro, 해당 일수 이상 공부했을 때)
+// Claim a monthly reward (Pro, after studying the required number of days)
 export function claimReward(id: string, studiedDays: number) {
   const r = MONTHLY_REWARDS.find((x) => x.id === id);
   if (!r || state.plan !== 'pro' || studiedDays < r.day || state.rewards.includes(id)) return false;

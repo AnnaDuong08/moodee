@@ -1,4 +1,4 @@
-// 친구 목록(보조 기능): 데모 친구가 지금 어느 공간에 있는지 + 초대(모의) + 인원수 바꾸기
+// Friends list (secondary feature): which space each demo friend is in now + invite (mock) + change head count
 import { useState } from 'react';
 import { CharacterSprite } from '../components/CharacterSprite';
 import { Sheet } from '../components/Sheet';

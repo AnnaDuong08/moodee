@@ -1,5 +1,5 @@
-// Museum 카메라: 현실의 순간 → 찰칵 → 사진 → 기억 아이콘 → 기억 오브젝트 → 이름·이야기 → 전시
-// Prototype transformation using prepared assets: 실제 AI 3D 생성이 아니라, 미리 만든 사진·오브젝트 에셋을 모션으로 이어 보여 준다
+// Museum camera: real moment → click → photo → memory icon → memory object → name & story → exhibit
+// Prototype transformation using prepared assets: not real AI 3D generation, but prepared photo and object assets chained together with motion
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { Sparkles } from '../components/Coin';
@@ -17,7 +17,7 @@ interface Scene {
   photo?: string;
   video?: string;
 }
-// 첫 장면은 제공된 데모 영상(휴대폰 카메라로 해커톤 배너를 비추는 화면 녹화)
+// The first shot is the provided demo video (screen recording of a phone camera pointed at the hackathon banner)
 const SCENES: Scene[] = [
   { id: 'demo-video', label: 'Hackathon banner · demo video', video: `${base}assets/museum/demo-capture.mp4`, object: 'hackathon-banner' },
   ...CAMERA_SCENES.filter((s) => s.id !== 'hackathon-banner'),
@@ -34,9 +34,9 @@ const STEP_LABEL: Partial<Record<Step, [string, string]>> = {
 export function MemoryCamera({ onClose, onSaved }: { onClose: () => void; onSaved: (m: Memory) => void }) {
   const [scene, setScene] = useState(SCENES[0]);
   const [step, setStep] = useState<Step>('connecting');
-  const [live, setLive] = useState<MediaStream | null>(null); // 실제 카메라(허용했을 때만)
+  const [live, setLive] = useState<MediaStream | null>(null); // Real camera (only when permitted)
   const [note, setNote] = useState<string | null>(null);
-  const [still, setStill] = useState<string | null>(null); // 찍힌 장면
+  const [still, setStill] = useState<string | null>(null); // Captured scene
   const [title, setTitle] = useState('');
   const [story, setStory] = useState('');
   const video = useRef<HTMLVideoElement>(null);
@@ -56,7 +56,7 @@ export function MemoryCamera({ onClose, onSaved }: { onClose: () => void; onSave
     if (video.current && live) video.current.srcObject = live;
   }, [live]);
 
-  // 실제 카메라는 사용자가 눌렀을 때만 시도하고, 실패해도 데모 영상으로 계속한다
+  // Only try the real camera when the user taps, and continue with the demo video if it fails
   const useMyCamera = async () => {
     if (live) {
       setLive(null);
@@ -78,7 +78,7 @@ export function MemoryCamera({ onClose, onSaved }: { onClose: () => void; onSave
   const shoot = () => {
     if (step !== 'aim') return;
     shutterSound();
-    // 영상·카메라는 그 순간을 멈춰 한 장으로 남긴다
+    // Video or camera: freeze that moment into a single frame
     const v = video.current;
     if (v && (live || scene.video)) {
       v.pause();
@@ -127,7 +127,7 @@ export function MemoryCamera({ onClose, onSaved }: { onClose: () => void; onSave
       </div>
 
       <div className={styles.viewfinder}>
-        {/* 카메라에 비치는 장면 */}
+        {/* Scene shown in the camera */}
         {aiming && (
           <>
             {showVideo ? (
@@ -142,7 +142,7 @@ export function MemoryCamera({ onClose, onSaved }: { onClose: () => void; onSave
           </>
         )}
 
-        {/* 변환: 사진 → 아이콘(실루엣) → 오브젝트 */}
+        {/* Transformation: photo → icon (silhouette) → object */}
         {!aiming && (
           <div className={styles.transform}>
             <AnimatePresence>

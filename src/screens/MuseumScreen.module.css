@@ -1,4 +1,4 @@
-/* 기억 전시대: 작은 받침 위에 오브젝트(좌표는 받침 윗면 가운데) */
+/* Memory pedestal: object on a small stand (coordinates are the center of the stand's top) */
 .stand {
   position: absolute;
   width: 68px;
@@ -58,7 +58,7 @@
   pointer-events: none;
 }
 
-/* 전시물 설명 카드 */
+/* Exhibit description card */
 .backdrop {
   position: absolute;
   inset: 0;

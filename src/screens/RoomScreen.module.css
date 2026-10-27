@@ -1,4 +1,4 @@
-/* 가구 위에 올려놓은 물건(좌표는 바닥 가운데) */
+/* Items placed on furniture (coordinates are the bottom center) */
 .placed {
   position: absolute;
   translate: -50% -100%;

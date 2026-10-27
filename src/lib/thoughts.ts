@@ -1,11 +1,11 @@
-// 생각 메모: 집중 중 "Park a thought"로 내려놓거나 Library에서 직접 적는다 → Library 선반에 쌓임
+// Thought notes: parked with "Park a thought" while focusing or written directly in the Library → stack up on the Library shelf
 import { loadValue, save } from './storage';
 
 export interface Thought {
   id: string;
   text: string;
   createdAt: string;
-  from?: string; // 예: "Classroom · Coding"
+  from?: string; // e.g. "Classroom · Coding"
   done?: boolean;
   updatedAt?: string;
 }

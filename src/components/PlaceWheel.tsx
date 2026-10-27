@@ -1,6 +1,6 @@
-// 장소 휠: 화면 아래의 큰 둥근 지형(휠) 위에 장소가 둘레를 따라 놓인다. 끌거나 탭하면 휠이 돌고 맨 위 장소가 선택됨
-// 선택된 장소는 휠 꼭대기에 크게 서 있고, 양옆 장소는 곡면을 따라 기울어지며 작고 흐리게 물러난다
-// 건물 발판은 휠 표면에 닿도록(살짝 묻히게) 맞추고, 캐릭터는 그 앞 표면에 발을 딛는다
+// Place wheel: places sit around the rim of a large round terrain (wheel) at the bottom of the screen. Drag or tap to spin; the top place is selected
+// The selected place stands large at the top of the wheel; neighbors tilt along the curve and recede smaller and fainter
+// Building bases are aligned to touch (slightly sink into) the wheel surface, and the character stands on the surface in front
 import { animate, useMotionValue, useMotionValueEvent } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import type { Character, Pose } from '../data/characters';
@@ -14,15 +14,15 @@ interface Props {
   character: Character;
   index: number;
   onIndexChange: (i: number) => void;
-  going: boolean; // 버튼을 누른 뒤 이동 연출 중
+  going: boolean; // Travel animation in progress after pressing the button
   onWalkingChange?: (walking: boolean) => void;
 }
 
-const STEP = 32; // 장소 사이 각도: 양옆 장소가 화면 가장자리에 걸치도록
+const STEP = 32; // Angle between places: so the neighbors straddle the screen edges
 const DRAG_DEG_PER_PX = 0.2;
-const BURY = 0.05; // 발판이 지형에 묻히는 깊이(아이콘 폭 대비)
+const BURY = 0.05; // How deep the base sinks into the terrain (relative to icon width)
 
-// 아이콘 이미지별 비율(높이/폭)과 발판 맨 아래의 세로 위치(이미지 높이 대비)
+// Per-icon image ratio (height/width) and vertical position of the base bottom (relative to image height)
 const ICON_BASE: Record<string, { aspect: number; base: number }> = {
   classroom: { aspect: 320 / 480, base: 0.94 },
   cafe: { aspect: 1, base: 0.83 },
@@ -39,7 +39,7 @@ export function PlaceWheel({ places, character, index, onIndexChange, going, onW
   const drag = useRef<{ id: number; x: number; start: number; moved: boolean } | null>(null);
   const idleTimer = useRef<number>(0);
 
-  // 휠이 도는 방향에 따라 캐릭터가 옆모습으로 걷는다
+  // The character walks in side view depending on the wheel's spin direction
   useMotionValueEvent(rot, 'change', (v) => {
     const vel = rot.getVelocity();
     setAngle(v);
@@ -61,7 +61,7 @@ export function PlaceWheel({ places, character, index, onIndexChange, going, onW
     onIndexChange(selectedFrom(target));
   };
 
-  // 가장 가까운 방향으로 i번 장소를 맨 위로
+  // Bring place i to the top via the shortest direction
   const goToIndex = (i: number) => {
     const cur = rot.get();
     const base = -i * STEP;
@@ -70,7 +70,7 @@ export function PlaceWheel({ places, character, index, onIndexChange, going, onW
     snapTo(base + k * cycle);
   };
 
-  // 출발: 제자리에서 한 바퀴 걸어가는 연출
+  // Departure: walk-in-place animation for one spin
   useEffect(() => {
     if (!going) return;
     const c = animate(rot, rot.get() - n * STEP, { duration: 1.9, ease: [0.45, 0, 0.25, 1] });
@@ -90,7 +90,7 @@ export function PlaceWheel({ places, character, index, onIndexChange, going, onW
   });
 
   const walking = pose !== 'front';
-  const c = -angle / STEP; // 지금 맨 위에 있는 (연속) 인덱스
+  const c = -angle / STEP; // The (continuous) index currently at the top
 
   return (
     <div
@@ -125,11 +125,11 @@ export function PlaceWheel({ places, character, index, onIndexChange, going, onW
 
       <ul className={styles.ring} role="listbox" aria-label="Places" aria-activedescendant={`place-${places[index].id}`}>
         {places.map((p, i) => {
-          // 맨 위(0°)로부터 몇 칸 떨어졌는지(감싸서 -n/2 ~ n/2)
+          // How many steps from the top (0°) (wrapped to -n/2 – n/2)
           const off = ((((i - c) % n) + n + n / 2) % n) - n / 2;
           const a = off * STEP;
-          const t = Math.min(1, Math.abs(off)); // 0 = 선택, 1 = 바로 옆
-          const far = Math.max(0, Math.abs(off) - 1); // 바로 옆보다 먼 장소는 휠 아래로 사라짐
+          const t = Math.min(1, Math.abs(off)); // 0 = selected, 1 = immediate neighbor
+          const far = Math.max(0, Math.abs(off) - 1); // Places farther than the immediate neighbors disappear below the wheel
           const g = ICON_BASE[p.id] ?? { aspect: 1, base: 0.85 };
           return (
             <li
@@ -166,7 +166,7 @@ export function PlaceWheel({ places, character, index, onIndexChange, going, onW
         })}
       </ul>
 
-      {/* 캐릭터: 맨 위 장소 앞, 휠 표면에 발을 딛고 선다 */}
+      {/* Character: stands with feet on the wheel surface in front of the top place */}
       <div className={styles.walker}>
         <span className={styles.shadow} />
         <div className={walking || going ? styles.walking : styles.idle}>

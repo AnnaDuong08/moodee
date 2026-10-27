@@ -1,4 +1,4 @@
-// 장소 아이콘: 이미지가 없으면 파스텔 원형 이니셜로 대체
+// Place icon: falls back to a pastel circle initial if there's no image
 import type { Place } from '../data/places';
 import { useImageOk } from '../lib/useImageOk';
 

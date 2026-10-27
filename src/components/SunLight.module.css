@@ -5,7 +5,7 @@
   pointer-events: none;
 }
 
-/* 창가 쪽 따뜻한 번짐 */
+/* Warm glow on the window side */
 .glow {
   position: absolute;
   left: -18%;
@@ -28,7 +28,7 @@
   mix-blend-mode: soft-light;
 }
 
-/* 창틀 사이로 떨어지는 빛줄기 */
+/* Light beams falling between the window frames */
 .beam {
   position: absolute;
   left: -10%;

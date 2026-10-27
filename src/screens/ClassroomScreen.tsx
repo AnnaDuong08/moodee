@@ -1,6 +1,6 @@
-// 클래스룸 집중 루틴(포스트잇 피드백 반영):
-// 자리 고르기 → 자리로 이동·앉기 → 소리 조절 → 시간 + "What are you studying?" → 집중 → 기록 저장
-// 같은 방 친구들이 무엇을 공부 중인지는 이름표와 People 시트로 보인다(채팅 없음)
+// Classroom focus routine (with sticky-note feedback applied):
+// pick a seat → walk to it and sit → adjust sound → time + "What are you studying?" → focus → save the record
+// What classmates are studying is shown via name tags and the People sheet (no chat)
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { soundscape, type SoundId } from '../audio/soundscape';
@@ -49,8 +49,8 @@ interface Done {
   streak: number;
   minutes: number;
   subject: string;
-  sessionCoins: number; // 집중 시간 보상(1시간 = 30코인)
-  stamp: boolean; // 오늘 첫 세션이라 출석 도장이 준비됨
+  sessionCoins: number; // Focus time reward (1 hour = 30 coins)
+  stamp: boolean; // Attendance stamp ready because it's today's first session
   step: 'reward' | 'checkin';
 }
 
@@ -71,25 +71,25 @@ export function ClassroomScreen({ characterId, initialSubject = '', initialEvent
   const [footerHeight, setFooterHeight] = useState(0);
   const openTutor = () => { setThoughtOpen(false); setMixerOpen(false); setPeopleOpen(false); setOverlayRevision(n=>n+1); setTutorOpen(true); };
 
-  // ── 세션 계획 ──
+  // ── Session plan ──
   const [minutes, setMinutes] = useState(() => loadValue('focusMinutes', 25));
   const [subject, setSubject] = useState(initialSubject);
   const [mode, setMode] = useState<FocusMode>('timer');
 
-  // ── 타이머 ──
+  // ── Timer ──
   const { session, clear } = focusTimer;
   const status = session?.status ?? 'running';
   const remaining = session?.remainingMs ?? minutes * 60_000;
   const takingBreak = session?.stage === 'break' || session?.stage === 'return';
   const [done, setDone] = useState<Done | null>(null);
-  // 생각 내려놓기(C6): 타이머는 멈추지 않는다
+  // Park a thought (C6): the timer keeps running
   const [thoughtOpen, setThoughtOpen] = useState(false);
   const [thought, setThought] = useState('');
   const [toast, setToast] = useState<string | null>(null);
   const thoughtRef = useRef<HTMLInputElement>(null);
   const thoughtBox = useRef<HTMLDivElement>(null);
 
-  // iOS 키보드: visualViewport로 보이는 영역을 재서 창이 키보드 위에 남도록(창이 열려 있을 때만)
+  // iOS keyboard: measure the visible area via visualViewport so the window stays above the keyboard (only while it's open)
   useEffect(() => {
     const vv = window.visualViewport;
     const el = thoughtBox.current;
@@ -122,7 +122,7 @@ export function ClassroomScreen({ characterId, initialSubject = '', initialEvent
     window.setTimeout(() => setToast(null), 2000);
   };
 
-  // 세션 저장: 실제로 집중한 분만 기록(중간에 끝내도 남김), 오늘 첫 세션이면 하루 코인 지급
+  // Save the session: record only minutes actually focused (kept even if ended early); grant daily coins on today's first session
   const finish = useCallback(
     (focusedMs: number) => {
       const mins = Math.max(1, Math.round(focusedMs / 60_000));
@@ -130,7 +130,7 @@ export function ClassroomScreen({ characterId, initialSubject = '', initialEvent
       const label = subject || 'Focus';
       const session = addSession({ subject: label, minutes: mins, seat: seat?.id ?? '' });
       soundscape.chime();
-      // 코인: 집중 시간 보상 + 오늘 첫 세션이면 하루 선물
+      // Coins: focus time reward + daily gift on today's first session
       const earned = sessionCoins(mins);
       if (earned) earn(earned);
       setDone({ sessionId: session.id, streak: completeSession().count, minutes: mins, subject: label, sessionCoins: earned, stamp: markStampReady(), step: 'reward' });
@@ -167,12 +167,12 @@ export function ClassroomScreen({ characterId, initialSubject = '', initialEvent
     if (session?.stage === 'break' || session?.stage === 'return') soundscape.chime();
   }, [session?.stage]);
 
-  // 화면을 떠나면 소리 정지
+  // Stop sounds when leaving the screen
   useEffect(() => () => soundscape.stop(), []);
   const sittingTimer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(sittingTimer.current), []);
 
-  // 앉는 탭(사용자 제스처) 안에서 오디오를 열어 두고, 카메라 이동이 끝나면 소리 설정을 띄움
+  // Open audio inside the sit tap (user gesture), and show sound settings once the camera move finishes
   const sit = (s: Seat) => {
     setSeat(s);
     setPhase('sitting');
@@ -196,7 +196,7 @@ export function ClassroomScreen({ characterId, initialSubject = '', initialEvent
     if (on && !playing) await start();
   };
 
-  // 전체 음소거: 채널별 설정은 그대로 두고 master만 0으로. 다시 켜면 이전 음량으로 복원
+  // Mute all: keep per-channel settings and set only master to 0. Unmuting restores the previous volume
   const lastMaster = useRef(settings.master || 0.8);
   const muted = settings.master === 0;
   const toggleMute = async () => {
@@ -265,12 +265,12 @@ export function ClassroomScreen({ characterId, initialSubject = '', initialEvent
         <b>{subject}</b>
       </div>}
 
-      {/* 집중 중 HUD: 미니맵·소리 아이콘·데모 채팅 */}
+      {/* Focus HUD: minimap, sound icons, demo chat */}
       {phase === 'focus' && seat && !done && !takingBreak && (
         <ClassroomHud dimmed={thoughtOpen || tutorOpen} seat={seat} footerHeight={footerHeight} overlayRevision={overlayRevision} onTutor={openTutor} soundOn={(id) => playing && !muted && settings.sounds[id].on} onToggleSound={toggleSound} onMixer={() => setMixerOpen(true)} raised />
       )}
 
-      {/* 집중 중: 남은 시간 + 지금 하는 것 */}
+      {/* While focusing: time left + what you're doing */}
       <AnimatePresence>
         {phase === 'focus' && (
           <motion.section ref={panelRef} className={`${styles.panel} ${thoughtOpen ? styles.dimmed : ''}`} inert={thoughtOpen || tutorOpen} aria-hidden={thoughtOpen || tutorOpen || undefined} aria-label="Focus timer" initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }}>
@@ -302,7 +302,7 @@ export function ClassroomScreen({ characterId, initialSubject = '', initialEvent
         )}
       </AnimatePresence>
 
-      {/* ① 소리 조절 */}
+      {/* ① Adjust sound */}
       <SoundMixer
         open={phase === 'sounds'}
         title="Set the mood"
@@ -313,7 +313,7 @@ export function ClassroomScreen({ characterId, initialSubject = '', initialEvent
         onPlay={start}
         onStop={stop}
       />
-      {/* ② 시간 + 무엇을 공부할지 */}
+      {/* ② Time + what to study */}
       <SessionSheet open={phase === 'plan' && !done && !peopleOpen && !mixerOpen && !tutorOpen} mode={mode} onMode={setMode} onClose={() => setPhase('explore')} minutes={minutes} subject={subject} initialEventId={initialEventId} agendaDate={agendaDate} onMinutes={setMinutes} onSubject={setSubject} onStart={startFocus} />
 
       {!done && phase !== 'explore' && (phase !== 'focus' || takingBreak) && <button type="button" className={styles.tutorButton} style={takingBreak && footerHeight ? {bottom:footerHeight+12}:undefined} onClick={openTutor}>Tutor</button>}
@@ -330,7 +330,7 @@ export function ClassroomScreen({ characterId, initialSubject = '', initialEvent
         )}
       </AnimatePresence>
 
-      {/* C6 생각 내려놓기 */}
+      {/* C6 park a thought */}
       <AnimatePresence>
         {thoughtOpen && (
           <motion.div ref={thoughtBox} className={styles.thoughtBackdrop} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setThoughtOpen(false)}>
@@ -355,7 +355,7 @@ export function ClassroomScreen({ characterId, initialSubject = '', initialEvent
                 enterKeyHint="done"
                 onChange={(e) => setThought(e.target.value)}
                 onKeyDown={(e) => {
-                  // 한글·베트남어 IME 조합 중의 Enter는 글자 확정이므로 저장하지 않는다
+                  // Enter during Korean/Vietnamese IME composition confirms the character, so don't save
                   if (e.key === 'Enter' && !e.nativeEvent.isComposing) saveThought();
                 }}
               />
@@ -367,7 +367,7 @@ export function ClassroomScreen({ characterId, initialSubject = '', initialEvent
         )}
       </AnimatePresence>
 
-      {/* C8 보상 → C9 한 번 탭 체크인 */}
+      {/* C8 reward → C9 one-tap check-in */}
       <AnimatePresence>
         {done && (
           <motion.div className={styles.doneBackdrop} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>

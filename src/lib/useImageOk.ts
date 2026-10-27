@@ -1,4 +1,4 @@
-// 에셋 존재 여부 확인 훅: 로드 실패 시 플레이스홀더로 대체하기 위함
+// Hook to check whether an asset exists: for falling back to a placeholder when loading fails
 import { useEffect, useState } from 'react';
 
 type Status = 'loading' | 'ok' | 'error';

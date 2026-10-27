@@ -1,5 +1,5 @@
-// 캐릭터 시트에서 원하는 컷(앞/옆/뒤)만 background-position으로 잘라 보여줌
-// 시트가 없으면 같은 비율의 파스텔 치비 플레이스홀더를 그린다
+// Shows only the desired frame (front/side/back) of the character sheet via background-position
+// If the sheet is missing, draws a pastel chibi placeholder with the same proportions
 import type { CSSProperties } from 'react';
 import { CELL_ASPECT, POSE, type Character, type Pose } from '../data/characters';
 import { useImageOk } from '../lib/useImageOk';
@@ -28,7 +28,7 @@ export function CharacterSprite({ character, pose = 'front', className, style }:
           className={styles.sheet}
           style={{
             backgroundImage: `url("${character.sheet}")`,
-            // 4컷 시트: 0%, 33.33%, 66.67%, 100%
+            // 4-frame sheet: 0%, 33.33%, 66.67%, 100%
             backgroundPosition: `${(idx / 3) * 100}% 0`,
           }}
         />

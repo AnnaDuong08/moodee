@@ -1,4 +1,4 @@
-// localStorage 안전 래퍼: 사생활 모드 등에서 예외가 나도 앱이 깨지지 않게
+// Safe localStorage wrapper: keeps the app from breaking when it throws, e.g. in private mode
 const PREFIX = 'moodie:';
 
 export function load<T>(key: string, fallback: T): T {
@@ -24,6 +24,6 @@ export function save(key: string, value: unknown) {
   try {
     localStorage.setItem(PREFIX + key, JSON.stringify(value));
   } catch {
-    /* 저장 실패는 무시 */
+    /* Ignore save failures */
   }
 }

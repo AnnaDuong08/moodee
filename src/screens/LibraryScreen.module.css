@@ -1,4 +1,4 @@
-/* 펼친 책(949×692). 페이지 영역은 책 이미지 기준 % 좌표 */
+/* Open book (949×692). Page areas are % coordinates of the book image */
 .book {
   position: absolute;
   z-index: 2;
@@ -40,7 +40,7 @@
   letter-spacing: 0.04em;
   color: #a08b7a;
 }
-/* 책 위에 직접 쓰는 것처럼: 배경·테두리·크기 조절 손잡이 없음, 줄 간격에 맞춘 옅은 괘선 */
+/* Like writing directly on the book: no background, border or resize handle; faint ruled lines matching the line height */
 .writing {
   flex: 1;
   min-height: 0;

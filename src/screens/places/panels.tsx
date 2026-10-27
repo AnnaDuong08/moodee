@@ -1,4 +1,4 @@
-// 공간별 기능 패널: Library(생각 선반) · Museum(카메라 → 찰칵 → 전시) · Café(음료·친구) · My Room(옷장·방 스타일)
+// Per-space feature panels: Library (thought shelf) · Museum (camera → click → exhibit) · Café (drinks, friends) · My Room (wardrobe, room style)
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
 import { CharacterSprite } from '../../components/CharacterSprite';
@@ -17,7 +17,7 @@ const day = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 
 const SPINES = ['#9F88C4', '#E8955A', '#9BAE8C', '#F2C46B', '#6E86D8', '#E9A3B0'];
 export const exhibitImg = (id: string) => EXHIBIT_OBJECTS[id as ExhibitObjectId]?.img;
 
-// ───────── Library: 생각을 머리 밖으로 꺼내 선반에 꽂기 ─────────
+// ───────── Library: take thoughts out of your head and put them on the shelf ─────────
 export function LibraryPanel() {
   const [thoughts, setThoughts] = useState(listThoughts);
   const [draft, setDraft] = useState('');
@@ -65,7 +65,7 @@ export function LibraryPanel() {
   );
 }
 
-// ───────── Museum: 전시 목록 ─────────
+// ───────── Museum: exhibit list ─────────
 export function MuseumPanel({ memories, featured, onFeature, onCamera }: { memories: Memory[]; featured: Memory | null; onFeature: (m: Memory) => void; onCamera: () => void }) {
   return (
     <>
@@ -96,7 +96,7 @@ export function MuseumPanel({ memories, featured, onFeature, onCamera }: { memor
   );
 }
 
-// 셔터 소리(짧은 찰칵): 두 번의 노이즈 클릭
+// Shutter sound (short click): two noise clicks
 export function shutterSound() {
   try {
     const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
@@ -117,11 +117,11 @@ export function shutterSound() {
     });
     window.setTimeout(() => void ctx.close(), 600);
   } catch {
-    /* 오디오를 못 쓰는 환경이면 조용히 넘어감 */
+    /* Silently skip if audio isn't available */
   }
 }
 
-// ───────── Museum 카메라: 장면 고르기 → 찰칵 → 3D 오브젝트로 변환 → 이야기 → 전시 ─────────
+// ───────── Museum camera: pick a scene → click → convert to a 3D object → story → exhibit ─────────
 type CamStep = 'aim' | 'flash' | 'developing' | 'object';
 
 export function CameraCapture({ onClose, onExhibit }: { onClose: () => void; onExhibit: (m: Memory) => void }) {
@@ -213,7 +213,7 @@ export function CameraCapture({ onClose, onExhibit }: { onClose: () => void; onE
   );
 }
 
-// ───────── Café: 사람들 사이에 머물기 + 코인으로 음료 주문 ─────────
+// ───────── Café: stay among people + order drinks with coins ─────────
 export function CafePanel({ me, onOrder, onFriends }: { me: Character; onOrder: (tint: string) => void; onFriends: () => void }) {
   const wallet = useWallet();
   const friends = getFriends();
@@ -266,7 +266,7 @@ export function CafePanel({ me, onOrder, onFriends }: { me: Character; onOrder: 
   );
 }
 
-// ───────── My Room: 옷장(Cloudee·파츠) + 방 스타일 ─────────
+// ───────── My Room: wardrobe (Cloudee, parts) + room style ─────────
 type Pending = { kind: 'cloudee'; id: CharacterId } | { kind: 'part'; id: string; img: string; noun: string; price: number } | { kind: 'room'; id: string };
 
 const CHARACTERS = PLAYABLE;

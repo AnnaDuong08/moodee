@@ -1,4 +1,4 @@
-// 교실 탑뷰 이동: 충돌 판정 + 격자 A* 길찾기(탭한 곳까지 책상을 돌아서 걸어감)
+// Classroom top-view movement: collision checks + grid A* pathfinding (walks around desks to the tapped spot)
 import type { Rect } from '../data/places';
 
 export interface Pt {
@@ -6,7 +6,7 @@ export interface Pt {
   y: number;
 }
 
-const RADIUS = 16; // 캐릭터 발 반경(이미지 px)
+const RADIUS = 16; // Character foot radius (image px)
 const CELL = 16;
 
 export function makeWalker(bounds: Rect, blockers: readonly Rect[]) {
@@ -19,7 +19,7 @@ export function makeWalker(bounds: Rect, blockers: readonly Rect[]) {
     return true;
   };
 
-  // 축별로 따로 이동해 벽에 닿으면 미끄러지듯 움직임
+  // Move each axis separately so the character slides along walls on contact
   const step = (p: Pt, dx: number, dy: number): Pt => {
     let { x, y } = p;
     if (free(x + dx, y)) x += dx;
@@ -35,7 +35,7 @@ export function makeWalker(bounds: Rect, blockers: readonly Rect[]) {
 
   const toCell = (p: Pt) => [Math.round(p.x / CELL), Math.round(p.y / CELL)] as const;
 
-  // 가장 가까운 걸을 수 있는 칸
+  // Nearest walkable cell
   const nearestFree = (c: number, r: number): [number, number] | null => {
     for (let d = 0; d < 12; d++)
       for (let dr = -d; dr <= d; dr++)
@@ -73,7 +73,7 @@ export function makeWalker(bounds: Rect, blockers: readonly Rect[]) {
           if (nc < 0 || nr < 0 || nc >= cols || nr >= rows) continue;
           const n = nr * cols + nc;
           if (!walkable[n] || closed[n]) continue;
-          // 대각선으로 모서리를 파고들지 않게
+          // Don't cut through corners diagonally
           if (dr && dc && (!walkable[cr * cols + nc] || !walkable[nr * cols + cc])) continue;
           const t = gScore[cur] + (dr && dc ? Math.SQRT2 : 1);
           if (t < gScore[n]) {
@@ -87,7 +87,7 @@ export function makeWalker(bounds: Rect, blockers: readonly Rect[]) {
     if (came[goal] === -1 && goal !== start) return [];
     const pts: Pt[] = [];
     for (let i = goal; i !== -1; i = came[i]) pts.unshift({ x: (i % cols) * CELL, y: Math.floor(i / cols) * CELL });
-    // 목표가 걸을 수 있는 곳이면 정확한 지점으로 마무리
+    // If the target is walkable, finish at the exact point
     if (free(to.x, to.y)) pts.push(to);
     return simplify(pts, free);
   };
@@ -95,7 +95,7 @@ export function makeWalker(bounds: Rect, blockers: readonly Rect[]) {
   return { free, step, path };
 }
 
-// 직선으로 갈 수 있는 중간 점은 건너뛰어 부드러운 경로로
+// Skip intermediate points reachable in a straight line for a smoother path
 function simplify(pts: Pt[], free: (x: number, y: number) => boolean): Pt[] {
   if (pts.length < 3) return pts;
   const out: Pt[] = [pts[0]];

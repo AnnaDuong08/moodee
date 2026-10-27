@@ -1,4 +1,4 @@
-/* 휠: 화면 폭보다 큰 원. 꼭대기(선택된 장소가 서는 곳)가 화면 높이 약 63%에 온다 */
+/* Wheel: a circle wider than the screen. The top (where the selected place stands) sits at about 63% of screen height */
 .wheelArea {
   --walker: calc(var(--icon) * 0.44);
   position: absolute;
@@ -15,7 +15,7 @@
   cursor: grabbing;
 }
 
-/* 차분한 크림색 지형: 윗면 하이라이트와 얇은 윤곽만 */
+/* Calm cream terrain: just a top-surface highlight and a thin outline */
 .disc {
   position: absolute;
   inset: 0;
@@ -36,7 +36,7 @@
   top: 50%;
 }
 
-/* 각 장소: 원 중심에서 회전한 뒤 표면(반지름)까지 밀어낸 점 = 발판이 닿는 곳 */
+/* Each place: rotate from the circle's center, then push out to the surface (radius) = where the base touches */
 .slot {
   position: absolute;
   left: 0;
@@ -51,7 +51,7 @@
   width: var(--icon);
   scale: var(--s);
   filter: blur(var(--blur));
-  /* 발판 아래쪽(지형에 묻힌 부분)을 서서히 가림 */
+  /* Gradually hide the lower part of the base (buried in the terrain) */
   -webkit-mask-image: linear-gradient(#000 var(--fade1), transparent var(--fade2));
   mask-image: linear-gradient(#000 var(--fade1), transparent var(--fade2));
 }
@@ -62,7 +62,7 @@
   display: block;
   pointer-events: auto;
 }
-/* 선택된 장소 뒤의 아주 약한 빛 */
+/* Very faint glow behind the selected place */
 .glow {
   position: absolute;
   left: 0;
@@ -75,7 +75,7 @@
   opacity: var(--here, 0);
   pointer-events: none;
 }
-/* 접지 그림자: 짧고 부드럽게 */
+/* Contact shadow: short and soft */
 .contact {
   position: absolute;
   left: 0;
@@ -88,7 +88,7 @@
   pointer-events: none;
 }
 
-/* 캐릭터: 휠 꼭대기 바로 앞(조금 아래) 표면에 발(시트 컷의 78% 지점)을 둔다 */
+/* Character: feet (at 78% of the sheet frame) placed on the surface just in front of (slightly below) the wheel top */
 .walker {
   position: absolute;
   left: 50%;

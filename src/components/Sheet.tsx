@@ -1,4 +1,4 @@
-// 공용 바텀시트: 손잡이를 끌어내리거나 배경을 눌러 닫기
+// Shared bottom sheet: close by dragging the handle down or tapping the backdrop
 import { AnimatePresence, motion, useDragControls } from 'framer-motion';
 import type { ReactNode } from 'react';
 import styles from './Sheet.module.css';
@@ -8,8 +8,8 @@ interface Props {
   onClose: () => void;
   title: string;
   subtitle?: string;
-  action?: ReactNode; // 제목 오른쪽 버튼
-  dismissable?: boolean; // false면 배경을 눌러도 닫히지 않음(필수 단계)
+  action?: ReactNode; // Button to the right of the title
+  dismissable?: boolean; // If false, tapping the backdrop doesn't close it (required step)
   belowHeader?: boolean;
   children: ReactNode;
 }

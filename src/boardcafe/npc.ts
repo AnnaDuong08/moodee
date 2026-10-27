@@ -1,4 +1,4 @@
-// NPC(Luna·Hieu): 놓을 수 있는 수 가운데 구름을 완성하는 수 > 슬롯을 더 채우는 수를 고르고, 없으면 Pass
+// NPC (Luna, Hieu): among playable moves, prefer one that completes a cloud > one that fills more slots; otherwise Pass
 import { canPlace, type Pattern, type Tile } from './rules';
 
 export interface NpcMove {
@@ -13,7 +13,7 @@ export function chooseMove(p: Pattern, filled: (Tile | null)[], hand: Tile[], ra
   for (const tile of hand)
     for (let slot = 0; slot < p.slots.length; slot++) {
       if (!canPlace(p, filled, slot, tile)) continue;
-      // 채워지는 슬롯 수(항상 1) + 완성 보너스 + 숫자가 정해진 슬롯을 먼저 채우는 선호 + 약간의 무작위
+      // Slots filled (always 1) + completion bonus + preference for filling slots with a fixed number first + a little randomness
       const score = 1 + (empty === 1 ? 10 : 0) + (p.slots[slot] !== null ? 0.5 : 0) + rand() * 0.3;
       if (score > bestScore) {
         bestScore = score;

@@ -1,4 +1,4 @@
-// 코인 관련 공용 UI: 숫자 카운트업, 반짝임 버스트, 잠금 해제 모달
+// Shared coin UI: number count-up, sparkle burst, unlock modal
 import { animate, AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
@@ -6,7 +6,7 @@ import { useWallet } from '../lib/wallet';
 import { CoinIcon, LockIcon } from './Icons';
 import styles from './Coin.module.css';
 
-// 값이 바뀌면 이전 값에서 새 값까지 굴러가듯 센다
+// When the value changes, count up from the old value to the new one like rolling
 export function CountUp({ value, duration = 0.7 }: { value: number; duration?: number }) {
   const [shown, setShown] = useState(value);
   const from = useRef(value);
@@ -18,7 +18,7 @@ export function CountUp({ value, duration = 0.7 }: { value: number; duration?: n
   return <>{shown}</>;
 }
 
-// 코인 잔액 칩(누르면 멤버십 등으로). 잔액이 바뀌면 통통 튄다
+// Coin balance chip (tap to go to Membership, etc.). Bounces when the balance changes
 export function CoinChip({ onClick, className }: { onClick?: () => void; className?: string }) {
   const { coins } = useWallet();
   const Tag = (onClick ? motion.button : motion.span) as typeof motion.button;
@@ -32,7 +32,7 @@ export function CoinChip({ onClick, className }: { onClick?: () => void; classNa
   );
 }
 
-// 가운데서 바깥으로 퍼지는 작은 별들(보상·잠금 해제 순간)
+// Little stars spreading out from the center (moments of reward or unlock)
 export function Sparkles({ count = 10 }: { count?: number }) {
   return (
     <span className={styles.sparkles} aria-hidden>
@@ -54,14 +54,14 @@ export function Sparkles({ count = 10 }: { count?: number }) {
 
 interface UnlockProps {
   open: boolean;
-  title: string; // 예: "Unlock this hair style?"
+  title: string; // e.g. "Unlock this hair style?"
   price: number;
   preview: ReactNode;
   onCancel: () => void;
-  onConfirm: () => boolean; // 성공 여부
+  onConfirm: () => boolean; // Whether it succeeded
 }
 
-// "Unlock this …? 100 coins" 모달. 코인이 모자라면 버튼을 막고 공부로 모으라고 안내
+// "Unlock this …? 100 coins" modal. If coins are short, disable the button and suggest earning them by studying
 export function UnlockModal({ open, title, price, preview, onCancel, onConfirm }: UnlockProps) {
   const { coins } = useWallet();
   const [done, setDone] = useState(false);

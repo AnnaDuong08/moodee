@@ -1,5 +1,5 @@
-// Shop: 이벤트 배너(가로 일러스트 넘기기) · 출석 도장판 · 그림 중심 진열대 · Pro
-// 글자는 이름과 가격뿐. 집중 기능은 유료 벽 뒤에 두지 않는다(Pro는 보상과 꾸미기만 늘림). 결제는 없는 데모
+// Shop: event banner (swipe through landscape illustrations) · attendance stamp card · picture-led shelves · Pro
+// Text is only names and prices. Focus features are never paywalled (Pro only adds rewards and customization). Demo with no payments
 import { AnimatePresence, motion, type PanInfo } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { CharacterSprite } from '../components/CharacterSprite';
@@ -17,7 +17,7 @@ const base = import.meta.env.BASE_URL;
 const coinsImg = `${base}assets/rewards/coins.png`;
 const stampImg = `${base}assets/characters/cloudy-three-quarter.png`;
 
-// 이벤트 배너: 그림이 주인공, 글자는 짧은 제목 하나
+// Event banner: the picture is the star; text is a single short title
 const BANNERS = [
   { art: 'autumn', title: 'Autumn Days' },
   { art: 'cherry-blossom', title: 'Blossom Season' },
@@ -62,7 +62,7 @@ export function ShopScreen({ onBack, onStudy }: { onBack: () => void; onStudy: (
     window.setTimeout(() => setToast(null), 2200);
   };
 
-  // ── 이벤트 배너: 들어올 때마다 무작위 시작(같은 그림이 또 나올 수도 있다), 자동으로 넘어가고 끌어서도 넘긴다 ──
+  // ── Event banner: random start on each visit (the same picture may repeat), auto-advances and can be dragged ──
   const [slide, setSlide] = useState(() => Math.floor(Math.random() * BANNERS.length));
   const [dragging, setDragging] = useState(false);
   const go = (n: number) => setSlide((n + BANNERS.length) % BANNERS.length);
@@ -80,7 +80,7 @@ export function ShopScreen({ onBack, onStudy }: { onBack: () => void; onStudy: (
   };
   const dots = [-2, -1, 0, 1, 2].map((o) => (slide + o + BANNERS.length) % BANNERS.length);
 
-  // ── 출석 도장판 ──
+  // ── Attendance stamp card ──
   const rewards = STAMP_REWARDS[pro ? 'pro' : 'free'];
   const ready = stampPending(wallet);
   const cycleDone = wallet.stampCount >= rewards.length && !ready;
@@ -108,7 +108,7 @@ export function ShopScreen({ onBack, onStudy }: { onBack: () => void; onStudy: (
       </header>
 
       <div className={styles.scroll}>
-        {/* 이벤트 배너 */}
+        {/* Event banner */}
         <section className={styles.banner} aria-roledescription="carousel" aria-label="Events">
           <motion.div className={styles.strip} drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.25} onDragStart={() => setDragging(true)} onDragEnd={onDragEnd} animate={{ x: 0 }}>
             <AnimatePresence initial={false} mode="popLayout">
@@ -134,7 +134,7 @@ export function ShopScreen({ onBack, onStudy }: { onBack: () => void; onStudy: (
           </div>
         </section>
 
-        {/* 출석 도장판 */}
+        {/* Attendance stamp card */}
         <section className={styles.stamps} aria-label="Attendance">
           <div className={styles.stampHead}>
             <h2>Attendance</h2>
@@ -184,7 +184,7 @@ export function ShopScreen({ onBack, onStudy }: { onBack: () => void; onStudy: (
           )}
         </section>
 
-        {/* 진열대 */}
+        {/* Shelves */}
         <Shelf title="Cloudees">
           {CHARACTERS.map((c) => {
             const owned = hasCloudee(wallet, c);
@@ -254,7 +254,7 @@ export function ShopScreen({ onBack, onStudy }: { onBack: () => void; onStudy: (
           })}
         </Shelf>
 
-        {/* 시연용: 공부 없이 흐름을 볼 수 있게 */}
+        {/* For demos: lets you see the flow without studying */}
         <div className={styles.demo}>
           <button type="button" onClick={() => (demoTopUp(), say(`+${DEMO_TOPUP} demo coins`))}>
             <CoinIcon /> +{DEMO_TOPUP} coins

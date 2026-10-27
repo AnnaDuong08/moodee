@@ -1,27 +1,27 @@
-// 원본 참고 이미지(2026글로벌해커톤)를 앱 규격 경로/이름으로 정리하는 스크립트
-// - 캐릭터 시트·장소 아이콘: 테두리에서 flood fill로 단색 배경(회색/흰색)을 투명 처리
-// - 교실 배경: 그대로 복사(용량만 최적화)
+// Script that organizes the original reference images (2026글로벌해커톤) into the app's paths/names
+// - Character sheets & place icons: flood fill from the edges to make the solid background (gray/white) transparent
+// - Classroom backgrounds: copied as-is (only size-optimized)
 import sharp from 'sharp';
 import { copyFileSync, mkdirSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 
-// 원본 참고자료는 프로젝트 상위 폴더(2026글로벌해커톤)에 있음
+// The original reference material lives in the project's parent folder (2026글로벌해커톤)
 const SRC = path.resolve('..');
 const OUT = path.resolve('public/assets');
 
-// 캐릭터 발밑의 회색 그림자(원본 회색 배경에 붙어 있던 것) → 앱에서 부드러운 그림자로 대체
-const CHAR_SHADOW = { minLum: 52, maxLum: 106, maxSat: 16, yMin: 0.752 }; // 바지 밑단(≈0.745) 아래만: 회색 바지 보존
-// 흰 배경 아이콘 아래 연회색 그림자 → 어두운 휠 위에서 흰 얼룩으로 보여서 제거
+// Gray shadow under the characters' feet (attached to the original gray background) → replaced by a soft shadow in the app
+const CHAR_SHADOW = { minLum: 52, maxLum: 106, maxSat: 16, yMin: 0.752 }; // Only below the trouser hem (≈0.745): keeps gray trousers intact
+// Light-gray shadow under white-background icons → removed because it shows up as a white smudge on the dark wheel
 const ICON_SHADOW = { minLum: 150, maxLum: 256, maxSat: 14, yMin: 0 };
 
 const jobs = [
-  // [원본, 결과, 배경제거 여부, 투명 임계값(near), 부분투명 임계값(far), 교실 인형 지우기, 바닥 그림자 제거]
-  // 바닥 그림자: 배경과 이어진 무채색 픽셀 중 밝기가 [min, max]이고 이미지 높이 비율 yMin 아래인 것
+  // [source, output, remove background, transparency threshold (near), partial-transparency threshold (far), erase classroom dummies, remove floor shadow]
+  // Floor shadow: achromatic pixels connected to the background with brightness in [min, max] and below image-height ratio yMin
   ['캐릭터/2.민경.png', 'characters/char-ponytail.png', true, 22, 44, null, CHAR_SHADOW],
   ['캐릭터/1.김다현.png', 'characters/char-bob.png', true, 22, 44, null, CHAR_SHADOW],
   ['캐릭터/3.niersora.png', 'characters/char-wavy.png', true, 22, 44, null, CHAR_SHADOW],
   ['캐릭터/4. Nazan.png', 'characters/char-curly-glasses.png', true, 22, 44, null, CHAR_SHADOW],
-  // 교실 배경: 캐릭터 자리의 흰색 임시 인형을 지움 → 머리 원·몸통 사각형·복사해 올 바닥 오프셋
+  // Classroom background: erase the white placeholder dummies at character seats → head circle, body rect, offset of floor to copy over
   ['classroom/image 22.png', 'places/classroom-topdown.png', false, 0, 0, { head: [477, 1037, 46], body: [428, 1050, 528, 1130], from: [0, 150] }],
   ['classroom/image 17.png', 'places/classroom-backview.png', false, 0, 0, { head: [476, 1024, 74], body: [394, 1028, 556, 1196], from: [0, 250] }],
   ['아이콘/image 29.png', 'places/icon-classroom.png', true, 20, 40],
@@ -31,10 +31,10 @@ const jobs = [
   ['아이콘/image 31.png', 'places/icon-cafe.png', true, 10, 22, null, ICON_SHADOW],
 ];
 
-// 테두리와 연결된 배경색 픽셀만 지워서 캐릭터 내부의 비슷한 색은 보존
+// Only erases background-colored pixels connected to the edge, so similar colors inside the character survive
 function removeBackground(data, w, h, near, far, shadow) {
   const px = (i) => [data[i * 4], data[i * 4 + 1], data[i * 4 + 2]];
-  // 네 모서리 평균을 배경색으로 사용
+  // Use the average of the four corners as the background color
   const corners = [0, w - 1, (h - 1) * w, h * w - 1].map(px);
   const bg = [0, 1, 2].map((c) => corners.reduce((s, p) => s + p[c], 0) / 4);
   const dist = (i) => {
@@ -53,14 +53,14 @@ function removeBackground(data, w, h, near, far, shadow) {
     if (shadow) {
       const r = data[i * 4], g = data[i * 4 + 1], b = data[i * 4 + 2];
       const lum = (r + g + b) / 3;
-      // 무채색 그림자 픽셀은 배경과 같게 취급(완전 투명 + 계속 번짐)
+      // Treat achromatic shadow pixels like background (fully transparent + keep spreading)
       if (Math.max(r, g, b) - Math.min(r, g, b) <= shadow.maxSat && lum >= shadow.minLum && lum < shadow.maxLum && i / w >= shadow.yMin * h) d = 0;
     }
     if (d > far) continue;
-    // near 이하는 완전 투명, near~far 구간은 가장자리 부드럽게
+    // At or below near is fully transparent; between near and far the edge is softened
     const a = d <= near ? 0 : Math.round(((d - near) / (far - near)) * 255);
     data[i * 4 + 3] = Math.min(data[i * 4 + 3], a);
-    if (d > near) continue; // 가장자리 픽셀에서는 더 번지지 않음
+    if (d > near) continue; // Don't spread further from edge pixels
     const x = i % w;
     if (x > 0) stack.push(i - 1);
     if (x < w - 1) stack.push(i + 1);
@@ -69,8 +69,8 @@ function removeBackground(data, w, h, near, far, shadow) {
   }
 }
 
-// 임시 인형 모양(머리 원 + 몸통 둥근 사각형) 마스크를 만들고,
-// 같은 통로의 아래쪽 바닥 패치를 복사해 덮은 뒤 가장자리를 부드럽게 섞음
+// Build a mask of the placeholder dummy shape (head circle + rounded body rect),
+// copy a floor patch from lower down the same aisle over it, then blend the edges softly
 function erasePlaceholder(data, w, { head, body, from }) {
   const [hx, hy, hr] = head;
   const [bx0, by0, bx1, by1] = body;
@@ -85,7 +85,7 @@ function erasePlaceholder(data, w, { head, body, from }) {
       const inBody = X >= bx0 && X <= bx1 && Y >= by0 && Y <= by1;
       hard[y * bw + x] = inHead || inBody ? 1 : 0;
     }
-  // 박스 블러로 부드러운 알파(반경 9)
+  // Soft alpha via box blur (radius 9)
   const R = 9, soft = new Float32Array(bw * bh);
   for (let y = 0; y < bh; y++)
     for (let x = 0; x < bw; x++) {
@@ -96,7 +96,7 @@ function erasePlaceholder(data, w, { head, body, from }) {
           if (xx < 0 || yy < 0 || xx >= bw || yy >= bh) continue;
           sum += hard[yy * bw + xx]; n++;
         }
-      // 인형 경계선까지 확실히 덮도록 가중
+      // Weighted so the dummy's outline is fully covered
       soft[y * bw + x] = Math.min(1, (sum / n) * 1.8);
     }
   const [dx, dy] = from;
@@ -110,8 +110,8 @@ function erasePlaceholder(data, w, { head, body, from }) {
     }
 }
 
-// 원본 시트는 머리카락이 컷 경계를 넘는 경우가 있어서(예: curly 앞모습),
-// 경계 근처에서 가장 비어 있는 세로줄로 4등분한 뒤 각 인물을 넓은 컷(CELL_W) 가운데에 다시 배치
+// In the original sheet, hair sometimes crosses the frame boundary (e.g. curly front view),
+// so split into 4 at the emptiest column near each boundary, then re-center each figure in a wider frame (CELL_W)
 const CELL_W = 400;
 function reslice(data, w, h) {
   const occ = new Array(w).fill(0);
@@ -157,15 +157,15 @@ for (const [src, out, cutout, near, far, erase, shadow] of jobs) {
       img = sharp(r.data, { raw: { width: r.width, height: info.height, channels: 4 } });
     } else img = sharp(data, { raw: { width: info.width, height: info.height, channels: 4 } });
   }
-  // 아이콘은 카드용으로 축소, 전부 팔레트 양자화로 용량 절감
+  // Icons are scaled down for cards; everything is palette-quantized to save size
   if (out.includes('icon-')) img = sharp(await img.png().toBuffer()).resize({ width: 480 });
   await img.png({ compressionLevel: 9, palette: true, quality: 92, dither: 0.6 }).toFile(dest);
   console.log('✓', out);
 }
 
-// 눈높이 교실 사진에서 앉을 의자(3번째 줄 좌/우) 등받이만 떼어낸 오버레이.
-// 캐릭터를 이 레이어 아래에 두면 등받이가 몸을 가려 앉은 것처럼 보인다.
-// 의자는 붉은 갈색이라 R/G 비율로 나무 책상·바닥과 구분(그늘진 의자도 잡힘)
+// Overlay containing only the backrest of the chair to sit in (row 3 left/right) from the eye-level classroom photo.
+// Putting the character under this layer lets the backrest cover the body so they look seated.
+// Chairs are reddish brown, so they are separated from wooden desks and floor by R/G ratio (catches shaded chairs too)
 {
   const src = path.join(OUT, 'places/classroom-backview.png');
   const { data, info } = await sharp(src).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
@@ -185,7 +185,7 @@ for (const [src, out, cutout, near, far, erase, shadow] of jobs) {
   console.log('✓ places/classroom-backview-chairs.png');
 }
 
-// 교실 소품(투명 PNG) → 소리 설정 아이콘. 가장자리의 옅은 색 번짐(알파 낮은 픽셀)을 지우고 여백을 잘라 축소
+// Classroom props (transparent PNG) → sound setting icons. Erase faint color fringes (low-alpha pixels), trim margins and scale down
 {
   const props = [
     ['ChatGPT 이미지 2026년 9월 29일 오후 05_52_59-1.png', 'prop-desk.png'],
@@ -209,18 +209,18 @@ for (const [src, out, cutout, near, far, erase, shadow] of jobs) {
   }
 }
 
-// ───────── 2026-09-30 추가: 브랜드·다른 장소·보상 아이템·꾸미기 파츠 ─────────
+// ───────── Added 2026-09-30: brand, other places, reward items, customization parts ─────────
 {
   const out = (p) => { const d = path.join(OUT, p); mkdirSync(path.dirname(d), { recursive: true }); return d; };
 
-  // 로고 워드마크: 카드에서 글자 부분만 잘라 흰 배경을 투명하게
+  // Logo wordmark: crop only the lettering from the card and make the white background transparent
   {
     const crop = await sharp(path.join(SRC, 'brand/moodee-logo-wordmark.png')).extract({ left: 38, top: 96, width: 516, height: 236 }).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
     removeBackground(crop.data, crop.info.width, crop.info.height, 16, 34);
     await sharp(crop.data, { raw: { width: crop.info.width, height: crop.info.height, channels: 4 } }).trim().png({ compressionLevel: 9 }).toFile(out('brand/logo.png'));
     console.log('✓ brand/logo.png');
   }
-  // 앱 아이콘: 둥근 사각형 부분만(파비콘·마스코트로 사용)
+  // App icon: only the rounded-square part (used as favicon and mascot)
   {
     const size = 256;
     const mask = Buffer.from(`<svg width="${size}" height="${size}"><rect width="${size}" height="${size}" rx="58" ry="58"/></svg>`);
@@ -228,7 +228,7 @@ for (const [src, out, cutout, near, far, erase, shadow] of jobs) {
       .composite([{ input: mask, blend: 'dest-in' }]).png({ compressionLevel: 9 }).toFile(out('brand/icon.png'));
     console.log('✓ brand/icon.png');
   }
-  // 다른 장소 배경(세로 941px 폭 기준 JPEG)
+  // Other place backgrounds (JPEG, based on 941px portrait width)
   for (const [src, dst] of [
     ['cafe/cafe-backview.png', 'places/cafe-backview.jpg'], ['cafe/cafe-topdown.png', 'places/cafe-topdown.jpg'],
     ['library/library-backview.png', 'places/library-backview.jpg'], ['library/library-topdown.png', 'places/library-topdown.jpg'],
@@ -238,30 +238,30 @@ for (const [src, out, cutout, near, far, erase, shadow] of jobs) {
     await sharp(path.join(SRC, src)).resize({ width: 941, withoutEnlargement: true }).flatten({ background: '#ffffff' }).jpeg({ quality: 84 }).toFile(out(dst));
     console.log('✓ ' + dst);
   }
-  // 멤버십 시안에서 보상 아이템 그림 잘라내기
+  // Crop the reward item art from the membership mockup
   for (const [name, left, top, width, height] of [
     ['sneakers', 501, 2714, 317, 208], ['headband', 977, 2714, 267, 208], ['jacket', 1394, 2697, 293, 225], ['coins', 159, 2421, 242, 151],
   ]) {
     const crop = sharp(path.join(SRC, 'reference/ui-membership-mockup.png')).extract({ left, top, width, height });
     if (name === 'coins') {
-      // 코인 더미는 카드 위에 바로 올리므로 배경을 지운다
+      // The coin pile sits directly on the card, so remove its background
       const { data, info } = await crop.ensureAlpha().raw().toBuffer({ resolveWithObject: true });
       removeBackground(data, info.width, info.height, 10, 26);
       await sharp(data, { raw: { width: info.width, height: info.height, channels: 4 } }).trim().resize({ width: 260 }).png({ compressionLevel: 9 }).toFile(out(`rewards/${name}.png`));
     } else await crop.resize({ width: 260 }).png({ compressionLevel: 9, palette: true }).toFile(out(`rewards/${name}.png`));
     console.log(`✓ rewards/${name}.png`);
   }
-  // 꾸미기 파츠 시트(옷장 미리보기용)
+  // Customization parts sheet (for the wardrobe preview)
   for (const n of ['parts-hair', 'parts-tops', 'parts-bottoms', 'parts-glasses']) {
     await sharp(path.join(SRC, `customize/${n}.png`)).resize({ width: 1000, withoutEnlargement: true }).flatten({ background: '#ffffff' }).jpeg({ quality: 86 }).toFile(out(`customize/${n}.jpg`));
     console.log(`✓ customize/${n}.jpg`);
   }
 
-  // 눈높이 교실의 앞줄 의자(1·2번째 줄) 등받이 오버레이: 같은 반 친구들이 앉은 모습에 사용
+  // Backrest overlay for the front-row chairs (rows 1 and 2) of the eye-level classroom: used for seated classmates
   const src = path.join(OUT, 'places/classroom-backview.png');
   const { data, info } = await sharp(src).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   const W = info.width, H = info.height;
-  // 친구가 앉는 의자 주변만 잘라냄(넓게 잡으면 책장 등 붉은 물체까지 포함되어 햇살 레이어 위로 떠 보임)
+  // Crop only around the chairs where friends sit (cropping wide also catches red objects like the bookshelf, which then float above the sunlight layer)
   for (const [row, y0, y1, xs] of [[1, 568, 640, [[600, 730]]], [2, 655, 780, [[185, 342], [796, 941]]]]) {
     const o = Buffer.alloc(W * H * 4);
     for (let y = y0; y < y1; y++)
@@ -276,10 +276,10 @@ for (const [src, out, cutout, near, far, erase, shadow] of jobs) {
   }
 }
 
-// ───────── 옷장 파츠 낱개 타일 + 공간 오브젝트 ─────────
+// ───────── Individual wardrobe part tiles + space objects ─────────
 {
   const out = (p) => { const d = path.join(OUT, p); mkdirSync(path.dirname(d), { recursive: true }); return d; };
-  // [원본, 접두사, 열 시작 x들, 행 시작 y들, 칸 폭, 칸 높이]
+  // [source, prefix, column start xs, row start ys, cell width, cell height]
   const grid = (x0, w, n) => Array.from({ length: n }, (_, i) => Math.round(x0 + i * w));
   const sheets = [
     ['customize/parts-hair.png', 'hair', grid(22, 278.5, 6), [72, 376], 276, 308],
@@ -293,7 +293,7 @@ for (const [src, out, cutout, near, far, erase, shadow] of jobs) {
     for (const row of ys)
       for (const x of xs) {
         n++;
-        // 행은 y 값 하나이거나 [y, 높이] 쌍(행마다 높이가 다른 시트)
+        // A row is a single y value or a [y, height] pair (sheets whose rows differ in height)
         const [y, rowH] = Array.isArray(row) ? row : [row, h];
         const width = Math.min(w, meta.width - x), height = Math.min(rowH, meta.height - y);
         await sharp(path.join(SRC, src)).extract({ left: x, top: y, width, height }).flatten({ background: '#fafafa' })
@@ -302,7 +302,7 @@ for (const [src, out, cutout, near, far, erase, shadow] of jobs) {
       }
     console.log(`✓ customize/${prefix}-01..${n}.jpg`);
   }
-  // 카페 머그컵·도서관 책: 흰 배경 제거
+  // Café mug & library book: remove white background
   for (const [src, dst] of [['cafe/cafe-prop-glass-mug.png', 'objects/mug.png'], ['library/library-prop-open-book.png', 'objects/book.png']]) {
     const { data, info } = await sharp(path.join(SRC, src)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
     removeBackground(data, info.width, info.height, 12, 26);
@@ -313,15 +313,15 @@ for (const [src, out, cutout, near, far, erase, shadow] of jobs) {
   console.log('✓ objects/cafe-ingredients.png');
 }
 
-// ───────── 박물관 전시물(현장 사진 → 3D 오브젝트) + My Room 방 스타일 ─────────
+// ───────── Museum exhibits (on-site photos → 3D objects) + My Room room styles ─────────
 {
   const out = (p) => { const d = path.join(OUT, p); mkdirSync(path.dirname(d), { recursive: true }); return d; };
   const EX = '박물관 전시';
-  // 사진: 뷰파인더에 보일 원본
+  // Photos: originals shown in the viewfinder
   for (const n of ['banana-milk', 'pringles', 'whiteboard-stand', 'team-drawing', 'hackathon-banner']) {
     await sharp(path.join(SRC, EX, `photo-${n}.png`)).flatten({ background: '#ffffff' }).jpeg({ quality: 88 }).toFile(out(`exhibits/photo-${n}.jpg`));
   }
-  // 오브젝트: 흰 배경을 지워 받침대 위에 올릴 수 있게
+  // Objects: remove the white background so they can sit on a pedestal
   for (const n of ['banana-milk', 'pringles', 'team-whiteboard', 'hackathon-banner', 'duck-sock']) {
     const { data, info } = await sharp(path.join(SRC, EX, `object-${n}.png`)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
     removeBackground(data, info.width, info.height, 8, 20);
@@ -329,7 +329,7 @@ for (const [src, out, cutout, near, far, erase, shadow] of jobs) {
   }
   console.log('✓ exhibits/photo-*.jpg, object-*.png');
 
-  // 방 스타일: 꾸미기 시안에서 방 그림 부분만(상단 제목·하단 가구 바 제외)
+  // Room styles: only the room art from the customization mockup (excluding the top title and bottom furniture bar)
   for (const n of ['1-empty', '2-desk', '3-cozy', '4-full', '5-loft']) {
     const src = path.join(SRC, 'myroom', `myroom-decorate-${n}.png`);
     const m = await sharp(src).metadata();
@@ -339,7 +339,7 @@ for (const [src, out, cutout, near, far, erase, shadow] of jobs) {
   }
 }
 
-// ───────── 로딩 화면 일러스트(세로): 앱 시작·장소 이동 때 무작위로 한 장 ─────────
+// ───────── Loading screen illustrations (portrait): one at random on app start and place change ─────────
 {
   const dir = path.join(SRC, 'splash/portrait');
   const outDir = path.join(OUT, 'splash');
@@ -350,12 +350,12 @@ for (const [src, out, cutout, near, far, erase, shadow] of jobs) {
   console.log('✓ splash/*.jpg');
 }
 
-// ───────── 월드 업그레이드: Cloudy 마스코트 시트 · 투명 유리컵 · 재료 타일 · 카페/도서관 활동 화면 ─────────
+// ───────── World upgrade: Cloudy mascot sheet · transparent glass · ingredient tiles · café/library activity screens ─────────
 {
   const out = (p) => { const d = path.join(OUT, p); mkdirSync(path.dirname(d), { recursive: true }); return d; };
 
-  // Cloudy: 누끼 딴 네 장(brand/cloudy)을 다른 캐릭터와 같은 4컷 시트(앞/옆/뒤/반대 옆)로
-  // 네 장이 같은 크기 기준을 쓰도록 공통 배율로 줄인다(옆모습은 왼쪽을 본다 → 반대 옆은 뒤집기)
+  // Cloudy: arrange the four cut-outs (brand/cloudy) into the same 4-frame sheet as the other characters (front/side/back/opposite side)
+  // Scale all four by a common factor so they share the same size reference (side view faces left → opposite side is flipped)
   const cloudy = async (n) => sharp(path.join(SRC, `brand/cloudy/cloudy-${n}.png`)).trim().toBuffer({ resolveWithObject: true });
   const parts = { front: await cloudy('front'), side: await cloudy('side'), back: await cloudy('back') };
   const widest = Math.max(...Object.values(parts).map((x) => x.info.width));
@@ -372,12 +372,12 @@ for (const [src, out, cutout, near, far, erase, shadow] of jobs) {
   await sharp(path.join(SRC, 'brand/cloudy/cloudy-three-quarter.png')).trim().resize({ width: 420 }).png().toFile(out('characters/cloudy-three-quarter.png'));
   console.log('✓ characters/char-cloudy.png');
 
-  // 투명 유리컵(음료 만들기·테이블)
+  // Transparent glass (drink making & table)
   await sharp(path.join(SRC, 'cafe/cafe-glass-transparent-soft.png')).resize({ width: 520 }).png({ compressionLevel: 9 }).toFile(out('cafe/glass.png'));
-  // 재료 아이콘 6개: 3×2 시트를 칸별로 자르고 투명 여백을 정리해 같은 정사각형에 가운데 정렬
+  // 6 ingredient icons: cut the 3×2 sheet into cells, trim transparent margins and center each in the same square
   const names = ['coffee', 'milk', 'syrup', 'strawberry', 'orange', 'matcha'];
   const icons = path.join(SRC, 'cafe/cafe-ingredient-icons-3d.png');
-  // 시트의 칸 경계가 균등하지 않아, 투명한 세로 틈으로 세 덩어리를 찾는다(위·아래 줄 각각)
+  // The sheet's cell boundaries are uneven, so find the three blobs by transparent vertical gaps (top and bottom rows separately)
   const sheetRaw = await sharp(icons).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   const SW = sheetRaw.info.width, SH = sheetRaw.info.height;
   const solid = (x, y) => sheetRaw.data[(y * SW + x) * 4 + 3] > 24;
@@ -391,19 +391,19 @@ for (const [src, out, cutout, near, far, erase, shadow] of jobs) {
       if (on && start < 0) start = x;
       if (!on && start >= 0) { if (x - start > 40) runs.push([start, x - 1]); start = -1; }
     }
-    // 틈이 작아 덩어리가 붙으면 가장 긴 것을 균등 분할하지 않고 있는 그대로 사용
+    // If a gap is too small and blobs merge, use them as-is rather than evenly splitting the longest one
     for (const [x0, x1] of runs.slice(0, 3)) {
       let y0 = ry1, y1 = ry0;
       for (let y = ry0; y < ry1; y++) for (let x = x0; x <= x1; x++) if (solid(x, y)) { y0 = Math.min(y0, y); y1 = Math.max(y1, y); break; }
       boxes.push({ left: x0, top: y0, width: x1 - x0 + 1, height: y1 - y0 + 1 });
     }
   }
-  if (boxes.length !== 6) throw new Error('재료 아이콘 덩어리 수가 6이 아님: ' + boxes.length);
+  if (boxes.length !== 6) throw new Error('Ingredient icon blob count is not 6: ' + boxes.length);
   for (let i = 0; i < 6; i++) {
     const cell = await sharp(icons).extract(boxes[i]).resize({ width: 220, height: 220, fit: 'inside' }).png().toBuffer();
     await sharp({ create: { width: 240, height: 240, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } }).composite([{ input: cell, gravity: 'center' }]).png({ compressionLevel: 9 }).toFile(out(`cafe/ingredient-${names[i]}.png`));
   }
-  // 액체 텍스처 6종: 512px로 줄인 뒤 거울 반복(2×2)으로 이음매 없는 1024px 타일을 만든다 → 컵 마스크 안에서 흘러가며 반복
+  // 6 liquid textures: scale to 512px, then mirror-tile (2×2) into a seamless 1024px tile → repeats as it flows inside the cup mask
   for (const n of names) {
     const tile = await sharp(path.join(SRC, `cafe/liquids/liquid-${n}.png`)).resize(512, 512).toBuffer();
     const flipX = await sharp(tile).flop().toBuffer();
@@ -414,22 +414,22 @@ for (const [src, out, cutout, near, far, erase, shadow] of jobs) {
       .jpeg({ quality: 82 }).toFile(out(`cafe/liquid-${n}.jpg`));
   }
   console.log('✓ cafe/ingredient-*.png, cafe/liquid-*.jpg');
-  // 카운터 클로즈업(음료 만들기 배경) + 그 아래쪽 나무 상판(테이블 화면)
+  // Counter close-up (drink making background) + the wooden top below it (table screen)
   const counter = path.join(SRC, 'cafe/cafe-counter-closeup.png');
   await sharp(counter).flatten({ background: '#ffffff' }).jpeg({ quality: 84 }).toFile(out('cafe/counter-closeup.jpg'));
   await sharp(counter).extract({ left: 120, top: 1000, width: 640, height: 600 }).flatten({ background: '#ffffff' }).jpeg({ quality: 84 }).toFile(out('cafe/table-top.jpg'));
-  // 도서관: 눈높이 장면, 펼친 책(크게)
+  // Library: eye-level scene, open book (large)
   await sharp(path.join(SRC, 'library/library-eyelevel-people.png')).flatten({ background: '#ffffff' }).jpeg({ quality: 84 }).toFile(out('library/eyelevel.jpg'));
   await sharp(path.join(SRC, 'library/library-prop-open-book.png')).png({ compressionLevel: 9 }).toFile(out('library/open-book.png'));
-  // My Room 탑뷰
+  // My Room top view
   await sharp(path.join(SRC, 'myroom/myroom-topdown.png')).flatten({ background: '#ffffff' }).jpeg({ quality: 84 }).toFile(out('places/myroom-topdown.jpg'));
-  // Museum 탑뷰(세로)와 데모 영상
+  // Museum top view (portrait) and demo video
   await sharp(path.join(SRC, 'museum/museum-topdown-portrait.png')).resize({ width: 941 }).flatten({ background: '#ffffff' }).jpeg({ quality: 84 }).toFile(out('places/museum-topdown-portrait.jpg'));
   copyFileSync(path.join(SRC, '박물관 전시/KakaoTalk_20260930_144748802.mp4'), out('museum/demo-capture.mp4'));
   console.log('✓ cafe/*, library/*, museum/*, places/myroom-topdown.jpg');
 }
 
-// ───────── 가로 일러스트(멤버십 배너 등): splash/landscape → splash-wide/*.jpg ─────────
+// ───────── Landscape illustrations (membership banner, etc.): splash/landscape → splash-wide/*.jpg ─────────
 {
   const dir = path.join(SRC, 'splash/landscape');
   const outDir = path.join(OUT, 'splash-wide');
@@ -440,7 +440,7 @@ for (const [src, out, cutout, near, far, erase, shadow] of jobs) {
   console.log('✓ splash-wide/*.jpg');
 }
 
-// ───────── Board Café 미니게임 에셋: cafe/game → boardcafe/ ─────────
+// ───────── Board Café minigame assets: cafe/game → boardcafe/ ─────────
 {
   const G = path.join(SRC, 'cafe/game');
   const outDir = path.join(OUT, 'boardcafe');
@@ -462,7 +462,7 @@ for (const [src, out, cutout, near, far, erase, shadow] of jobs) {
     ['reactions/reaction_04_cloud_completed_banner.png', 'banner-completed.png', 620], ['reactions/reaction_seq1_idle.png', 'seq-1.png', 160],
     ['reactions/reaction_seq2_nice.png', 'seq-2.png', 160], ['reactions/reaction_seq3_celebrate.png', 'seq-3.png', 180],
   ]) await fit(src, name, w);
-  // 숫자 타일 1~6: 2열×3행 시트를 칸별로 자르고 투명 여백 정리
+  // Number tiles 1–6: cut the 2-column × 3-row sheet into cells and trim transparent margins
   const sheet = path.join(G, 'cloudtiles_number_tiles_1-6.png');
   const { data, info } = await sharp(sheet).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   const cw = info.width / 2, ch = info.height / 3;
@@ -475,7 +475,7 @@ for (const [src, out, cutout, near, far, erase, shadow] of jobs) {
   console.log('✓ boardcafe/*');
 }
 
-// Board Café 숫자 타일 4색: 파란 타일의 채도 있는 부분(몸통)만 색상을 바꾸고 흰 숫자·하이라이트는 그대로
+// Board Café number tiles in 4 colors: recolor only the saturated part (body) of the blue tile, keeping the white number and highlights
 {
   const dir = path.join(OUT, 'boardcafe');
   const rgb2hsl = (r, g, b) => {
@@ -498,7 +498,7 @@ for (const [src, out, cutout, near, far, erase, shadow] of jobs) {
       const out = Buffer.from(data);
       if (t) for (let i = 0; i < out.length; i += 4) {
         const [, s, l] = rgb2hsl(out[i], out[i + 1], out[i + 2]);
-        if (s < 0.22 || l > 0.9) continue; // 흰 숫자·밝은 하이라이트는 유지
+        if (s < 0.22 || l > 0.9) continue; // Keep white numbers and bright highlights
         const [r, g, b] = hsl2rgb(t[0], Math.min(1, s * t[1]), Math.min(0.95, l + t[2]));
         out[i] = r; out[i + 1] = g; out[i + 2] = b;
       }

@@ -1,4 +1,4 @@
-// 집중 세션 기록: "What are you studying?"에서 고른 주제와 실제 집중한 분을 저장 → Records 통계
+// Focus session log: saves the topic chosen in "What are you studying?" and the minutes actually focused → Records stats
 import { loadValue, save } from './storage';
 
 export interface Session {
@@ -7,12 +7,12 @@ export interface Session {
   minutes: number;
   endedAt: string; // ISO
   seat: string;
-  friction?: number; // 시작 부담 1(쉬움)~5(어려움) — 세션 뒤 한 번 탭
+  friction?: number; // Starting difficulty 1 (easy) – 5 (hard) — one tap after the session
 }
 
 const KEY = 'sessions';
 
-// 기본 주제 칩(포스트잇 예시: coding, chem, reading + 과제)
+// Default topic chips (sticky-note examples: coding, chem, reading + assignment)
 export const SUBJECT_PRESETS = ['Coding', 'Chemistry', 'Reading', 'Assignment', 'Math', 'Design'];
 
 const dayKey = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -23,7 +23,7 @@ export function addSession(s: Omit<Session, 'id' | 'endedAt'>) {
   const all = listSessions();
   const session: Session = { ...s, id: `${Date.now()}`, endedAt: new Date().toISOString() };
   save(KEY, [...all, session]);
-  // 직접 입력한 주제는 다음에 칩으로 다시 보여줌
+  // Custom topics are shown again as chips next time
   if (!SUBJECT_PRESETS.includes(s.subject)) {
     const mine = loadValue<string[]>('subjects', []).filter((x) => x !== s.subject);
     save('subjects', [s.subject, ...mine].slice(0, 4));
@@ -35,7 +35,7 @@ export const setFriction = (id: string, friction: number) => save(KEY, listSessi
 
 export const customSubjects = () => loadValue<string[]>('subjects', []);
 
-// 최근 7일(오늘 포함) 주제별 합계, 많은 순
+// Totals per topic over the last 7 days (including today), largest first
 export function weekBySubject() {
   const from = new Date();
   from.setHours(0, 0, 0, 0);
@@ -48,7 +48,7 @@ export function weekBySubject() {
   return [...map.entries()].map(([subject, minutes]) => ({ subject, minutes })).sort((a, b) => b.minutes - a.minutes);
 }
 
-// 최근 7일 요일별 합계(막대 그래프용)
+// Totals per weekday over the last 7 days (for the bar chart)
 export function weekByDay() {
   const days: { label: string; key: string; minutes: number }[] = [];
   for (let i = 6; i >= 0; i--) {
@@ -64,7 +64,7 @@ export function weekByDay() {
   return days;
 }
 
-// 이번 달에 공부한 날 수(멤버십 진행도)
+// Number of days studied this month (membership progress)
 export function monthStudyDays() {
   const now = new Date();
   const set = new Set<string>();

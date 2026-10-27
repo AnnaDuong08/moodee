@@ -1,5 +1,5 @@
-// 데모 동행(autonomous demo NPC companions): 실제 멀티플레이가 아니라, 처음 한 번 정한 인원수로 친구 명단을 만든다
-// 친구들은 세션마다 여러 공간에 흩어져 있고, 그 공간에 들어가면 NPC로 만난다
+// Demo companions (autonomous demo NPC companions): not real multiplayer — builds a friend list from a head count chosen once at the start
+// Friends are scattered across spaces each session; enter a space to meet them as NPCs
 import { CHARACTERS, PLAYABLE, type Character, type CharacterId } from '../data/characters';
 import { loadValue, save } from './storage';
 
@@ -9,7 +9,7 @@ export interface Companion {
   name: string;
   character: Character;
   space: CompanionSpace;
-  doing: string; // 그 공간에서 하는 일(이름표)
+  doing: string; // What they're doing in that space (name tag)
 }
 
 const KEY = 'demoSettings';
@@ -24,13 +24,13 @@ const NAMES = ['Hieu', 'Chi', 'Luna'];
 const DOING: Record<CompanionSpace, string[]> = { cafe: ['Chatting', 'Sipping', 'Resting'], library: ['Reading', 'Writing', 'Browsing'] };
 const SPACES: CompanionSpace[] = ['cafe', 'library'];
 
-// 세션 동안 유지되는 명단(새로고침하면 자리만 다시 섞인다)
+// List kept for the session (reloading only reshuffles seats)
 let roster: { mine: CharacterId; list: Companion[] } | null = null;
 
 export function getCompanions(mine: CharacterId): Companion[] {
   if (roster?.mine === mine) return roster.list;
   const count = getCompanionCount() ?? 0;
-  // 내 캐릭터와 같은 모습은 피한다. 4명이면 마지막 한 명은 프리미엄 Cloudy
+  // Avoid the same look as my character. With 4, the last one is premium Cloudy
   const looks = PLAYABLE.filter((c) => c.id !== mine);
   const first = Math.random() < 0.5 ? 0 : 1;
   const list: Companion[] = [];

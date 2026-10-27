@@ -1,5 +1,5 @@
-// 로딩 화면: 앱을 열 때·장소로 이동할 때 Cloudee 일러스트 한 장을 무작위로 보여 준다
-// 위에는 떠다니는 구름, 아래에는 통통 튀는 점과 차오르는 진행 바
+// Loading screen: shows a random Cloudee illustration on app open and when moving to a place
+// Floating clouds on top, bouncing dots and a filling progress bar below
 import { motion } from 'framer-motion';
 import styles from './LoadingSplash.module.css';
 
@@ -9,7 +9,7 @@ const NAMES = [
 ];
 const src = (n: string) => `${import.meta.env.BASE_URL}assets/splash/${n}.jpg`;
 
-// 다음에 보여 줄 그림을 미리 골라 받아 둔다(같은 그림이 연달아 나오지 않게)
+// Pick and preload the next picture in advance (so the same one doesn't appear twice in a row)
 let last = '';
 let next = '';
 function queue() {
@@ -27,9 +27,9 @@ export function pickSplash() {
 
 interface Props {
   image: string;
-  label: string; // 예: "Going to Café…"
-  duration: number; // 진행 바가 차는 시간(초)
-  logo?: boolean; // 앱을 열 때: 로고 인트로
+  label: string; // e.g. "Going to Café…"
+  duration: number; // Time for the progress bar to fill (seconds)
+  logo?: boolean; // On app open: logo intro
 }
 
 export function LoadingSplash({ image, label, duration, logo }: Props) {

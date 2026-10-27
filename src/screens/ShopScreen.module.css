@@ -52,7 +52,7 @@
   flex-shrink: 0;
 }
 
-/* 이벤트 배너 */
+/* Event banner */
 .banner {
   position: relative;
   margin: 0 16px;
@@ -149,7 +149,7 @@
   background: #fff;
 }
 
-/* 출석 도장판 */
+/* Attendance stamp card */
 .stamps {
   margin: 0 16px;
   padding: 14px 12px 12px;
@@ -294,7 +294,7 @@
   text-decoration: underline;
 }
 
-/* 진열대: 그림이 큰 카드를 가로로 넘긴다 */
+/* Shelves: large picture cards scrolled horizontally */
 .shelf {
   display: grid;
   gap: 8px;

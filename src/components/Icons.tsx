@@ -1,4 +1,4 @@
-// 앱 전용 라인 아이콘(외부 아이콘 라이브러리 없이 인라인 SVG)
+// App-specific line icons (inline SVG, no external icon library)
 import type { SVGProps } from 'react';
 
 const base = (p: SVGProps<SVGSVGElement>) => ({

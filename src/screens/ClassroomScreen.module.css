@@ -27,7 +27,7 @@
 .intentBadge span { display: block; color: var(--lavender-deep); font-size: 9px; letter-spacing: .08em; font-weight: 900; }
 .intentBadge b { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; font-size: 13px; line-height: 1.35; font-weight: 900; }
 
-/* 현재 자리 표시 + 자리 바꾸기 */
+/* Current seat indicator + change seat */
 .chip {
   height: 40px;
   padding: 0 16px;
@@ -64,7 +64,7 @@
   font-weight: 800;
 }
 
-/* 하단 타이머 카드 */
+/* Bottom timer card */
 .panel {
   position: relative;
   z-index: 2;
@@ -160,7 +160,7 @@
   height: 60px;
 }
 
-/* 세션 완료 모달 */
+/* Session complete modal */
 .doneBackdrop {
   position: absolute;
   inset: 0;
@@ -206,7 +206,7 @@
   color: var(--warm-gray);
 }
 
-/* ── 피드백 반영: 사람 수, 집중 중 패널, 완료 통계 ── */
+/* ── Feedback applied: head count, focus panel, completion stats ── */
 .topRight {
   display: flex;
   gap: 8px;
@@ -260,7 +260,7 @@
   font-weight: 900;
 }
 
-/* ── 보상(C8)·체크인(C9)·생각 메모(C6) ── */
+/* ── Reward (C8) · check-in (C9) · thought notes (C6) ── */
 .coinPile {
   position: relative;
   width: 150px;
@@ -333,7 +333,7 @@
   opacity: 0.5;
 }
 
-/* ── C6 생각 내려놓기: "MY ONE THING" 배지 바로 아래에 뜨는 작은 창(키보드에 가려지지 않게) ── */
+/* ── C6 park a thought: small window that appears right below the "MY ONE THING" badge (not hidden by the keyboard) ── */
 .thoughtBackdrop {
   --pad-top: calc(var(--safe-top) + 154px);
   position: absolute;
@@ -347,7 +347,7 @@
 }
 .thoughtCard {
   width: 100%;
-  /* 키보드가 올라오면 보이는 영역(visualViewport)을 따라간다 */
+  /* Follow the visible area (visualViewport) when the keyboard comes up */
   translate: 0 var(--vv-top, 0px);
   max-height: calc(var(--vv-h, 100dvh) - var(--pad-top) - 12px);
   overflow-y: auto;
@@ -372,7 +372,7 @@
   text-overflow: ellipsis;
 }
 .thoughtCard .thoughtInput {
-  font-size: 16px; /* 16px 미만이면 iOS가 화면을 확대한다 */
+  font-size: 16px; /* iOS zooms the page if it's under 16px */
   height: 48px;
   margin-bottom: 10px;
 }

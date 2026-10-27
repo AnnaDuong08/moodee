@@ -1,5 +1,5 @@
-// 사운드 믹서 바텀시트: 전체 볼륨 + 소리 카드(교실 소품 아이콘, 탭하면 켜기/끄기, 슬라이더로 볼륨)
-// 앉은 캐릭터가 위로 보이도록 화면 절반 정도 높이로 작게 유지
+// Sound mixer bottom sheet: master volume + sound cards (classroom prop icons, tap to toggle, slider for volume)
+// Kept small at about half the screen height so the seated character stays visible above
 import { AnimatePresence, motion, useDragControls } from 'framer-motion';
 import { SOUNDS, type SoundId } from '../audio/soundscape';
 import { useSoundscape } from '../audio/useSoundscape';
@@ -17,12 +17,12 @@ interface Props {
 }
 
 const base = import.meta.env.BASE_URL;
-// 소리마다 어울리는 교실 소품 이미지
+// Classroom prop image matching each sound
 const ICONS: Record<SoundId, string> = {
   clock: `${base}assets/places/props/prop-clock.png`,
   pencil: `${base}assets/places/props/prop-desk.png`,
-  breeze: `${base}assets/places/props/prop-bookshelf.png`, // 창가 화분
-  hum: `${base}assets/places/props/prop-door.png`, // 복도 쪽 공기
+  breeze: `${base}assets/places/props/prop-bookshelf.png`, // Potted plant by the window
+  hum: `${base}assets/places/props/prop-door.png`, // Air from the hallway side
 };
 
 export function SoundMixer({ open, title = 'Classroom sounds', subtitle, doneLabel = 'Done', onClose, playing, onPlay, onStop }: Props) {
@@ -41,7 +41,7 @@ export function SoundMixer({ open, title = 'Classroom sounds', subtitle, doneLab
             initial={{ y: '100%' }}
             animate={{ y: 0, transition: { type: 'spring', stiffness: 300, damping: 32 } }}
             exit={{ y: '100%', transition: { duration: 0.2 } }}
-            // 슬라이더 조작과 겹치지 않게 손잡이에서만 끌어내려 닫기
+            // Drag-to-close only from the handle so it doesn't conflict with the sliders
             drag="y"
             dragListener={false}
             dragControls={drag}

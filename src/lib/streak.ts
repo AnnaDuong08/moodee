@@ -1,9 +1,9 @@
-// 스트릭: 하루에 집중 세션을 1회 이상 끝내면 이어짐
+// Streak: continues if you finish at least one focus session per day
 import { load, save } from './storage';
 
 interface StreakState {
   count: number;
-  lastDate: string | null; // YYYY-MM-DD (로컬 기준)
+  lastDate: string | null; // YYYY-MM-DD (local time)
   totalSessions: number;
 }
 
@@ -19,7 +19,7 @@ const yesterdayKey = () => {
   return dayKey(d);
 };
 
-// 화면 표시용: 어제 이전에 끊겼다면 0으로 본다
+// For display: if it broke before yesterday, treat it as 0
 export function readStreak() {
   const s = load<StreakState>(KEY, EMPTY);
   const today = dayKey(new Date());
@@ -27,7 +27,7 @@ export function readStreak() {
   return { count: alive ? s.count : 0, doneToday: s.lastDate === today, totalSessions: s.totalSessions };
 }
 
-// 세션 완료 시 호출
+// Called on session completion
 export function completeSession() {
   const s = load<StreakState>(KEY, EMPTY);
   const today = dayKey(new Date());

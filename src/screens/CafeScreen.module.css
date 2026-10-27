@@ -1,4 +1,4 @@
-/* 음료 만들기: 카운터 사진 비율(941:1672)의 무대를 화면 높이에 맞춰 가운데에 */
+/* Drink making: a stage at the counter photo's ratio (941:1672), fit to screen height and centered */
 .counter {
   position: absolute;
   top: 0;
@@ -12,7 +12,7 @@
   height: 100%;
   user-select: none;
 }
-/* 나무 받침(이미지의 50%, 69.5%) 위 */
+/* On the wooden coaster (50%, 69.5% of the image) */
 .cupBox {
   position: absolute;
   left: 50%;
@@ -90,7 +90,7 @@
   background: var(--sunset);
 }
 
-/* 테이블 화면 */
+/* Table screen */
 .room {
   object-position: 50% 30%;
   filter: blur(2px) brightness(0.92);
@@ -118,7 +118,7 @@
   height: 100%;
   user-select: none;
 }
-/* 받침 가운데(54.7%, 27%)에 컵 바닥을 맞춤 */
+/* Align the cup bottom to the coaster center (54.7%, 27%) */
 .onTable {
   position: absolute;
   left: 54.7%;
@@ -128,7 +128,7 @@
   filter: drop-shadow(0 12px 10px rgba(60, 30, 10, 0.35));
 }
 
-/* 테이블: 조용히 머물기 · 일어서기 */
+/* Table: stay quietly · stand up */
 .quiet {
   position: absolute;
   left: 50%;

@@ -1,11 +1,11 @@
-// 박물관 전시: 남기고 싶은 순간 → 기억 오브젝트 → 이야기 → 전시
+// Museum exhibit: a moment worth keeping → memory object → story → exhibit
 import { loadValue, save } from './storage';
 
 export interface Memory {
   id: string;
-  moment: string; // 고른 순간(세션 또는 직접 입력)
-  objectId: string; // 기억 오브젝트(EXHIBIT_OBJECTS의 id)
-  photo?: string; // 찍은 사진
+  moment: string; // The chosen moment (a session or typed in)
+  objectId: string; // Memory object (id in EXHIBIT_OBJECTS)
+  photo?: string; // Photo taken
   story: string;
   sourceType?: 'demo-video' | 'camera' | 'photo';
   createdAt: string;

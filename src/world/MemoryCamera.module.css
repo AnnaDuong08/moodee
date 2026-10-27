@@ -67,7 +67,7 @@
   height: 100%;
   object-fit: cover;
 }
-/* 데모 영상은 휴대폰 카메라 화면 녹화(1080×2400): 위·아래 조작부를 잘라 뷰파인더 부분만 보이게 */
+/* The demo video is a phone camera screen recording (1080×2400): crop the top and bottom controls so only the viewfinder shows */
 .recording {
   inset: auto;
   left: 0;
@@ -111,7 +111,7 @@
   background: #fff;
 }
 
-/* 변환 무대 */
+/* Transformation stage */
 .transform {
   position: absolute;
   inset: 0;

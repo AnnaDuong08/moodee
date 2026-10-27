@@ -1,4 +1,4 @@
-/* 어두운 반투명 유리 HUD(화면을 최대한 가리지 않게 작게) */
+/* Dark translucent glass HUD (small, so it covers as little of the screen as possible) */
 .minimap,
 .chatPanel,
 .chatToggle,
@@ -39,7 +39,7 @@
   overflow: hidden;
   aspect-ratio: 941 / 1300;
 }
-/* 교실 이미지 전체(941×1672)를 위로 14% 올려 책상 구역만 보이게 */
+/* Shift the whole classroom image (941×1672) up 14% so only the desk area shows */
 .mapInner {
   position: absolute;
   inset: 0 0 auto;
@@ -179,14 +179,14 @@
   opacity: 0.35;
 }
 
-/* 노트 창이 떠 있는 동안: 창과 겹치지 않게 잠시 숨김 */
+/* While the note window is open: hide briefly so it doesn't overlap the window */
 .dimmed {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease, bottom 0.3s ease;
 }
 
-/* 소리 버튼 짧은 라벨: 마우스를 올리거나 키보드로 포커스하면 왼쪽에 뜬다 */
+/* Short label for sound buttons: appears on the left on mouse hover or keyboard focus */
 .sounds button {
   position: relative;
 }

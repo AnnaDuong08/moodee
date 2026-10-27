@@ -1,5 +1,5 @@
-// 데모 동행 설정(앱에 처음 들어올 때 한 번): 몇 명의 친구와 함께할지 0~4명
-// 여기서 정한 인원으로 친구 명단을 한 번 만들고, 공간마다 다시 묻지 않는다
+// Demo companion setup (once, on first entering the app): how many friends to be with, 0–4
+// Build the friend list once from the number chosen here; don't ask again per space
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { CharacterSprite } from '../components/CharacterSprite';
@@ -19,7 +19,7 @@ const cloudy = CHARACTERS.find((c) => c.premium)!;
 
 export function CompanionSetupScreen({ onBack, onDone }: Props) {
   const [count, setCount] = useState(() => getCompanionCount() ?? 2);
-  // 미리보기: 4명이면 마지막 자리는 Cloudy
+  // Preview: with 4, the last spot is Cloudy
   const preview = Array.from({ length: count }, (_, i) => (count === MAX_COMPANIONS && i === 3 ? cloudy : PLAYABLE[(i + 1) % PLAYABLE.length]));
 
   return (

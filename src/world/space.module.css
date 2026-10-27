@@ -1,4 +1,4 @@
-/* 공간 화면 공통: 어두운 유리 HUD + 활동 화면 레이어 */
+/* Shared space screen styles: dark glass HUD + activity screen layer */
 .space {
   background: #2e2420;
 }
@@ -53,7 +53,7 @@
   font-size: 15px;
 }
 
-/* 활동 화면 */
+/* Activity screen */
 .activity {
   position: absolute;
   inset: 0;
@@ -140,7 +140,7 @@
   box-shadow: 0 8px 22px -6px rgba(242, 196, 107, 0.9);
 }
 
-/* 친구 목록 */
+/* Friends list */
 .friends {
   list-style: none;
   margin: 0 0 12px;

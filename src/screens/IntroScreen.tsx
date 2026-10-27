@@ -1,5 +1,5 @@
-// 첫 화면: 메인 일러스트 위로 MOODEE 로고가 통통 내려앉고, 별이 반짝이며 구름이 흘러간다
-// 화면을 누르면 친구 수 설정으로 넘어간다
+// First screen: the MOODEE logo bounces down onto the main illustration, stars twinkle and clouds drift
+// Tapping the screen moves on to the friend count setup
 import { motion } from 'framer-motion';
 import { screenMotion } from '../lib/motion';
 import styles from './IntroScreen.module.css';
@@ -20,7 +20,7 @@ export function IntroScreen({ onStart }: { onStart: () => void }) {
       <span className={`${styles.cloud} ${styles.c1}`} aria-hidden />
       <span className={`${styles.cloud} ${styles.c2}`} aria-hidden />
 
-      {/* 로고: 위에서 떨어져 통통 튄 뒤 둥실둥실 */}
+      {/* Logo: drops from above, bounces, then floats gently */}
       <motion.div className={styles.logoWrap} initial={{ y: -220, opacity: 0, scale: 0.7, rotate: -6 }} animate={{ y: 0, opacity: 1, scale: 1, rotate: 0 }} transition={{ type: 'spring', stiffness: 170, damping: 11, delay: 0.35 }}>
         <motion.img className={styles.logo} src={`${base}assets/brand/logo.png`} alt="MOODEE" animate={{ y: [0, -8, 0], rotate: [0, 1.2, 0] }} transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut', delay: 1.2 }} />
       </motion.div>

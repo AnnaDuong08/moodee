@@ -25,7 +25,7 @@
   pointer-events: none;
 }
 
-/* 인터랙션 지점: 은은한 금빛 고리 */
+/* Interaction point: soft golden ring */
 .zone {
   position: absolute;
   width: 78px;
@@ -80,7 +80,7 @@
   }
 }
 
-/* 캐릭터: 발(컷의 78% 지점)을 좌표에 맞춤 */
+/* Character: align the feet (78% of the frame) to the coordinates */
 .char {
   position: absolute;
   aspect-ratio: 400 / 1086;
@@ -139,7 +139,7 @@
   color: var(--charcoal);
   font-weight: 900;
 }
-/* 들고 있는 것: 손 높이 옆에 */
+/* Held item: beside the hand */
 .carry {
   position: absolute;
   left: 78%;
@@ -168,7 +168,7 @@
   display: flex;
   justify-content: flex-end;
 }
-/* 어두운 유리 느낌의 행동 버튼 */
+/* Dark-glass action button */
 .cta {
   display: inline-flex;
   align-items: center;
@@ -216,7 +216,7 @@
   color: #fff;
 }
 
-/* 출구: 문 앞 바닥 표시 */
+/* Exit: floor marker in front of the door */
 .exit {
   position: absolute;
   width: 120px;
@@ -253,7 +253,7 @@
   font-size: 18px;
   font-weight: 900;
 }
-/* NPC 말풍선 */
+/* NPC speech bubble */
 .bubble {
   position: absolute;
   left: 50%;

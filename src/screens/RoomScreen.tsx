@@ -1,5 +1,5 @@
 // My Room — Personalize
-// 탑뷰 방 안을 걸어 다니며 책상·선반·탁자에 모은 것들을 올려놓고, 옷장에서 Cloudee를 꾸민다
+// Walk around the top-view room, place collected things on the desk, shelves and table, and dress up Cloudee at the wardrobe
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMemo, useState } from 'react';
 import { CoinChip } from '../components/Coin';
@@ -19,7 +19,7 @@ import styles from './RoomScreen.module.css';
 
 const base = import.meta.env.BASE_URL;
 
-// 좌표는 방 탑뷰 이미지(941×1672) 픽셀 기준
+// Coordinates are pixels of the room top-view image (941×1672)
 const ROOM: WorldConfig = {
   id: 'my-room',
   src: `${base}assets/places/myroom-topdown.jpg`,
@@ -28,11 +28,11 @@ const ROOM: WorldConfig = {
   height: 1672,
   bounds: [150, 425, 822, 1398],
   blockers: [
-    [107, 262, 513, 420], [285, 420, 385, 500], // 책상, 의자
-    [478, 239, 860, 790], [786, 760, 880, 872], // 침대, 협탁
-    [0, 454, 162, 912], [118, 470, 215, 562], // 왼쪽 책장, 화분
-    [84, 895, 346, 1172], [375, 920, 568, 1124], [590, 1039, 728, 1172], // 안락의자, 둥근 탁자, 푸프
-    [0, 1122, 228, 1410], [824, 597, 941, 1196], [716, 1218, 941, 1433], // 턴테이블 장, 오른쪽 책장, 수납장
+    [107, 262, 513, 420], [285, 420, 385, 500], // Desk, chair
+    [478, 239, 860, 790], [786, 760, 880, 872], // Bed, nightstand
+    [0, 454, 162, 912], [118, 470, 215, 562], // Left bookshelf, plant
+    [84, 895, 346, 1172], [375, 920, 568, 1124], [590, 1039, 728, 1172], // Armchair, round table, pouf
+    [0, 1122, 228, 1410], [824, 597, 941, 1196], [716, 1218, 941, 1433], // Turntable cabinet, right bookshelf, storage cabinet
   ],
   start: { x: 483, y: 1335 },
   exit: { x: 483, y: 1394 },
@@ -41,7 +41,7 @@ const ROOM: WorldConfig = {
   waypoints: [],
 };
 
-// 물건을 올려놓을 수 있는 자리: 서는 위치(zone)와 물건이 놓이는 위치(at)
+// Spots where items can be placed: where you stand (zone) and where the item goes (at)
 const SLOTS = [
   { id: 'desk', name: 'Desk', zone: { x: 225, y: 445 }, at: { x: 205, y: 352 }, size: 78 },
   { id: 'shelf', name: 'Bookshelf', zone: { x: 188, y: 760 }, at: { x: 84, y: 730 }, size: 70 },
@@ -64,7 +64,7 @@ export function RoomScreen({ characterId, onBack, onMembership, onChangeCharacte
   const [wardrobe, setWardrobe] = useState(false);
   const [justPlaced, setJustPlaced] = useState<string | null>(null);
 
-  // 가진 것: Museum에서 만든 기억 오브젝트(memoryId로 연결) + 처음부터 있는 소품 둘
+  // Owned: memory objects made in the Museum (linked by memoryId) + two starting props
   const collection = useMemo(() => {
     const mine = listMemories().map((m) => ({ key: m.id, objectId: m.objectId as ExhibitObjectId, label: m.moment, memoryId: m.id as string | undefined }));
     const starters = (['duck-sock', 'banana-milk'] as ExhibitObjectId[]).filter((id) => !mine.some((m) => m.objectId === id)).map((id) => ({ key: id, objectId: id, label: EXHIBIT_OBJECTS[id].name, memoryId: undefined as string | undefined }));
@@ -129,7 +129,7 @@ export function RoomScreen({ characterId, onBack, onMembership, onChangeCharacte
         <div className={hud.topActions}><CoinChip onClick={onMembership} /><BackgroundSoundButton dark onClick={onSoundSettings} /></div>
       </header>
 
-      {/* 물건 고르기 */}
+      {/* Pick an item */}
       <Sheet open={!!slot} onClose={() => setSlot(null)} title={slot ? `On the ${slot.name.toLowerCase()}` : ''} subtitle="Things you collected. Memories from the Museum show up here.">
         <div className={styles.grid}>
           {collection.map((c) => (

@@ -1,4 +1,4 @@
-/* 컬러 토큰 & 공통 스타일 */
+/* Color tokens & shared styles */
 :root {
   --lavender: #c9b8e0;
   --cream: #f5eee2;
@@ -37,7 +37,7 @@ body,
   overflow: hidden;
 }
 
-/* 데스크톱 배경: 로고와 같은 푸른 톤의 은은한 빛 */
+/* Desktop background: soft glow in the same blue tone as the logo */
 body {
   background: radial-gradient(120% 90% at 20% 0%, #d6e0fb 0%, transparent 55%),
     radial-gradient(90% 80% at 100% 100%, #d9cbeb 0%, transparent 60%), #efe6f3;
@@ -58,13 +58,13 @@ input:focus-visible {
   outline-offset: 3px;
 }
 
-/* 폰 프레임: 모바일은 전체 화면, 넓은 화면에서는 가운데 430px 폭 */
+/* Phone frame: full screen on mobile, centered 430px width on wide screens */
 .phone {
   position: relative;
   width: min(100%, 430px);
   height: 100dvh;
   margin: 0 auto;
-  /* clip: 화면 밖으로 나간 휠 때문에 스크롤되지 않도록(hidden은 스크립트 스크롤을 허용) */
+  /* clip: prevents scrolling caused by the wheel overflowing the screen (hidden still allows script scrolling) */
   overflow: clip;
   background: var(--cream);
   isolation: isolate;
@@ -90,7 +90,7 @@ input:focus-visible {
   flex-direction: column;
 }
 
-/* 공용 알약 버튼 */
+/* Shared pill button */
 .pill {
   display: inline-flex;
   align-items: center;

@@ -1,4 +1,4 @@
-// Word Relay 단어 풀(카페·자연·일상 명사). 한국어는 두음법칙 없이 "첫 글자 = 이전 단어 마지막 글자"
+// Word Relay word pool (café, nature and everyday nouns). Korean uses "first letter = last letter of the previous word" without the initial-sound rule
 export const WORDS = {
   ko: [
     '커피', '피아노', '노트', '트리', '리본', '본차이나', '나무', '무지개', '개구리', '리듬', '음악', '악보', '보리차', '차나무', '무릎', '바다', '다리', '리모컨', '컨트롤', '구름',
@@ -29,7 +29,7 @@ export const firstChar = (w: string) => w[0];
 const norm = (w: string) => w.trim().toLowerCase();
 export const inPool = (lang: RelayLang, w: string) => WORDS[lang].includes(norm(w));
 
-// 이어갈 수 있는 후보(이미 쓴 단어 제외)
+// Candidates that can continue the chain (excluding words already used)
 export function candidates(lang: RelayLang, prev: string | null, used: string[]): string[] {
   const pool = WORDS[lang].filter((w) => !used.includes(w));
   return prev ? pool.filter((w) => firstChar(w) === lastChar(prev)) : pool;

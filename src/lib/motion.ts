@@ -1,4 +1,4 @@
-// 화면 전환 공통 모션
+// Shared screen-transition motion
 import type { Variants } from 'framer-motion';
 
 export const screenMotion = {

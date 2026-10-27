@@ -1,4 +1,4 @@
-// 캐릭터 선택: 스와이프/화살표/썸네일로 고르고 하단 버튼으로 확정
+// Character select: choose by swipe/arrows/thumbnails and confirm with the bottom button
 import { AnimatePresence, motion, type PanInfo, type Variants } from 'framer-motion';
 import { useState } from 'react';
 import { CharacterSprite } from '../components/CharacterSprite';
@@ -12,7 +12,7 @@ import styles from './CharacterSelectScreen.module.css';
 
 interface Props {
   initialId: CharacterId | null;
-  onBack?: () => void; // 첫 실행에는 돌아갈 곳이 없음
+  onBack?: () => void; // Nowhere to go back to on first launch
   onConfirm: (id: CharacterId) => void;
 }
 
@@ -28,10 +28,10 @@ export function CharacterSelectScreen({ initialId, onBack, onConfirm }: Props) {
     0,
   ]);
   const current = CHARACTERS[index];
-  // 잠긴 Cloudee는 코인으로 해제한다
+  // Locked Cloudees are unlocked with coins
   const wallet = useWallet();
-  // Cloudy는 MOODEE PRO 전용(결제 없음: 안내만). 친구 4명을 고르면 월드에서 만날 수 있다
-  // Pro가 아니면 프리미엄 잠금, Pro면 바로 고를 수 있다
+  // Cloudy is MOODEE PRO only (no payment: info only). Choose 4 friends to meet it in the world
+  // Premium-locked without Pro; selectable right away with Pro
   const premium = !!current.premium && wallet.plan !== 'pro';
   const [proNote, setProNote] = useState(false);
   const locked = !current.premium && !hasCloudee(wallet, current);
@@ -66,7 +66,7 @@ export function CharacterSelectScreen({ initialId, onBack, onConfirm }: Props) {
           <span className={styles.spacer} />
         )}
         <div className={styles.titles}>
-          {/* 첫 실행(돌아갈 곳 없음)이면 앱 소개를 함께 보여줌 */}
+          {/* On first launch (nowhere to go back to), also show the app introduction */}
           {onBack ? (
             <span className={styles.eyebrow}>Your Cloudee</span>
           ) : (

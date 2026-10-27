@@ -1,4 +1,4 @@
-// 교실 탑뷰 미니게임: 조이스틱·방향키·바닥 탭으로 걸어가 빈자리를 고른다
+// Classroom top-view minigame: walk by joystick, arrow keys or tapping the floor to pick an empty seat
 import { motion } from 'framer-motion';
 import { useEffect, useMemo, useRef, useState, type ReactNode, type PointerEvent as ReactPointerEvent } from 'react';
 import type { Character, Pose } from '../data/characters';
@@ -14,20 +14,20 @@ import styles from './SeatPicker.module.css';
 interface Props {
   character: Character;
   onSit: (seat: Seat) => void;
-  onPeople: () => void; // 앉아 있는 친구를 누르면 "같은 방 사람들" 열기
+  onPeople: () => void; // Tapping a seated friend opens "People in this room"
   movementAction?: ReactNode;
 }
 
 const { width: W, height: H, top } = CLASSROOM;
-const SPEED = 220; // 이미지 px/초
-const NEAR = 38; // 이 거리 안이면 앉을 수 있음
-const ZOOM = 1.25; // 창문(햇살이 들어오는 곳)이 화면 왼쪽에 걸리도록
+const SPEED = 220; // image px/s
+const NEAR = 38; // Can sit within this distance
+const ZOOM = 1.25; // So the window (where sunlight comes in) sits on the left of the screen
 
 type Dir = 'up' | 'down' | 'left' | 'right';
 const POSE_OF: Record<Dir, Pose> = { up: 'back', down: 'front', left: 'side', right: 'sideAlt' };
 
 export function SeatPicker({ character, onSit, onPeople, movementAction }: Props) {
-  // 이미 친구가 앉아 있는 자리
+  // Seats already taken by friends
   const looks = useMemo(() => classmateLooks(character.id), [character.id]);
   const taken = useMemo(() => new Map(CLASSMATES.map((m) => [m.topSeat, m])), []);
   const viewport = useRef<HTMLDivElement>(null);
@@ -44,7 +44,7 @@ export function SeatPicker({ character, onSit, onPeople, movementAction }: Props
   const keys = useRef(new Set<string>());
   const route = useRef<Pt[]>([]);
 
-  // 방향키/WASD
+  // Arrow keys/WASD
   useEffect(() => {
     const map: Record<string, string> = { ArrowUp: 'u', KeyW: 'u', ArrowDown: 'd', KeyS: 'd', ArrowLeft: 'l', KeyA: 'l', ArrowRight: 'r', KeyD: 'r' };
     const down = (e: KeyboardEvent) => {
@@ -62,7 +62,7 @@ export function SeatPicker({ character, onSit, onPeople, movementAction }: Props
     };
   }, []);
 
-  // 게임 루프
+  // Game loop
   useEffect(() => {
     let raf = 0;
     let last = performance.now();
@@ -75,7 +75,7 @@ export function SeatPicker({ character, onSit, onPeople, movementAction }: Props
       const mag = Math.hypot(vx, vy);
 
       if (mag > 0.2) {
-        // 직접 조작하면 탭 경로는 취소
+        // Manual control cancels the tap path
         if (route.current.length) {
           route.current = [];
           setTarget(null);
@@ -100,7 +100,7 @@ export function SeatPicker({ character, onSit, onPeople, movementAction }: Props
       const isMoving = vx !== 0 || vy !== 0;
       if (isMoving) {
         const p = route.current.length
-          ? { x: posRef.current.x + vx * SPEED * dt, y: posRef.current.y + vy * SPEED * dt } // 경로는 이미 안전
+          ? { x: posRef.current.x + vx * SPEED * dt, y: posRef.current.y + vy * SPEED * dt } // The path is already safe
           : walker.step(posRef.current, vx * SPEED * dt, vy * SPEED * dt);
         posRef.current = p;
         setPos(p);
@@ -149,7 +149,7 @@ export function SeatPicker({ character, onSit, onPeople, movementAction }: Props
 
           {top.seats.map((s) => {
             const mate = taken.get(s.id);
-            // 친구가 앉은 자리: 캐릭터 + "이름 · 공부 주제" 이름표
+            // Seats taken by friends: character + "name · study topic" name tag
             if (mate)
               return (
                 <button

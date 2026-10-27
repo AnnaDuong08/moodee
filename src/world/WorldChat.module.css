@@ -1,4 +1,4 @@
-/* 조이스틱 위, 왼쪽 아래에 쌓이는 채팅 줄 */
+/* Chat lines stacking at the bottom left, above the joystick */
 .chat {
   position: absolute;
   z-index: 2;

@@ -1,4 +1,4 @@
-// 장소 목록: Classroom은 전체 흐름이 열려 있고, 나머지는 공간을 미리 둘러볼 수 있다(preview)
+// Place list: Classroom has the full flow open; the others can be previewed
 export type PlaceId = 'classroom' | 'my-room' | 'library' | 'museum' | 'cafe';
 
 export interface Place {
@@ -6,9 +6,9 @@ export interface Place {
   name: string;
   blurb: string;
   icon: string;
-  available: boolean; // 집중 루틴까지 구현된 곳
+  available: boolean; // Implemented through the focus routine
   tint: string;
-  // 둘러보기 화면: 배경(세로 이미지)과 캐릭터가 서는 자리(이미지 비율 좌표), 이 공간에서 하게 될 일
+  // Preview screen: background (portrait image), where the character stands (image-ratio coordinates), and what you'll do in this space
   view?: { src: string; width: number; height: number; spot: { x: number; y: number; h: number }; pose: 'front' | 'back' };
   mode?: string;
   plans?: string[];
@@ -16,7 +16,7 @@ export interface Place {
 
 const base = import.meta.env.BASE_URL;
 
-// 홈 휠에 도는 순서(시계 방향)
+// Order on the home wheel (clockwise)
 export const PLACES: Place[] = [
   { id: 'classroom', name: 'Classroom', blurb: 'Focus quietly with others.', icon: `${base}assets/places/icon-classroom.png`, available: true, tint: '#C9B8E0' },
   {
@@ -45,13 +45,13 @@ export const PLACES: Place[] = [
   },
 ];
 
-// ───────── 교실 ─────────
-// 모든 좌표는 원본 교실 이미지(941×1672) 픽셀 기준
+// ───────── Classroom ─────────
+// All coordinates are pixels of the original classroom image (941×1672)
 
 export type Rect = [x0: number, y0: number, x1: number, y1: number];
 export interface Seat {
   id: string;
-  x: number; // 의자 중심(캐릭터 발 위치)
+  x: number; // Chair center (character foot position)
   y: number;
   side: 'left' | 'right';
 }
@@ -66,13 +66,13 @@ const SEAT_ROWS: [y: number, xs: number[]][] = [
 export const CLASSROOM = {
   width: 941,
   height: 1672,
-  // 위에서 본 교실: 걸어 다니며 자리 고르기
+  // Top-view classroom: walk around to pick a seat
   top: {
     src: `${base}assets/places/classroom-topdown.png`,
-    charH: 0.16, // 캐릭터 한 컷 높이(이미지 높이 대비)
-    start: { x: 470, y: 1390 }, // 뒷문 앞에서 시작
+    charH: 0.16, // Height of one character frame (relative to image height)
+    start: { x: 470, y: 1390 }, // Start in front of the back door
     bounds: [70, 300, 872, 1440] as Rect,
-    // 걸어서 통과할 수 없는 곳(책상 상판, 교탁)
+    // Places you can't walk through (desk tops, teacher's desk)
     blockers: [
       [370, 285, 575, 410],
       [170, 430, 400, 500], [545, 430, 780, 500],
@@ -84,16 +84,16 @@ export const CLASSROOM = {
       xs.map((x, c): Seat => ({ id: `${r + 1}${'ABCD'[c]}`, x, y, side: c < 2 ? 'left' : 'right' })),
     ),
   },
-  // 캐릭터 뒤 눈높이 교실: 앉은 모습
+  // Eye-level classroom behind the character: seated view
   back: {
     src: `${base}assets/places/classroom-backview.png`,
     chairs: `${base}assets/places/classroom-backview-chairs.png`,
-    // 앉는 의자(3번째 줄 통로 쪽). hipY에서 캐릭터 컷을 잘라 등받이 뒤로 숨김
+    // Chair to sit in (row 3, aisle side). The character frame is cut at hipY and hidden behind the backrest
     seat: {
       left: { x: 175, hipY: 935 },
       right: { x: 790, hipY: 935 },
     },
     charH: 0.32,
-    hipCut: 0.66, // 캐릭터 컷에서 엉덩이 높이(이 아래는 잘라냄)
+    hipCut: 0.66, // Hip height within the character frame (everything below is cut)
   },
 } as const;

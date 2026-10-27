@@ -1,4 +1,4 @@
-/* 보드카페: 크림색·파스텔·부드러운 클레이 톤. 모든 모션 0.2~0.6s ease-out */
+/* Board Café: cream, pastel, soft clay tones. All motion 0.2–0.6s ease-out */
 .overlay {
   position: absolute;
   inset: 0;
@@ -50,7 +50,7 @@
   background: #6e86d8;
 }
 
-/* ── 게임 선반 ── */
+/* ── Game shelf ── */
 .shelfWrap {
   position: relative;
   flex: 1;
@@ -145,7 +145,7 @@
   background: rgba(46, 42, 42, 0.8);
 }
 
-/* ── 모이기 · 상자 열기 ── */
+/* ── Gathering · opening the box ── */
 .gather {
   position: relative;
   flex: 1;
@@ -196,7 +196,7 @@
   font-weight: 900;
 }
 
-/* ── 게임 공통 ── */
+/* ── Shared game styles ── */
 .playWrap {
   position: relative;
   flex: 1;
@@ -269,7 +269,7 @@
   box-shadow: 0 6px 14px -6px rgba(90, 70, 110, 0.4), inset 0 0 0 2px #cfdaf8;
 }
 
-/* 테이블 위 */
+/* On the table */
 .tableTop {
   position: relative;
   margin: auto 0;
@@ -534,7 +534,7 @@
   clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
 }
 
-/* ── 결과 ── */
+/* ── Result ── */
 .resultWrap {
   flex: 1;
   display: grid;
@@ -780,7 +780,7 @@
     animation: none;
   }
 }
-/* 양쪽 자리 말풍선이 화면 밖으로 나가지 않게 */
+/* Keep the speech bubbles on both sides from going off screen */
 .seats > .seat:first-child .bubble {
   left: 0;
 }

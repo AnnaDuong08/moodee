@@ -28,7 +28,7 @@
   transform-origin: 50% 66%;
 }
 
-/* 화면이 확대되어 있으므로 이미지 px 기준으로 크게 */
+/* The view is zoomed in, so size in image px */
 .hotspot {
   position: absolute;
   translate: -50% -50%;
@@ -65,7 +65,7 @@
   pointer-events: none;
 }
 
-/* 이름표(머리 위) */
+/* Name tag (above the head) */
 .tag {
   position: absolute;
   translate: -50% -100%;

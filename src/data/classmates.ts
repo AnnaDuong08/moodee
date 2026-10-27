@@ -1,13 +1,13 @@
-// 같은 교실에서 공부 중인 사람들(데모용 고정 데이터).
-// 실제 다른 사용자는 서버가 필요하므로, 지금은 "누가 무엇을 공부 중인지 보이는" 경험만 보여 준다.
+// People studying in the same classroom (fixed demo data).
+// Real other users need a server, so for now this only shows the experience of "seeing who is studying what".
 import { PLAYABLE as CHARACTERS, type Character, type CharacterId } from './characters';
 
 export interface Classmate {
   id: string;
   name: string;
   subject: string;
-  topSeat: string; // 탑뷰 좌석 ID (SeatPicker)
-  // 눈높이 뷰에서 앉는 의자(이미지 px): 줄, 의자 중심 x, 엉덩이 높이, 캐릭터 컷 높이 비율
+  topSeat: string; // Top-view seat ID (SeatPicker)
+  // Chair to sit in for the eye-level view (image px): row, chair center x, hip height, character frame height ratio
   back: { row: 1 | 2; x: number; hipY: number; h: number };
 }
 
@@ -17,7 +17,7 @@ export const CLASSMATES: Classmate[] = [
   { id: 'luna', name: 'Luna', subject: 'Chemistry', topSeat: '2D', back: { row: 2, x: 874, hipY: 752, h: 0.225 } },
 ];
 
-// 내 캐릭터를 뺀 나머지 캐릭터를 친구들에게 차례로 배정
+// Assign the characters other than mine to friends in turn
 export function classmateLooks(mine: CharacterId): Record<string, Character> {
   const rest = CHARACTERS.filter((c) => c.id !== mine);
   return Object.fromEntries(CLASSMATES.map((m, i) => [m.id, rest[i % rest.length]]));

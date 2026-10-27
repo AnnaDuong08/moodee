@@ -50,7 +50,7 @@
   touch-action: pan-y;
 }
 
-/* 캐릭터 뒤 햇살 원 */
+/* Sunlight circle behind the character */
 .halo {
   position: absolute;
   width: 78%;
@@ -77,8 +77,8 @@
 .hero:active {
   cursor: grabbing;
 }
-/* 시트 컷에는 위아래 여백이 있어서 살짝 아래로 내려 바닥 그림자에 발을 맞춤 */
-/* 컷의 78% 지점이 발: 무대 아래쪽 바닥 그림자(bottom 8%)에 발이 닿게 내림 */
+/* Sheet frames have top/bottom margins, so shift down slightly to put the feet on the floor shadow */
+/* Feet are at 78% of the frame: shift down so they touch the floor shadow at the bottom of the stage (bottom 8%) */
 .bob {
   position: relative;
   top: 8.4%;
@@ -159,7 +159,7 @@
   padding: 16px 20px calc(var(--safe-bottom) + 20px);
 }
 
-/* ── 잠긴 Cloudee ── */
+/* ── Locked Cloudee ── */
 .coinChip {
   justify-self: end;
   height: 34px;
@@ -262,7 +262,7 @@
   min-height: 50px;
 }
 
-/* Cloudy: 유료처럼 잠긴 모습(실루엣 + 자물쇠는 구름 위에) */
+/* Cloudy: locked like a paid item (silhouette + lock on top of the cloud) */
 .proLock {
   top: 66%;
   color: #fff;

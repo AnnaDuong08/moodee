@@ -1,4 +1,4 @@
-// 사운드스케이프 설정을 React 상태로 구독
+// Subscribe to soundscape settings as React state
 import { useEffect, useState } from 'react';
 import { soundscape, type AudioSettings } from './soundscape';
 

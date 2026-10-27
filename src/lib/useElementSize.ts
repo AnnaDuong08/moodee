@@ -1,4 +1,4 @@
-// 요소 크기 추적(카메라 계산용)
+// Track element size (for camera calculations)
 import { useEffect, useState, type RefObject } from 'react';
 
 export function useElementSize(ref: RefObject<HTMLElement | null>) {
@@ -13,8 +13,8 @@ export function useElementSize(ref: RefObject<HTMLElement | null>) {
   return size;
 }
 
-// 이미지(W×H)를 화면(vw×vh)에 cover로 깔고 zoom배 확대한 뒤,
-// 이미지 좌표(fx, fy)가 화면 좌표(tx, ty)에 오도록 이동(가장자리 밖은 보이지 않게 제한)
+// Lay the image (W×H) over the screen (vw×vh) with cover and zoom it by `zoom`,
+// then translate so image coordinates (fx, fy) land at screen coordinates (tx, ty) (clamped so nothing outside the edges shows)
 export function camera(vw: number, vh: number, W: number, H: number, zoom: number, fx: number, fy: number, tx = vw / 2, ty = vh / 2) {
   const s = Math.max(vw / W, vh / H) * zoom;
   const clamp = (v: number, min: number) => Math.min(0, Math.max(min, v));

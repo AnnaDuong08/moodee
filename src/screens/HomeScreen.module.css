@@ -1,7 +1,7 @@
 .home {
-  /* 휠 치수: PlaceWheel과 설명 영역이 같은 값을 공유 */
-  /* 화면 폭보다 큰 행성 위에 장소가 놓인다. 선택된 장소는 크게, 양옆은 작게 걸쳐 보임 */
-  /* 폰 프레임 폭 기준(데스크톱에서도 430px 프레임에 맞게) */
+  /* Wheel dimensions: shared by PlaceWheel and the description area */
+  /* Places sit on a planet wider than the screen. The selected place is large; neighbors appear small at the edges */
+  /* Based on phone frame width (fits the 430px frame on desktop too) */
   container-type: size;
   --disc: min(172cqw, 740px);
   --icon: min(82cqw, 360px);
@@ -9,7 +9,7 @@
   overflow: hidden;
 }
 
-/* 오른쪽 위 은은한 빛(로고와 같은 푸른 톤) */
+/* Soft glow at the top right (same blue tone as the logo) */
 .sun {
   position: absolute;
   top: -120px;
@@ -54,7 +54,7 @@
   box-shadow: var(--shadow-soft);
   position: relative;
 }
-/* 앞모습 컷에서 얼굴 부분만 보이도록 확대 */
+/* Zoom so only the face of the front frame shows */
 .avatarSprite {
   position: absolute;
   left: 50%;
@@ -91,7 +91,7 @@
   color: #cfc7c0;
 }
 
-/* 브랜드: 헤더 아래 가운데 로고만(소개 문구는 스플래시·온보딩에서) */
+/* Brand: only the logo, centered under the header (intro copy is on the splash and onboarding) */
 .brand {
   position: relative;
   z-index: 2;
@@ -108,13 +108,13 @@
   filter: drop-shadow(0 3px 6px rgba(90, 80, 150, 0.18));
 }
 
-/* 장소 정보: 화면 가운데 위쪽에 하나의 그룹. 이동 중에도 줄 구성이 같아 흔들리지 않음 */
+/* Place info: one group in the upper center. Same line layout while moving, so it doesn't jump */
 .info {
   position: absolute;
   z-index: 2;
   left: 0;
   right: 0;
-  top: calc(var(--safe-top) + 172px); /* 로고와 약 55px 간격 */
+  top: calc(var(--safe-top) + 172px); /* About 55px from the logo */
   padding: 0 28px;
   text-align: center;
   pointer-events: none;
@@ -147,7 +147,7 @@
   color: var(--sunset);
 }
 
-/* 버튼은 휠 위, 엄지 영역 */
+/* Button above the wheel, in thumb reach */
 .dock {
   position: absolute;
   z-index: 30;
@@ -204,7 +204,7 @@
   box-shadow: inset 0 0 0 1.5px rgba(154, 149, 144, 0.3);
   cursor: default;
 }
-/* 휠 위치 표시 */
+/* Wheel position indicator */
 .pager {
   display: flex;
   align-items: center;
@@ -249,7 +249,7 @@
   background: rgba(127, 149, 230, 0.16);
 }
 
-/* 배경: 아주 옅은 구름과 별(Cloudy 세계관) */
+/* Background: very faint clouds and stars (Cloudy's world) */
 .cloud {
   position: absolute;
   z-index: 1;

@@ -30,7 +30,7 @@
   width: 14px;
   height: 14px;
   background: var(--honey);
-  /* 네 갈래 별 */
+  /* Four-pointed star */
   clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
 }
 

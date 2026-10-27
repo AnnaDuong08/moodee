@@ -1,5 +1,5 @@
 // Museum — Collect / Reflect
-// 탑뷰 전시장에서 걸어 다니며 내 기억 전시대를 보고, 입구 앞 카메라 지점에서 새 기억을 찍어 전시대에 올린다
+// Walk around the top-view gallery to see my memory pedestals, and capture a new memory at the camera spot by the entrance to put on a pedestal
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMemo, useState } from 'react';
 import { BackgroundSoundButton } from '../components/BackgroundSound';
@@ -16,12 +16,12 @@ import styles from './MuseumScreen.module.css';
 
 const base = import.meta.env.BASE_URL;
 
-// 내 기억 전시대 3곳(새 기억이 가운데에 놓이고 이전 것은 옆으로) + 기본 전시 2곳
+// 3 pedestals for my memories (new one in the middle, older ones to the sides) + 2 default exhibits
 const MY_STANDS = [{ x: 468, y: 1000 }, { x: 330, y: 1030 }, { x: 606, y: 1030 }];
 const DEMO_STANDS = [{ x: 320, y: 880 }, { x: 620, y: 880 }];
 const standBlock = (s: { x: number; y: number }): Rect => [s.x - 34, s.y - 24, s.x + 34, s.y + 14];
 
-// 좌표는 박물관 탑뷰 이미지(941×1672) 픽셀 기준
+// Coordinates are pixels of the museum top-view image (941×1672)
 const MUSEUM: WorldConfig = {
   id: 'museum',
   src: `${base}assets/places/museum-topdown-portrait.jpg`,
@@ -30,12 +30,12 @@ const MUSEUM: WorldConfig = {
   height: 1672,
   bounds: [90, 335, 855, 1166],
   blockers: [
-    [307, 340, 391, 430], [573, 335, 654, 427], [263, 464, 360, 573], [608, 452, 701, 562], // 위쪽 전시대 넷
-    [420, 418, 544, 470], // 벤치
-    [420, 571, 525, 692], [199, 660, 320, 785], [631, 640, 746, 770], [395, 782, 541, 922], // 흉상, 항아리, 말, 책
-    [165, 794, 240, 918], [700, 794, 774, 918], // 양옆 벤치
-    [58, 978, 213, 1141], [720, 978, 867, 1141], // 아래쪽 큰 전시대 둘
-    [0, 326, 150, 880], [800, 326, 941, 900], // 벽 쪽 전시
+    [307, 340, 391, 430], [573, 335, 654, 427], [263, 464, 360, 573], [608, 452, 701, 562], // Four display stands at the top
+    [420, 418, 544, 470], // Bench
+    [420, 571, 525, 692], [199, 660, 320, 785], [631, 640, 746, 770], [395, 782, 541, 922], // Bust, vase, horse, books
+    [165, 794, 240, 918], [700, 794, 774, 918], // Benches on both sides
+    [58, 978, 213, 1141], [720, 978, 867, 1141], // Two large display stands at the bottom
+    [0, 326, 150, 880], [800, 326, 941, 900], // Wall exhibits
     ...MY_STANDS.map(standBlock), ...DEMO_STANDS.map(standBlock),
   ],
   start: { x: 468, y: 1136 },
@@ -45,7 +45,7 @@ const MUSEUM: WorldConfig = {
   waypoints: [{ x: 392, y: 520 }, { x: 565, y: 520 }, { x: 392, y: 740 }, { x: 578, y: 740 }, { x: 270, y: 945 }, { x: 670, y: 945 }, { x: 400, y: 1095 }, { x: 545, y: 1095 }],
 };
 
-// 처음부터 전시되어 있는 기억(데모)
+// Memories on display from the start (demo)
 const DEMO_MEMORIES: Memory[] = [
   { id: 'demo-1', moment: 'Late-night Hackathon', objectId: 'team-whiteboard', story: 'We stayed up building MOODEE together.', createdAt: '2026-09-30T13:00:00.000Z' },
   { id: 'demo-2', moment: 'Lucky duck sock', objectId: 'duck-sock', story: 'Wore it to every pitch. It has not failed us yet.', createdAt: '2026-09-29T09:00:00.000Z' },
@@ -71,10 +71,10 @@ export function MuseumScreen({ characterId, onBack, onSoundSettings }: Props) {
   const [memories, setMemories] = useState<Memory[]>(listMemories);
   const [camera, setCamera] = useState(false);
   const [viewing, setViewing] = useState<Memory | null>(null);
-  const [fresh, setFresh] = useState<string | null>(null); // 방금 전시한 기억(등장 연출)
+  const [fresh, setFresh] = useState<string | null>(null); // Memory just exhibited (entrance animation)
   const [toast, setToast] = useState<string | null>(null);
 
-  // 전시대 ↔ 기억: 내 기억은 최신 3개, 나머지는 기본 전시
+  // Stand ↔ memory: my latest 3 memories, the rest are default exhibits
   const stands = useMemo(
     () => [
       ...MY_STANDS.map((s, i) => ({ ...s, id: `my-${i}`, memory: memories[i] as Memory | undefined, mine: true })),
@@ -125,7 +125,7 @@ export function MuseumScreen({ characterId, onBack, onSoundSettings }: Props) {
           chatter={chatter}
           hint={memories.length ? { title: 'Your memories are on display', text: 'Walk up to a stand to read it, or capture a new one.' } : { title: 'Keep a moment', text: 'Step onto the camera mark to turn a real moment into an object.' }}
         >
-          {/* 카메라 지점 표시 */}
+          {/* Camera spot marker */}
           <span className={styles.cameraMark} style={{ left: 468, top: 1098 }} aria-hidden>
             📷
           </span>
@@ -172,7 +172,7 @@ export function MuseumScreen({ characterId, onBack, onSoundSettings }: Props) {
         )}
       </AnimatePresence>
 
-      {/* 전시물 보기: 오브젝트를 크게, 이름·날짜·이야기 */}
+      {/* View exhibit: large object, name, date, story */}
       <AnimatePresence>
         {viewing && (
           <motion.div className={styles.backdrop} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setViewing(null)}>

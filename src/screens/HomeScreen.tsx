@@ -1,4 +1,4 @@
-// 홈: 장소 휠을 돌려 갈 곳을 고른다. 시선 순서는 장소 > 캐릭터 > 행동 버튼 > 브랜드
+// Home: spin the place wheel to choose where to go. Visual order is place > character > action button > brand
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { CharacterSprite } from '../components/CharacterSprite';
@@ -27,7 +27,7 @@ interface Props {
 
 const logo = `${import.meta.env.BASE_URL}assets/brand/logo.png`;
 
-// 시간대 인사 + 이름 (예: "Good evening, Nier" / "Still up, Nier?")
+// Time-of-day greeting + name (e.g. "Good evening, Nier" / "Still up, Nier?")
 const greeting = (name: string) => {
   const h = new Date().getHours();
   if (h < 5) return <>Still up, <b>{name}</b>?</>;
@@ -63,8 +63,8 @@ export function HomeScreen({ characterId, onGo, onChangeCharacter, onRecords, on
     window.setTimeout(() => onGo(place), 1200);
   };
 
-  // 휠이 도는 중이거나 출발했을 때 "Going to …"
-  // 그 공간에 있는 친구 힌트(너무 많이 알려 주지 않는다)
+  // "Going to …" while the wheel spins or after departing
+  // Hint about friends in that space (without revealing too much)
   const here = getCompanions(character.id).filter((c) => c.space === place.id);
   const presence = here.length === 1 ? `${here[0].name} is here` : here.length > 1 ? `${here.length} friends here` : null;
 

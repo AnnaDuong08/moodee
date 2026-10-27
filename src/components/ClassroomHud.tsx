@@ -1,5 +1,5 @@
-// 교실 집중 화면 HUD: 미니맵(내 자리·친구 위치·인원) + 소리 아이콘(개별 ON/OFF) + 가벼운 데모 채팅
-// 채팅은 이 세션 안에서만 남는 로컬 데모다(서버 없음). 조용한 공간이라 기본은 접혀 있다
+// Classroom focus HUD: minimap (my seat, friend positions, head count) + sound icons (individual ON/OFF) + light demo chat
+// Chat is a local demo that only lasts for this session (no server). It's a quiet space, so it starts collapsed
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { SOUNDS, type SoundId } from '../audio/soundscape';
@@ -13,8 +13,8 @@ interface Props {
   soundOn: (id: SoundId) => boolean;
   onToggleSound: (id: SoundId) => void;
   onMixer: () => void;
-  raised: boolean; // 아래에 타이머 패널이 있을 때
-  dimmed?: boolean; // 위에 노트 창이 떠 있을 때: 소리 버튼·채팅을 잠시 숨긴다
+  raised: boolean; // When the timer panel is below
+  dimmed?: boolean; // When the note window is open above: temporarily hide the sound buttons and chat
   footerHeight?: number;
   onTutor: () => void;
   overlayRevision?: number;
@@ -41,7 +41,7 @@ export function ClassroomHud({ seat, soundOn, onToggleSound, onMixer, raised, di
   const list = useRef<HTMLUListElement>(null);
   useEffect(() => { setChatOpen(false); }, [overlayRevision]);
 
-  // 친구들의 말은 드물게만(두 번) 올라온다
+  // Friends speak only rarely (twice)
   useEffect(() => {
     const ids = LATER.map((m, i) => window.setTimeout(() => setMessages((all) => [...all, m]), 40_000 * (i + 1)));
     return () => ids.forEach(clearTimeout);
@@ -58,7 +58,7 @@ export function ClassroomHud({ seat, soundOn, onToggleSound, onMixer, raised, di
 
   return (
     <>
-      {/* 미니맵: 탑뷰 교실 위에 사람 위치 점 */}
+      {/* Minimap: dots for people on the top-view classroom */}
       <motion.aside className={styles.minimap} aria-label={`Classroom 1-1 map. ${CLASSMATES.length + 1} people here`} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
         <div className={styles.mapHead}>
           <span>Classroom 1-1</span>
@@ -78,7 +78,7 @@ export function ClassroomHud({ seat, soundOn, onToggleSound, onMixer, raised, di
         </div>
       </motion.aside>
 
-      {/* 소리 아이콘: 하나씩 켜고 끈다(믹서와 같은 채널) */}
+      {/* Sound icons: toggle each one on/off (same channels as the mixer) */}
       <div className={`${styles.sounds} ${raised ? styles.raised : ''} ${dimmed ? styles.dimmed : ''}`} style={footerHeight ? { bottom: footerHeight + 12 } : undefined} inert={dimmed} aria-hidden={dimmed || undefined} role="group" aria-label="Ambient sounds">
         {SOUNDS.map((s) => {
           const on = soundOn(s.id);
@@ -93,7 +93,7 @@ export function ClassroomHud({ seat, soundOn, onToggleSound, onMixer, raised, di
         </button>
       </div>
 
-      {/* 데모 채팅 */}
+      {/* Demo chat */}
       <div className={`${styles.chat} ${raised ? styles.raised : ''} ${dimmed ? styles.dimmed : ''}`} style={footerHeight ? { bottom: footerHeight + 12 } : undefined} inert={dimmed} aria-hidden={dimmed || undefined}>
         <AnimatePresence initial={false}>
           {chatOpen && (

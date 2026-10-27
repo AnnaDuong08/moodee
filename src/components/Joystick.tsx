@@ -1,4 +1,4 @@
-// 가상 조이스틱: 드래그 방향을 -1~1 벡터로 전달(모바일 게임식 이동)
+// Virtual joystick: emits the drag direction as a -1–1 vector (mobile-game-style movement)
 import { useRef, useState } from 'react';
 import styles from './Joystick.module.css';
 
@@ -6,7 +6,7 @@ interface Props {
   onChange: (v: { x: number; y: number }) => void;
 }
 
-const MAX = 38; // 손잡이가 움직일 수 있는 반경(px)
+const MAX = 38; // Radius the knob can move (px)
 
 export function Joystick({ onChange }: Props) {
   const base = useRef<HTMLDivElement>(null);

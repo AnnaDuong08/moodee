@@ -1,26 +1,26 @@
-// 코인 규칙(명세 "경제 & 멤버십"): 값은 여기서만 바꾼다
-export const COINS_PER_HOUR = 30; // 세션 보상: 집중 1시간당 30코인(분 단위 비례)
-export const MIN_REWARD_MINUTES = 10; // 10분 미만은 보상 없이 기록만
-export const DAILY_COINS = { free: 10, pro: 40 } as const; // 그날 첫 세션을 끝내면 지급
-// 출석 도장판(7일): 그날 첫 세션을 끝내면 도장이 "받기" 상태가 되고, 상점에서 받는다. 7일째는 큰 선물
+// Coin rules (spec "Economy & Membership"): change values only here
+export const COINS_PER_HOUR = 30; // Session reward: 30 coins per hour of focus (proportional by minute)
+export const MIN_REWARD_MINUTES = 10; // Under 10 minutes: recorded only, no reward
+export const DAILY_COINS = { free: 10, pro: 40 } as const; // Granted when you finish the first session of the day
+// Attendance stamp card (7 days): finishing the day's first session makes the stamp "claimable", and you claim it in the shop. Day 7 is a big gift
 export const STAMP_REWARDS = { free: [10, 10, 10, 10, 10, 10, 30], pro: [40, 40, 40, 40, 40, 40, 100] } as const;
-export const CLOUDEE_PRICE = 300; // 잠긴 Cloudee(캐릭터) 해제
-export const PART_PRICE = 100; // 옷장 파츠 기본 가격
-export const FREE_PARTS_PER_TAB = 3; // 탭마다 처음 3개는 무료
-export const DEMO_TOPUP = 300; // 시연용 코인 충전
+export const CLOUDEE_PRICE = 300; // Unlock a locked Cloudee (character)
+export const PART_PRICE = 100; // Base price for wardrobe parts
+export const FREE_PARTS_PER_TAB = 3; // First 3 per tab are free
+export const DEMO_TOPUP = 300; // Coin top-up for demos
 
 export const sessionCoins = (minutes: number) => (minutes < MIN_REWARD_MINUTES ? 0 : Math.round((minutes / 60) * COINS_PER_HOUR));
 
 const base = import.meta.env.BASE_URL;
 
-// Pro 월간 보상(멤버십 시안)
+// Pro monthly rewards (membership mockup)
 export const MONTHLY_REWARDS = [
   { day: 10, id: 'sneakers', name: 'Cloud Sneakers', img: `${base}assets/rewards/sneakers.png` },
   { day: 20, id: 'headband', name: 'Moodee Headband', img: `${base}assets/rewards/headband.png` },
   { day: 30, id: 'jacket', name: 'Cloud Jacket', img: `${base}assets/rewards/jacket.png` },
 ];
 
-// 옷장 파츠: 시트에서 잘라낸 타일
+// Wardrobe parts: tiles cut from the sheet
 const tiles = (tab: string, count: number) =>
   Array.from({ length: count }, (_, i) => ({
     id: `${tab}-${String(i + 1).padStart(2, '0')}`,
@@ -35,7 +35,7 @@ export const WARDROBE = [
   { id: 'glasses', label: 'Glasses', noun: 'pair of glasses', items: tiles('glasses', 12) },
 ] as const;
 
-// 방·전시에 놓을 수 있는 오브젝트
+// Objects that can be placed in the room or exhibits
 export const OBJECTS = [
   { id: 'clock', name: 'Wall clock', img: `${base}assets/places/props/prop-clock.png`, price: 0 },
   { id: 'book', name: 'Open book', img: `${base}assets/objects/book.png`, price: 0 },
@@ -46,14 +46,14 @@ export const OBJECTS = [
 ];
 export const objectById = (id: string) => OBJECTS.find((o) => o.id === id);
 
-// 카페 메뉴
+// Café menu
 export const DRINKS = [
   { id: 'latte', name: 'Café latte', price: 5, tint: '#C99A6B' },
   { id: 'honey', name: 'Honey milk', price: 8, tint: '#F2D59A' },
   { id: 'matcha', name: 'Matcha latte', price: 8, tint: '#A9C58A' },
 ];
 
-// 박물관: 현장에서 찍은 사진(카메라에 비치는 장면) → 3D 기억 오브젝트
+// Museum: photos taken on site (the scene in the camera) → 3D memory objects
 const ex = (n: string) => `${base}assets/exhibits/${n}`;
 export const EXHIBIT_OBJECTS = {
   'banana-milk': { name: 'Milk break', img: ex('object-banana-milk.png') },
@@ -64,7 +64,7 @@ export const EXHIBIT_OBJECTS = {
 } as const;
 export type ExhibitObjectId = keyof typeof EXHIBIT_OBJECTS;
 
-// 카메라 앞에 놓을 수 있는 장면들(어떤 오브젝트로 바뀌는지)
+// Scenes that can be put in front of the camera (and which object each becomes)
 export const CAMERA_SCENES: { id: string; label: string; photo: string; object: ExhibitObjectId }[] = [
   { id: 'banana-milk', label: 'Milk on the desk', photo: ex('photo-banana-milk.jpg'), object: 'banana-milk' },
   { id: 'pringles', label: 'Snacks by the laptop', photo: ex('photo-pringles.jpg'), object: 'pringles' },
@@ -74,7 +74,7 @@ export const CAMERA_SCENES: { id: string; label: string; photo: string; object: 
   { id: 'duck-sock', label: 'Lucky duck sock', photo: ex('object-duck-sock.png'), object: 'duck-sock' },
 ];
 
-// My Room 방 스타일(꾸미기 시안의 방 그림). 코인으로 해제
+// My Room room styles (room art from the customization mockup). Unlocked with coins
 const spot = { x: 0.5, y: 0.77, h: 0.42 };
 export const ROOM_LOOKS = [
   { id: 'classic', name: 'Dorm room', src: `${base}assets/places/myroom.jpg`, width: 941, height: 1440, price: 0, spot: { x: 0.56, y: 0.655, h: 0.5 } },

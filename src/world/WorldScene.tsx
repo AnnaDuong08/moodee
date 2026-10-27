@@ -1,5 +1,5 @@
-// 공통 월드(탑뷰) 장면: 배경 이미지 위에서 내 Cloudee가 걸어 다니고, 인터랙션 지점에 가까이 가면 행동 버튼이 뜬다
-// 이동: 조이스틱 · WASD/방향키 · 바닥 탭(길찾기). NPC는 웨이포인트 사이를 천천히 오가며, 플레이어·NPC끼리 겹치지 않는다
+// Shared world (top-view) scene: my Cloudee walks around on the background image, and an action button appears near interaction points
+// Movement: joystick · WASD/arrow keys · tap the floor (pathfinding). NPCs stroll slowly between waypoints, and players and NPCs never overlap
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
 import { CharacterSprite } from '../components/CharacterSprite';
@@ -19,18 +19,18 @@ export interface WorldConfig {
   height: number;
   bounds: Rect;
   blockers: Rect[];
-  start: Pt; // 입구
-  charH: number; // 캐릭터 컷 높이(이미지 높이 대비)
+  start: Pt; // Entrance
+  charH: number; // Character frame height (relative to image height)
   zoom: number;
-  waypoints: Pt[]; // NPC가 오가는 지점
-  exit?: Pt; // 문: 여기까지 걸어가면 공간을 나간다
+  waypoints: Pt[]; // Points NPCs walk between
+  exit?: Pt; // Door: walking here leaves the space
 }
 
 export interface Zone {
   id: string;
   x: number;
   y: number;
-  label: string; // 예: "Sit here"
+  label: string; // e.g. "Sit here"
   kind?: string;
   radius?: number;
 }
@@ -40,7 +40,7 @@ export interface WorldNpc {
   name?: string;
   tag?: string;
   character: Character;
-  at?: Pt; // 고정 위치(앉아 있는 NPC). 없으면 웨이포인트를 돌아다닌다
+  at?: Pt; // Fixed position (seated NPC). Without it, the NPC wanders between waypoints
   pose?: Pose;
   scale?: number;
 }
@@ -52,18 +52,18 @@ interface Props {
   npcs: WorldNpc[];
   onAct: (zone: Zone) => void;
   hint: { title: string; text: string };
-  paused?: boolean; // 활동 화면이 열려 있는 동안 입력을 받지 않음
-  carrying?: ReactNode; // 들고 있는 것(음료 등)
-  children?: ReactNode; // 장면 위 레이어(전시물 등)
-  onExit?: () => void; // 문으로 걸어 나갔을 때
+  paused?: boolean; // Ignore input while an activity screen is open
+  carrying?: ReactNode; // Held item (drink, etc.)
+  children?: ReactNode; // Layer over the scene (exhibits, etc.)
+  onExit?: () => void; // When walking out through the door
   exitLabel?: string;
-  chatter?: Chatter; // 다른 Cloudee들의 대화
+  chatter?: Chatter; // Other Cloudees' conversation
 }
 
-const SPEED = 220; // 플레이어 이미지 px/초
+const SPEED = 220; // player image px/s
 const NPC_SPEED = 72;
 const NEAR = 56;
-const PLAYER_R = 30; // 발 위치 기준 충돌 반경
+const PLAYER_R = 30; // Collision radius around the foot position
 const NPC_R = 28;
 
 type Dir = 'up' | 'down' | 'left' | 'right';
@@ -73,14 +73,14 @@ const dirOf = (vx: number, vy: number): Dir => (Math.abs(vx) > Math.abs(vy) ? (v
 interface NpcState {
   pos: Pt;
   route: Pt[];
-  wait: number; // 남은 대기 시간(초)
-  blocked: number; // 길이 막힌 시간
+  wait: number; // Remaining wait time (s)
+  blocked: number; // Time spent blocked
   dir: Dir;
   moving: boolean;
   fixed: boolean;
 }
 
-// 공간을 나갔다 들어와도 마지막 위치를 기억
+// Remember the last position even after leaving and re-entering the space
 const lastPos = new Map<string, Pt>();
 
 const EXIT_R = 34;
@@ -96,13 +96,13 @@ export function WorldScene({ config, character, zones, npcs, onAct, hint, paused
   const [moving, setMoving] = useState(false);
   const [target, setTarget] = useState<Pt | null>(null);
   const [, setTick] = useState(0);
-  // 나가는 중: 문 밖으로 걸어 나가며 화면이 어두워진다
+  // Leaving: walk out through the door while the screen darkens
   const [leaving, setLeaving] = useState(false);
   const leavingRef = useRef(false);
-  const armed = useRef(false); // 입구에서 시작하므로, 문에서 한 번 멀어진 뒤에만 나가기가 켜진다
+  const armed = useRef(false); // You start at the entrance, so leaving only activates after first moving away from the door
   const exitRef = useRef(onExit);
   exitRef.current = onExit;
-  // NPC 머리 위 말풍선
+  // Speech bubble above the NPC's head
   const [said, setSaid] = useState<Record<string, { text: string; until: number }>>({});
   const say = (id: string, text: string) => setSaid((m) => ({ ...m, [id]: { text, until: Date.now() + 4200 } }));
 
@@ -113,7 +113,7 @@ export function WorldScene({ config, character, zones, npcs, onAct, hint, paused
   const pausedRef = useRef(!!paused);
   pausedRef.current = !!paused;
 
-  // NPC 상태: 고정(앉음) 또는 배회. 배회하는 NPC는 서로 다른 웨이포인트에서 시작
+  // NPC state: fixed (seated) or wandering. Wandering NPCs start at different waypoints
   const npcState = useRef(new Map<string, NpcState>());
   useMemo(() => {
     const free = config.waypoints.filter((w) => Math.hypot(w.x - posRef.current.x, w.y - posRef.current.y) > 120);
@@ -142,7 +142,7 @@ export function WorldScene({ config, character, zones, npcs, onAct, hint, paused
   const actRef = useRef(onAct);
   actRef.current = onAct;
 
-  // 방향키/WASD 이동, E(또는 Enter)로 행동. 글을 쓰는 중에는 가로채지 않는다
+  // Move with arrow keys/WASD, act with E (or Enter). Don't intercept while typing
   useEffect(() => {
     const map: Record<string, string> = { ArrowUp: 'u', KeyW: 'u', ArrowDown: 'd', KeyS: 'd', ArrowLeft: 'l', KeyA: 'l', ArrowRight: 'r', KeyD: 'r' };
     const typing = (e: KeyboardEvent) => e.target instanceof HTMLElement && /INPUT|TEXTAREA/.test(e.target.tagName);
@@ -162,12 +162,12 @@ export function WorldScene({ config, character, zones, npcs, onAct, hint, paused
     };
   }, []);
 
-  // 게임 루프: 플레이어 → NPC 순서로 한 프레임씩
+  // Game loop: player → NPCs, one frame at a time
   useEffect(() => {
     let raf = 0;
     let last = performance.now();
     const others = (skip?: string) => [...npcState.current].filter(([id]) => id !== skip).map(([, s]) => s.pos);
-    // 발 위치 기준: 다른 캐릭터 쪽으로 더 가까워지는 이동만 막는다(이미 붙어 있어도 빠져나올 수 있게)
+    // Based on foot position: only block movement that brings you closer to another character (so you can get out even if already touching)
     const hits = (from: Pt, to: Pt, list: Pt[], r: number) => list.some((o) => Math.hypot(to.x - o.x, to.y - o.y) < r && Math.hypot(to.x - o.x, to.y - o.y) < Math.hypot(from.x - o.x, from.y - o.y));
 
     const loop = (now: number) => {
@@ -179,7 +179,7 @@ export function WorldScene({ config, character, zones, npcs, onAct, hint, paused
         return;
       }
       if (leavingRef.current) {
-        // 문 밖(아래쪽)으로 계속 걸어 나간다
+        // Keep walking out through the door (downward)
         const p = { x: posRef.current.x, y: posRef.current.y + SPEED * 0.6 * dt };
         posRef.current = p;
         setPos(p);
@@ -188,7 +188,7 @@ export function WorldScene({ config, character, zones, npcs, onAct, hint, paused
         return;
       }
 
-      // ── 플레이어 ──
+      // ── Player ──
       const k = keys.current;
       let vx = stick.current.x + (k.has('r') ? 1 : 0) - (k.has('l') ? 1 : 0);
       let vy = stick.current.y + (k.has('d') ? 1 : 0) - (k.has('u') ? 1 : 0);
@@ -222,7 +222,7 @@ export function WorldScene({ config, character, zones, npcs, onAct, hint, paused
         const R = PLAYER_R + NPC_R;
         let p = route.current.length ? { x: cur.x + vx * SPEED * dt, y: cur.y + vy * SPEED * dt } : walker.step(cur, vx * SPEED * dt, vy * SPEED * dt);
         if (hits(cur, p, npcPts, R)) {
-          // NPC에 막히면 한 축씩만 움직여 옆으로 비켜 가 본다
+          // If blocked by an NPC, try moving one axis at a time to sidestep
           const px = walker.step(cur, vx * SPEED * dt, 0);
           const py = walker.step(cur, 0, vy * SPEED * dt);
           if (!hits(cur, px, npcPts, R) && px.x !== cur.x) p = px;
@@ -246,7 +246,7 @@ export function WorldScene({ config, character, zones, npcs, onAct, hint, paused
             setLeaving(true);
             route.current = [];
             setTarget(null);
-            lastPos.delete(config.id); // 다음에는 다시 입구에서 시작
+            lastPos.delete(config.id); // Start at the entrance again next time
             window.setTimeout(() => exitRef.current?.(), 1100);
           }
         }
@@ -255,7 +255,7 @@ export function WorldScene({ config, character, zones, npcs, onAct, hint, paused
       }
       setMoving(isMoving);
 
-      // ── NPC: 잠깐 머물다 → 웨이포인트 고르기 → 걷기 → 도착 ──
+      // ── NPC: linger briefly → pick a waypoint → walk → arrive ──
       let changed = false;
       for (const [id, s] of npcState.current) {
         if (s.fixed) continue;
@@ -284,7 +284,7 @@ export function WorldScene({ config, character, zones, npcs, onAct, hint, paused
         const next = { x: s.pos.x + (dx / d) * NPC_SPEED * dt, y: s.pos.y + (dy / d) * NPC_SPEED * dt };
         const crowd = [posRef.current, ...others(id)];
         if (hits(s.pos, next, crowd, PLAYER_R + NPC_R + 34)) {
-          // 누가 길을 막고 있으면 멈춰 기다리다, 오래 막히면 다른 곳으로
+          // If someone is blocking the way, stop and wait; if blocked too long, go somewhere else
           if (s.moving) changed = true;
           s.moving = false;
           s.blocked += dt;

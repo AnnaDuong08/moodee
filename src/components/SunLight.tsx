@@ -1,4 +1,4 @@
-// 왼쪽 창문으로 들어오는 오후 햇살: 빛줄기(천천히 일렁임) + 빛 속을 떠다니는 먼지
+// Afternoon sunlight through the left window: light beams (slowly shimmering) + dust floating in the light
 import { useMemo } from 'react';
 import styles from './SunLight.module.css';
 
@@ -6,7 +6,7 @@ interface Props {
   variant: 'top' | 'back';
 }
 
-// 뷰별 빛줄기 배치: [시작 y(%), 두께(%), 각도(deg), 세기]
+// Light beam layout per view: [start y (%), thickness (%), angle (deg), strength]
 const BEAMS: Record<Props['variant'], [number, number, number, number][]> = {
   back: [
     [4, 9, 30, 0.9],
@@ -24,7 +24,7 @@ const BEAMS: Record<Props['variant'], [number, number, number, number][]> = {
 };
 
 export function SunLight({ variant }: Props) {
-  // 먼지 위치는 고정 시드로 한 번만 생성
+  // Dust positions are generated once with a fixed seed
   const motes = useMemo(() => {
     let s = variant === 'top' ? 7 : 3;
     const rnd = () => ((s = (s * 9301 + 49297) % 233280) / 233280);
@@ -40,7 +40,7 @@ export function SunLight({ variant }: Props) {
   return (
     <div className={styles.sun} aria-hidden>
       <div className={`${styles.glow} ${variant === 'top' ? styles.glowTop : ''}`} />
-      {/* 위에서 본 교실은 바닥이 밝아서 전체에 따뜻한 오후 톤을 한 겹 더 */}
+      {/* The top-view classroom has a bright floor, so add one more layer of warm afternoon tone over everything */}
       {variant === 'top' && <div className={styles.warm} />}
       {BEAMS[variant].map(([top, h, angle, k], i) => (
         <div

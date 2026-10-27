@@ -14,7 +14,7 @@
   user-select: none;
 }
 
-/* 위: 옆으로 흘러가는 구름 */
+/* Top: clouds drifting sideways */
 .top {
   position: absolute;
   inset: 0 0 auto;
@@ -74,7 +74,7 @@
   }
 }
 
-/* 아래: 점 세 개 + 문구 + 진행 바 */
+/* Bottom: three dots + caption + progress bar */
 .bottom {
   position: absolute;
   inset: auto 0 0;
