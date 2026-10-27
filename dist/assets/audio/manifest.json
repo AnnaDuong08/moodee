@@ -1,0 +1,32 @@
+[
+  {
+    "file": "cafe.mp3",
+    "bytes": 475820,
+    "seconds": 59.436,
+    "sha256": "177a538fb7b5f5d880e999ef3e6d883a9d43c017fd034afd748207ae991488d8"
+  },
+  {
+    "file": "home.mp3",
+    "bytes": 1395116,
+    "seconds": 87.156,
+    "sha256": "31bcc518e7fed9c6c94eddccbb2951b8234704ff54fb31521b23ba61a42fc4c0"
+  },
+  {
+    "file": "library.mp3",
+    "bytes": 474380,
+    "seconds": 59.256,
+    "sha256": "5af93640d00a90c7e0f9f33a167b87a1e768f7a8453eb06439a99acb842dcb07"
+  },
+  {
+    "file": "museum.mp3",
+    "bytes": 356012,
+    "seconds": 44.46,
+    "sha256": "da09823e6ef9394786a50e9fc515e744d2afec1600472098533c0f42db34d242"
+  },
+  {
+    "file": "room.mp3",
+    "bytes": 355148,
+    "seconds": 44.352,
+    "sha256": "bea50457e48ba7ef821adcac0ffc894e734db62a89c2744b357e807885789078"
+  }
+]

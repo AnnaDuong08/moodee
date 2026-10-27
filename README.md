@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://i0kyung.github.io/moodee/"><b>▶ Try the web demo</b></a>
+  <a href="https://annaduong08.github.io/moodee/"><b>▶ Try the web demo</b></a>
   &nbsp;·&nbsp; Mobile first (390 × 844) · Works on desktop in a phone frame
 </p>
 
