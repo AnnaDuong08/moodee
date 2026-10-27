@@ -23,7 +23,7 @@
 
 .header {
   position: relative;
-  z-index: 2;
+  z-index: 40; /* Above the logo, place info and dock so the language menu opens on top */
   display: flex;
   align-items: center;
   justify-content: space-between;
