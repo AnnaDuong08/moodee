@@ -1,84 +1,84 @@
 # IMPLEMENTATION_PLAN — Interactive World / Social Demo
 
-기준 문서: "MOODEE — Interactive World / Social Demo 구현 수정 명세". 핵심 문법은
-`Top view → 이동 → 인터랙션 지점 → 행동 버튼 → 활동 화면 → 복귀`.
+Reference document: "MOODEE — Interactive World / Social Demo implementation revision spec". The core grammar is
+`Top view → move → interaction point → action button → activity screen → return`.
 
-## 조사 결과(구현 전)
-- 라우팅: `App.tsx`의 `screen` 상태(라우터 없음).
-- 이동·충돌: `components/SeatPicker.tsx` + `lib/walkGrid.ts`(사각형 blocker, 격자 A*). 교실 전용이었다.
-- 소리: `audio/soundscape.ts`(채널 4개 → master). 새 오디오 엔진은 만들지 않는다.
-- 저장: `localStorage`(`moodie:` 접두사). Zustand 없음.
-- Café / Library: 배경 + 하단 카드 패널(`PlaceScreen` + `places/panels.tsx`) → 이번에 교체.
+## Findings (before implementation)
+- Routing: `screen` state in `App.tsx` (no router).
+- Movement & collision: `components/SeatPicker.tsx` + `lib/walkGrid.ts` (rectangle blockers, grid A*). Was classroom-only.
+- Sound: `audio/soundscape.ts` (4 channels → master). No new audio engine will be built.
+- Storage: `localStorage` (`moodie:` prefix). No Zustand.
+- Café / Library: background + bottom card panel (`PlaceScreen` + `places/panels.tsx`) → replaced in this round.
 
-## 공통 구조
-- `world/WorldScene.tsx` — 탑뷰 장면. 조이스틱·WASD/방향키·바닥 탭 이동, 인터랙션 지점(`Zone`), `E` 키/버튼 행동, NPC(고정·배회), 충돌.
-  - 충돌: 플레이어↔벽/가구(`walkGrid`), 플레이어↔NPC·NPC↔NPC(발 위치 기준 반경, 가까워지는 이동만 차단).
-  - NPC 상태: 대기(3–8초) → 웨이포인트 선택 → 길찾기 이동 → 도착. 길이 막히면 멈췄다가 다른 곳으로.
-  - 공간별 데이터는 `WorldConfig`(배경, 입구, bounds, blockers, waypoints)만 다르다.
-- `world/space.module.css` — 어두운 유리 HUD(뒤로·공간 이름·인원), 활동 화면 레이어.
-- `lib/companions.ts` — 데모 동행 명단(0–4명, 한 번 설정). 4명이면 Cloudy 포함. 세션마다 Café/Library에 배치.
-- `world/FriendsSheet.tsx` — 친구 위치, 초대(모의), 인원수 변경.
+## Shared structure
+- `world/WorldScene.tsx` — top-view scene. Movement by joystick, WASD/arrow keys or tapping the floor; interaction points (`Zone`); actions via the `E` key/button; NPCs (stationary or wandering); collision.
+  - Collision: player↔walls/furniture (`walkGrid`), player↔NPC and NPC↔NPC (radius around foot position; only movement that brings them closer is blocked).
+  - NPC states: idle (3–8 s) → pick a waypoint → pathfind and move → arrive. If the path is blocked, pause and then head somewhere else.
+  - Per-space data differs only in `WorldConfig` (background, entrance, bounds, blockers, waypoints).
+- `world/space.module.css` — dark glass HUD (back, space name, head count), activity screen layer.
+- `lib/companions.ts` — demo companion list (0–4 people, set once). With 4, Cloudy is included. Placed in Café/Library each session.
+- `world/FriendsSheet.tsx` — friend locations, invite (mock), change head count.
 
-## Phase 기록
+## Phase log
 
-### Phase 1–3 공통 월드 · 온보딩 · 동행 NPC
-- Implemented: `WorldScene`, `CompanionSetupScreen`(캐릭터 선택 전에 한 번), Cloudy(Premium 잠금, NPC로만 등장), 로고 스플래시.
+### Phase 1–3 Shared world · onboarding · companion NPCs
+- Implemented: `WorldScene`, `CompanionSetupScreen` (once, before character select), Cloudy (Premium-locked, appears only as an NPC), logo splash.
 - Files: `world/*`, `lib/companions.ts`, `screens/CompanionSetupScreen.*`, `data/characters.ts`, `screens/CharacterSelectScreen.*`, `components/LoadingSplash.*`, `App.tsx`.
-- How to test: 저장소를 비우고 새로고침 → 친구 수 선택 → 캐릭터 선택 → Home. 캐릭터 목록 끝의 Cloudy는 "Premium".
-- Remaining: 친구는 Café/Library에만 배치된다(Classroom·Museum·My Room 배치는 다음 단계).
+- How to test: clear storage and reload → choose number of friends → character select → Home. Cloudy at the end of the character list shows "Premium".
+- Remaining: friends are only placed in Café/Library (Classroom, Museum and My Room placement is the next step).
 
 ### Phase 4–5 Café
-- Implemented: 탑뷰 이동, 카운터 "Make a drink", 재료 6종 → 줄기·거품·액체 높이 상승·색 혼합, "Carry drink", 의자 "Sit here" → 테이블 화면에 방금 만든 음료.
+- Implemented: top-view movement, counter "Make a drink", 6 ingredients → pour stream, foam, rising liquid level, color mixing, "Carry drink", chair "Sit here" → table screen with the drink you just made.
 - Files: `screens/CafeScreen.*`, `world/DrinkGlass.*`.
-- How to test: Home → Café → 카운터까지 걷기 → E → 재료 2–3개 → Carry drink → 의자까지 걷기 → E.
-- Remaining: 테이블 눈높이 전용 그림이 없어 카운터 상판 + 카페 배경을 합성했다. 음료는 코인 없이 무료.
+- How to test: Home → Café → walk to the counter → E → 2–3 ingredients → Carry drink → walk to a chair → E.
+- Remaining: there is no dedicated table eye-level picture, so the counter top and café background were composited. Drinks are free (no coins).
 
 ### Phase 6 Classroom HUD
-- Implemented: 집중 화면 미니맵·인원수, 접히는 데모 채팅(로컬), 소리 아이콘 4개 + 믹서, 헤더 전체 음소거(이전 음량 복원).
+- Implemented: focus-screen minimap and head count, collapsible demo chat (local), 4 sound icons + mixer, header mute-all (restores previous volume).
 - Files: `components/ClassroomHud.*`, `screens/ClassroomScreen.tsx`.
-- How to test: Classroom → 자리 → Next → Start → Chat 열어 입력, 연필 아이콘, 스피커 버튼.
-- Remaining: 교실 탑뷰는 기존 `SeatPicker` 그대로(친구는 앉아 있고, 걸어 다니는 NPC는 없음).
+- How to test: Classroom → seat → Next → Start → open Chat and type, pencil icon, speaker button.
+- Remaining: the classroom top view is still the existing `SeatPicker` (friends are seated; no walking NPCs).
 
 ### Phase 7–8 Library
-- Implemented: 탑뷰 이동, 자리 "Sit and write" → 눈높이 장면 → 책, "Open book" → 왼쪽 페이지에 직접 쓰기, Save(책갈피 연출), 오른쪽 페이지 "My notes"(교실에서 내려놓은 생각 포함), 다시 열기·삭제. 가운데 책장 "My notes".
+- Implemented: top-view movement, seat "Sit and write" → eye-level scene → book, "Open book" → write directly on the left page, Save (bookmark animation), right page "My notes" (including thoughts dropped in the classroom), reopen and delete. Center bookshelf "My notes".
 - Files: `screens/LibraryScreen.*`, `lib/thoughts.ts`.
-- How to test: Home → Library → 빛나는 자리 → E → Open book → 입력 → Save → 새로고침 후 My notes.
-- Remaining: 책장 넘김 애니메이션은 좌우 슬라이드로 단순화.
+- How to test: Home → Library → glowing seat → E → Open book → type → Save → reload, then My notes.
+- Remaining: page-turn animation simplified to a left/right slide.
 
 ### Phase 9 Museum
-- Implemented: 탑뷰 전시장 이동, 입구 앞 카메라 지점 "Capture a memory" → Connecting camera… → 데모 영상(휴대폰 카메라로 해커톤 배너를 비추는 화면 녹화) / 사진 5장 / 실제 카메라(버튼을 눌렀을 때만 getUserMedia, 실패 시 데모로) → 찰칵 → STEP 1 Real moment → STEP 2 Memory icon → STEP 3 Memory object(Skip 가능) → 이름·이야기 → 저장 → 전시대에 등장 → 걸어가 "View memory"로 다시 읽기. 기본 전시 2점, 관람객 NPC 2명, 채팅.
+- Implemented: top-view gallery movement, camera point by the entrance "Capture a memory" → Connecting camera… → demo video (screen recording of a phone camera pointed at the hackathon banner) / 5 photos / real camera (getUserMedia only when the button is pressed, falls back to the demo on failure) → shutter → STEP 1 Real moment → STEP 2 Memory icon → STEP 3 Memory object (skippable) → name and story → save → appears on a display stand → walk over and "View memory" to read it again. 2 default exhibits, 2 visitor NPCs, chat.
 - Files: `screens/MuseumScreen.*`, `world/MemoryCamera.*`, `lib/memories.ts`.
-- Remaining: 배경 그림의 전시대에는 이미 유물이 있어, 내 기억은 따로 그린 작은 받침 3개(최신 3개)에 놓인다. 변환은 준비된 에셋을 잇는 연출이다(실제 3D 생성 아님).
+- Remaining: the display stands in the background art already hold artifacts, so your memories go on 3 separately drawn small pedestals (the latest 3). The conversion is a staged sequence of prepared assets (not real 3D generation).
 
 ### Phase 10 My Room
-- Implemented: 탑뷰 방 이동, 책상·책장·탁자·협탁 4곳에 물건 놓기/바꾸기/치우기(Museum 기억 오브젝트 + 기본 소품 2개), 옷장(Cloudee·파츠), 문으로 나가기.
-- Files: `screens/RoomScreen.*`, `screens/places/panels.tsx`(RoomPanel).
-- Remaining: 예전 "방 스타일" 그림 5장은 탑뷰에서는 쓰지 않는다.
+- Implemented: top-view room movement, place/swap/remove items at 4 spots — desk, bookshelf, table, nightstand (Museum memory objects + 2 default props), wardrobe (Cloudee and parts), leave through the door.
+- Files: `screens/RoomScreen.*`, `screens/places/panels.tsx` (RoomPanel).
+- Remaining: the 5 old "room style" pictures are not used in the top view.
 
-### Café 음료 모션 개선(10-01)
-- 재료 6종 각자의 액체 텍스처를 컵 마스크에 채워 층으로 쌓는다(높이 0→양, 텍스처 흐름, 표면 하이라이트 살랑임, 출렁임, 거품, 튀는 물방울). 줄기에도 그 재료의 텍스처가 흐른다. 트레이 아이콘은 컵 쪽으로 기울어졌다 돌아오고, 넣은 횟수 배지·재료 이름 표시. 완성하면 컵이 반짝.
+### Café drink motion improvements (10-01)
+- Each of the 6 ingredients fills the cup mask with its own liquid texture and stacks in layers (height 0→amount, flowing texture, swaying surface highlight, sloshing, foam, splashing droplets). The pour stream also carries that ingredient's texture. Tray icons tilt toward the cup and back, with an add-count badge and ingredient name. The cup sparkles when finished.
 - Files: `world/DrinkGlass.*`, `screens/CafeScreen.*`, `scripts/prepare-assets.mjs`.
 
-### 공통 추가
-- 문으로 걸어 나가기(`WorldConfig.exit`), 마인크래프트식 채팅(`world/WorldChat`)과 NPC 말풍선.
+### Shared additions
+- Walking out through the door (`WorldConfig.exit`), Minecraft-style chat (`world/WorldChat`) and NPC speech bubbles.
 
-### 다음 단계(미구현)
-- 교실 탑뷰를 `WorldScene`으로 옮겨 배회 NPC·겹침 방지·채팅 적용.
-- 친구(동행)를 Classroom·Museum에도 배치.
+### Next steps (not implemented)
+- Move the classroom top view to `WorldScene` to get wandering NPCs, overlap prevention and chat.
+- Place friends (companions) in Classroom and Museum too.
 
-### Shop 개편(10-01)
-- Membership → Shop: 이벤트 배너(가로 일러스트 15장, 들어올 때마다 무작위 시작·중복 가능, 4초 자동 넘김, 끌기·화살표) / 7일 출석 도장판(첫 세션을 끝내면 "받기", 상점에서 받으면 Cloudy 도장이 찍히며 코인) / 그림 카드 진열대(Cloudees·Outfits·This month) / Pro.
-- 출석 규칙: Free 10코인(7일째 30), Pro 40코인(7일째 100). 놓친 날 표시·벌칙 없음. 이전 "세션 종료 즉시 하루 코인"은 도장판으로 대체.
-- Files: `screens/ShopScreen.*`, `lib/wallet.ts`(stampCount·claimStamp), `config/economy.ts`(STAMP_REWARDS), `screens/ClassroomScreen.tsx`.
+### Shop overhaul (10-01)
+- Membership → Shop: event banner (15 landscape illustrations, random start on each visit, repeats allowed, 4 s auto-advance, drag and arrows) / 7-day attendance stamp card (after finishing the first session, "Claim"; claiming in the shop stamps a Cloudy stamp and grants coins) / picture-card shelves (Cloudees · Outfits · This month) / Pro.
+- Attendance rules: Free 10 coins (30 on day 7), Pro 40 coins (100 on day 7). No missed-day marks or penalties. The old "daily coins immediately on session end" is replaced by the stamp card.
+- Files: `screens/ShopScreen.*`, `lib/wallet.ts` (stampCount · claimStamp), `config/economy.ts` (STAMP_REWARDS), `screens/ClassroomScreen.tsx`.
 
-### Board Café 미니게임(10-01) — `cafe/game/CLAUDE_CODE_PROMPT_board_cafe.md`
-- 위치: 기존 Café 흐름(음료 만들기 → 테이블)이 있으므로 독립 데모 대신 앱에 이어 붙임(React/TS). 로직과 렌더링은 분리.
-- 흐름: 테이블 [Stay quietly][Talk][🎲 Play a game] → Game Shelf(Cloud Tiles · Word Relay · Cloud Match=Coming soon) → Luna·Hieu 등장 + 상자 떨어짐 → 뚜껑 열림 → 게임 → 결과 카드 → 테이블.
-- 파일
-  - `src/boardcafe/rules.ts` 타일·패턴 8종·판정(순수 함수), `npc.ts` NPC 수 선택·대사(EN/KO), `wordPool.ts` 끝말잇기 단어(ko 172 · en 152)
-  - `src/boardcafe/CloudTiles.tsx` 협동 게임(12바퀴·구름 3개·드래그/탭·리액션), `WordRelay.tsx` 끝말잇기(90초), `BoardCafe.tsx` 선반→모이기→상자→게임→결과, `boardcafe.module.css`
-  - `scripts/test-rules.mts` 패턴 판정 테스트(29개) — `npm run test:rules`
-  - `scripts/prepare-assets.mjs` cafe/game → `public/assets/boardcafe/`(타일 시트 6칸 분할 + 4색 틴트 24장)
-  - `src/screens/CafeScreen.*` 테이블 버튼·게임 오버레이
-- 턴 규칙: "Turn N / 12"는 세 명이 한 번씩 둔 한 바퀴. 구름 3개면 3/3 배너 후 결과, 12바퀴가 끝나면 "Café is closing ☕ We made N clouds together!"(실패 화면 없음).
-- 미구현: Cloud Match(잠금 표시만), Word Relay 결과를 앱 기록에 저장하지 않음.
+### Board Café minigame (10-01) — `cafe/game/CLAUDE_CODE_PROMPT_board_cafe.md`
+- Placement: since the Café flow already exists (make a drink → table), it is attached to the app (React/TS) rather than built as a standalone demo. Logic and rendering are separated.
+- Flow: table [Stay quietly][Talk][🎲 Play a game] → Game Shelf (Cloud Tiles · Word Relay · Cloud Match = Coming soon) → Luna and Hieu arrive + box drops → lid opens → game → result card → table.
+- Files
+  - `src/boardcafe/rules.ts` tiles, 8 patterns, scoring (pure functions); `npc.ts` NPC move choice and lines (EN/KO); `wordPool.ts` Word Relay words (ko 172 · en 152)
+  - `src/boardcafe/CloudTiles.tsx` co-op game (12 rounds, 3 clouds, drag/tap, reactions); `WordRelay.tsx` last-letter chain (90 s); `BoardCafe.tsx` shelf → gather → box → game → result; `boardcafe.module.css`
+  - `scripts/test-rules.mts` pattern-scoring tests (29) — `npm run test:rules`
+  - `scripts/prepare-assets.mjs` cafe/game → `public/assets/boardcafe/` (tile sheet split into 6 + 24 tints in 4 colors)
+  - `src/screens/CafeScreen.*` table buttons and game overlay
+- Turn rule: "Turn N / 12" is one round in which all three players move once. With 3 clouds, show the 3/3 banner and then results; after 12 rounds, "Café is closing ☕ We made N clouds together!" (no failure screen).
+- Not implemented: Cloud Match (locked display only); Word Relay results are not saved to the app's records.

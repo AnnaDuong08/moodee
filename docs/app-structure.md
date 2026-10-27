@@ -1,45 +1,45 @@
-# MOODEE 앱 구성 틀 (플로우차트 기반, 2026-09-30)
+# MOODEE App Structure (based on the flowchart, 2026-09-30)
 
-UI 문구는 영어, 문서는 한국어. 화면 ID는 플로우차트 번호를 그대로 사용한다.
+UI copy and docs are in English. Screen IDs use the flowchart numbers as-is.
 
-## 1. 영역 구조
+## 1. Area structure
 
-| 영역 | 화면 (ID · 화면 이름) | 역할 |
+| Area | Screens (ID · screen name) | Role |
 |---|---|---|
-| **A 온보딩** (첫 실행) | A0 Welcome → A2 Quick sign-in → A3 Meet your buddy → A4 Make it yours → A5 Name your buddy → A6 Sound on/off → A7 First-place tour | 계정 만들고 내 분신을 만든 뒤 휠 사용법 안내 |
-| **B 허브** | **B1 Place wheel (홈)** · B3 Place preview · B2 Records | 갈 공간 고르기. 공간을 미리 보고 듣기. 기록 모음 |
-| **C 교실 집중 루프** | C0 One thing to start → C1 Entering classroom → C2 Pick a seat → C3 Set focus time → **C4 Focus together** ⇄ (C5 Sounds · C6 Thought drop · C7 Short break) → C8 Today's spark → C9 One-tap restart | 한 가지 할 일 → 자리 → 시간 → 집중, 끝나면 불꽃 보상과 다음 시작 |
-| **R 내 방** | R1 Rest in my room → R2 Decorate | 쉬기, 불꽃으로 받은 아이템으로 방 꾸미기 |
-| **L 생각 정리실** (Library) | L1 Thought room | C6에서 내려놓은 생각을 정리 |
-| **M 전시실** (Museum) | M1 Pick a moment → M2 Make a memory object → M3 Write the story → M4 Hang it in the gallery | 남기고 싶은 순간을 오브젝트로 전시 |
-| **F 사람들 사이** (Café) | F1 Stay among people | 다른 사용자 캐릭터와 함께 집중(실시간 필요) |
-| **D 설정** | D1 Past flow · D2 Defaults · D3 Buddy & account | 지난 흐름 보기, 기본값(시간·소리), 캐릭터/계정 |
+| **A Onboarding** (first launch) | A0 Welcome → A2 Quick sign-in → A3 Meet your buddy → A4 Make it yours → A5 Name your buddy → A6 Sound on/off → A7 First-place tour | Create an account, make your avatar, then learn how to use the wheel |
+| **B Hub** | **B1 Place wheel (home)** · B3 Place preview · B2 Records | Choose a space to go to. Preview how a space looks and sounds. Records collection |
+| **C Classroom focus loop** | C0 One thing to start → C1 Entering classroom → C2 Pick a seat → C3 Set focus time → **C4 Focus together** ⇄ (C5 Sounds · C6 Thought drop · C7 Short break) → C8 Today's spark → C9 One-tap restart | One task → seat → time → focus; when done, a spark reward and the next start |
+| **R My room** | R1 Rest in my room → R2 Decorate | Rest, decorate the room with items earned with sparks |
+| **L Thought room** (Library) | L1 Thought room | Sort through thoughts dropped in C6 |
+| **M Gallery** (Museum) | M1 Pick a moment → M2 Make a memory object → M3 Write the story → M4 Hang it in the gallery | Turn moments you want to keep into objects and exhibit them |
+| **F Among people** (Café) | F1 Stay among people | Focus together with other users' characters (requires real-time) |
+| **D Settings** | D1 Past flow · D2 Defaults · D3 Buddy & account | View past flow, defaults (time, sound), character/account |
 
-진입 분기: A0 → 로그인 되어 있으면 B1, 아니면 A2부터.
-C9 → B1(다른 공간) 또는 R1(쉬러 가기). R1 → M2(방 아이템을 기억 오브젝트로).
+Entry branch: A0 → B1 if signed in, otherwise start from A2.
+C9 → B1 (another space) or R1 (go rest). R1 → M2 (turn a room item into a memory object).
 
-## 2. 현재 구현과의 대응
+## 2. Mapping to the current implementation
 
-| 플로우 ID | 현재 상태 |
+| Flow ID | Current status |
 |---|---|
-| A4 | 캐릭터 4명 중 고르기로 구현(꾸미기는 없음) |
-| B1 | 장소 휠, "Going to …" 구현 |
-| C1 | 휠 한 바퀴 → 교실 진입 연출 구현 |
-| C2 | 탑뷰에서 걸어서 자리 고르기 구현 |
-| C4 | 눈높이 뷰에 앉은 모습 + 타이머 구현 |
-| C5 | "Set the mood" 소리 설정 구현 |
-| C3 | 타이머 15/25/50분 칩 구현 |
-| C8 | 세션 완료 + 스트릭(불꽃) 일부 구현 |
-| 나머지 | 미구현 |
+| A4 | Implemented as choosing from 4 characters (no customization) |
+| B1 | Place wheel and "Going to …" implemented |
+| C1 | One wheel spin → classroom entry animation implemented |
+| C2 | Picking a seat by walking in the top view implemented |
+| C4 | Seated figure in eye-level view + timer implemented |
+| C5 | "Set the mood" sound settings implemented |
+| C3 | Timer 15/25/50 min chips implemented |
+| C8 | Session complete + streak (spark) partly implemented |
+| Others | Not implemented |
 
-**순서 차이:** 플로우차트는 C2 → C3 → C4이고, C5는 C4 안에서 여는 구조다. 현재는 앉기 → 소리 설정(C5) → 타이머 순서다(이전 요청 기준). 둘 중 어느 순서를 따를지 결정이 필요하다.
+**Order difference:** the flowchart goes C2 → C3 → C4, with C5 opened from inside C4. Currently the order is sit → sound settings (C5) → timer (per an earlier request). A decision is needed on which order to follow.
 
-## 3. 화면 구조(코드 폴더 제안)
+## 3. Screen structure (proposed code folders)
 
 ```
 src/screens/
   onboarding/  Welcome, SignIn, MeetBuddy, CustomizeBuddy, NameBuddy, SoundPreference, PlaceTour
-  hub/         PlaceWheel(홈), PlacePreview, Records
+  hub/         PlaceWheel(home), PlacePreview, Records
   classroom/   OneThing, SeatPicker, FocusTime, FocusTogether, ThoughtDrop, BreakTime, TodaysSpark
   room/        MyRoom, Decorate
   library/     ThoughtRoom
@@ -48,23 +48,23 @@ src/screens/
   settings/    PastFlow, Defaults, BuddyAccount
 ```
 
-화면 전환은 지금처럼 App의 상태 기계(`screen` 값)로 하고, 영역이 늘어나면 react-router(MIT)로 옮긴다.
+Screen transitions stay on App's state machine (the `screen` value) as now; once there are more areas, move to react-router (MIT).
 
-## 4. 데이터 모델(초안)
+## 4. Data model (draft)
 
-- `profile`: 계정 id, 로그인 방식(게스트/소셜)
-- `buddy`: base(4종), 꾸미기 파츠, 이름
-- `defaults`: 집중 시간, 소리 on/off 기본값, 소리별 볼륨
-- `session`: id, place, seat, oneThing(C0), minutes, startedAt, completed, thoughts[](C6), breaks
-- `spark`: 오늘 불꽃, 연속 일수, 누적. 불꽃으로 아이템 교환(R2)
-- `roomItems`: 보유/배치 아이템
-- `memory`: 연결된 session, 오브젝트 종류, 이야기(M3), 전시 위치(M4)
+- `profile`: account id, sign-in method (guest/social)
+- `buddy`: base (4 kinds), customization parts, name
+- `defaults`: focus time, default sound on/off, per-sound volume
+- `session`: id, place, seat, oneThing (C0), minutes, startedAt, completed, thoughts[] (C6), breaks
+- `spark`: today's sparks, streak days, total. Sparks are exchanged for items (R2)
+- `roomItems`: owned/placed items
+- `memory`: linked session, object type, story (M3), gallery position (M4)
 
-저장: 지금은 localStorage. 로그인(A2)과 사람들 사이(F1)부터는 서버가 필요하다. 예: Supabase Auth + DB + Realtime presence.
+Storage: localStorage for now. Sign-in (A2) and Among people (F1) onward require a server, e.g. Supabase Auth + DB + Realtime presence.
 
-## 5. 단계 제안
+## 5. Proposed phases
 
-1. **P1 (데모 핵심)**: A0, A5, A6, A7(간단), C0, C3→C4 순서 정리, C6, C7, C8, C9, B2
-2. **P2**: B3 미리보기(소리 샘플), R1·R2, D1~D3
-3. **P3**: M1~M4 전시실, L1 생각 정리실
-4. **P4**: A2 로그인, A4 꾸미기 파츠, F1 사람들 사이(실시간)
+1. **P1 (demo core)**: A0, A5, A6, A7 (simple), C0, settle the C3→C4 order, C6, C7, C8, C9, B2
+2. **P2**: B3 preview (sound samples), R1·R2, D1–D3
+3. **P3**: M1–M4 gallery, L1 thought room
+4. **P4**: A2 sign-in, A4 customization parts, F1 Among people (real-time)
