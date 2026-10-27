@@ -6,7 +6,8 @@ import { CharacterSprite } from '../components/CharacterSprite';
 import { Sparkles } from '../components/Coin';
 import type { Character } from '../data/characters';
 import { CloudTiles } from './CloudTiles';
-import type { Lang } from './npc';
+import { LANGS, setLang, useLang, type Lang } from '../i18n';
+import { t } from './i18n';
 import { WordRelay } from './WordRelay';
 import styles from './boardcafe.module.css';
 
@@ -33,7 +34,8 @@ interface Props {
 export function BoardCafe({ me, luna, hieu, drink, onClose }: Props) {
   const [phase, setPhase] = useState<Phase>('shelf');
   const [game, setGame] = useState<GameId>('tiles');
-  const [lang, setLang] = useState<Lang>('en');
+  const lang = useLang();
+  const [langOpen, setLangOpen] = useState(false);
   const [boxOpen, setBoxOpen] = useState(false);
   const [result, setResult] = useState(0);
   const [hint, setHint] = useState<string | null>(null);
@@ -47,6 +49,13 @@ export function BoardCafe({ me, luna, hieu, drink, onClose }: Props) {
     window.setTimeout(() => setPhase('play'), 2400);
   };
 
+  const chooseLang = (l: Lang) => {
+    setLang(l);
+    setLangOpen(false);
+  };
+  // Word Relay's word list depends on the language, so it can't change mid-round
+  const langLocked = phase === 'play' && game === 'relay';
+
   const finish = (n: number) => {
     setResult(n);
     setPhase('result');
@@ -59,19 +68,29 @@ export function BoardCafe({ me, luna, hieu, drink, onClose }: Props) {
           ‹
         </button>
         <span className={styles.title}>{phase === 'shelf' ? 'Game Shelf' : game === 'tiles' ? 'Cloud Tiles' : 'Word Relay'}</span>
-        <div className={styles.lang} role="group" aria-label="Language">
-          {(['en', 'ko'] as const).map((l) => (
-            <button key={l} type="button" className={lang === l ? styles.langOn : ''} onClick={() => setLang(l)} aria-pressed={lang === l} disabled={phase === 'play' && game === 'relay'}>
-              {l === 'en' ? 'EN' : '한'}
-            </button>
-          ))}
+        <div className={styles.lang}>
+          <button type="button" className={styles.langBtn} onClick={() => setLangOpen((o) => !o)} disabled={langLocked} aria-haspopup="menu" aria-expanded={langOpen} aria-label={`${t(lang, 'language')}: ${LANGS.find((l) => l.id === lang)?.label}`}>
+            🌐 {LANGS.find((l) => l.id === lang)?.short}
+          </button>
+          <AnimatePresence>
+            {langOpen && !langLocked && (
+              <motion.div className={styles.langMenu} role="menu" initial={{ opacity: 0, y: -6, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -6, scale: 0.96 }} transition={{ duration: 0.18 }}>
+                {LANGS.map((l) => (
+                  <button key={l.id} type="button" role="menuitemradio" aria-checked={lang === l.id} className={lang === l.id ? styles.langOn : ''} onClick={() => chooseLang(l.id)}>
+                    <span>{l.short}</span>
+                    {l.label}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
       <AnimatePresence mode="wait">
         {phase === 'shelf' && (
           <motion.div key="shelf" className={styles.shelfWrap} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
-            <p className={styles.lead}>{lang === 'ko' ? '같이 하나를 완성하는 작은 게임들' : 'Little games you finish together'}</p>
+            <p className={styles.lead}>{t(lang, 'lead')}</p>
             <div className={styles.shelf}>
               {SHELF.map((b, i) => (
                 <motion.button
@@ -86,7 +105,7 @@ export function BoardCafe({ me, luna, hieu, drink, onClose }: Props) {
                   whileTap={b.soon ? undefined : { scale: 0.95 }}
                   onClick={() => {
                     if (b.soon) {
-                      setHint(lang === 'ko' ? 'Cloud Match는 곧 열려요' : 'Cloud Match is coming soon');
+                      setHint(t(lang, 'comingSoon'));
                       window.setTimeout(() => setHint(null), 1800);
                     } else if (b.id !== 'match') pick(b.id);
                   }}
@@ -99,7 +118,7 @@ export function BoardCafe({ me, luna, hieu, drink, onClose }: Props) {
                   <small>
                     👥 {b.players} · ⏱ {b.time}
                   </small>
-                  {b.soon && <span className={styles.soon}>🔒 Coming soon</span>}
+                  {b.soon && <span className={styles.soon}>🔒 {t(lang, 'soonBadge')}</span>}
                 </motion.button>
               ))}
             </div>
@@ -135,7 +154,7 @@ export function BoardCafe({ me, luna, hieu, drink, onClose }: Props) {
               </AnimatePresence>
               {boxOpen && <Sparkles count={14} />}
             </div>
-            <p className={styles.gatherText}>{boxOpen ? (lang === 'ko' ? '시작해 볼까요?' : 'Let’s play!') : lang === 'ko' ? 'Luna와 Hieu가 테이블로 왔어요' : 'Luna and Hieu join your table'}</p>
+            <p className={styles.gatherText}>{boxOpen ? t(lang, 'letsPlay') : t(lang, 'gather')}</p>
           </motion.div>
         )}
 
@@ -151,8 +170,8 @@ export function BoardCafe({ me, luna, hieu, drink, onClose }: Props) {
               <img src={A(game === 'tiles' && result >= 3 ? 'reaction-celebrate.png' : 'reaction-nice.png')} alt="" />
               {game === 'tiles' ? (
                 <>
-                  <h2>{result >= 3 ? (lang === 'ko' ? '구름 3개 완성!' : 'All 3 clouds!') : lang === 'ko' ? '카페가 문을 닫아요 ☕' : 'Café is closing ☕'}</h2>
-                  <p>{lang === 'ko' ? `함께 구름 ${result}개를 만들었어요!` : `We made ${result} cloud${result === 1 ? '' : 's'} together!`}</p>
+                  <h2>{result >= 3 ? t(lang, 'allClouds') : t(lang, 'closing')}</h2>
+                  <p>{t(lang, 'cloudsMade', { n: result, s: result === 1 ? '' : 's' })}</p>
                   <div className={styles.resultClouds}>
                     {[0, 1, 2].map((i) => (
                       <motion.span key={i} className={i < result ? styles.cloudOn : ''} initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3 + i * 0.15, type: 'spring' }}>
@@ -163,16 +182,16 @@ export function BoardCafe({ me, luna, hieu, drink, onClose }: Props) {
                 </>
               ) : (
                 <>
-                  <h2>{lang === 'ko' ? '멋진 이어가기! ☁️' : 'Nice chain! ☁️'}</h2>
-                  <p>{lang === 'ko' ? `함께 단어 ${result}개를 이었어요` : `${result} words together`}</p>
+                  <h2>{t(lang, 'niceChain')}</h2>
+                  <p>{t(lang, 'wordsChained', { n: result })}</p>
                 </>
               )}
               <div className={styles.resultBtns}>
                 <button type="button" onClick={() => setPhase('shelf')}>
-                  {lang === 'ko' ? '다른 게임' : 'Another game'}
+                  {t(lang, 'anotherGame')}
                 </button>
                 <button type="button" className={styles.primary} onClick={onClose}>
-                  {lang === 'ko' ? '테이블로 돌아가기' : 'Back to the table'}
+                  {t(lang, 'backToTable')}
                 </button>
               </div>
             </motion.div>

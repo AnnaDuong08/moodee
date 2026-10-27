@@ -9,6 +9,7 @@ import type { Rect } from '../data/places';
 import { camera, useElementSize } from '../lib/useElementSize';
 import { makeWalker, type Pt } from '../lib/walkGrid';
 import { WorldChat, type Chatter } from './WorldChat';
+import { useT } from '../i18n';
 import styles from './WorldScene.module.css';
 
 export interface WorldConfig {
@@ -86,6 +87,7 @@ const lastPos = new Map<string, Pt>();
 const EXIT_R = 34;
 
 export function WorldScene({ config, character, zones, npcs, onAct, hint, paused, carrying, children, onExit, exitLabel = 'Exit', chatter }: Props) {
+  const t = useT();
   const { width: W, height: H } = config;
   const viewport = useRef<HTMLDivElement>(null);
   const { w: vw, h: vh } = useElementSize(viewport);
@@ -325,7 +327,7 @@ export function WorldScene({ config, character, zones, npcs, onAct, hint, paused
     <div className={styles.wrap}>
       <div ref={viewport} className={styles.viewport} onPointerDown={onTap}>
         <div className={styles.stage} style={{ width: W, height: H, transform: `translate(${cam.x}px, ${cam.y}px) scale(${cam.s})` }}>
-          <img className={styles.bg} src={config.src} alt={config.alt} draggable={false} />
+          <img className={styles.bg} src={config.src} alt={t(config.alt)} draggable={false} />
 
           {zones.map((z) => (
             <button
@@ -333,7 +335,7 @@ export function WorldScene({ config, character, zones, npcs, onAct, hint, paused
               type="button"
               className={`${styles.zone} ${near?.id === z.id ? styles.zoneNear : ''}`}
               style={{ left: z.x, top: z.y }}
-              aria-label={`Walk to: ${z.label}`}
+              aria-label={t('Walk to: {place}', { place: t(z.label) })}
               onPointerDown={(e) => {
                 e.stopPropagation();
                 walkTo({ x: z.x, y: z.y });
@@ -348,14 +350,14 @@ export function WorldScene({ config, character, zones, npcs, onAct, hint, paused
               type="button"
               className={styles.exit}
               style={{ left: config.exit.x, top: config.exit.y }}
-              aria-label={`Walk to the door: ${exitLabel}`}
+              aria-label={t('Walk to the door: {place}', { place: t(exitLabel) })}
               onPointerDown={(e) => {
                 e.stopPropagation();
                 armed.current = true;
                 walkTo(config.exit!);
               }}
             >
-              <span>↓ {exitLabel}</span>
+              <span>↓ {t(exitLabel)}</span>
             </button>
           )}
 
@@ -370,10 +372,10 @@ export function WorldScene({ config, character, zones, npcs, onAct, hint, paused
                 <div className={s.moving ? styles.walking : styles.idle}>
                   <CharacterSprite character={n.character} pose={s.fixed ? (n.pose ?? 'back') : POSE_OF[s.dir]} />
                 </div>
-                {said[n.id] && said[n.id].until > Date.now() && <span className={styles.bubble}>{said[n.id].text}</span>}
+                {said[n.id] && said[n.id].until > Date.now() && <span className={styles.bubble}>{t(said[n.id].text)}</span>}
                 {n.name && (
                   <span className={styles.tag}>
-                    <b>{n.name}</b> {n.tag}
+                    <b>{n.name}</b> {n.tag && t(n.tag)}
                   </span>
                 )}
               </div>
@@ -396,7 +398,7 @@ export function WorldScene({ config, character, zones, npcs, onAct, hint, paused
       <AnimatePresence>
         {leaving && (
           <motion.div className={styles.leaving} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.9 }}>
-            <span>Heading out…</span>
+            <span>{t('Heading out…')}</span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -407,12 +409,12 @@ export function WorldScene({ config, character, zones, npcs, onAct, hint, paused
           <AnimatePresence initial={false} mode="popLayout">
             {near ? (
               <motion.button key={near.id} type="button" className={styles.cta} initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} onClick={() => onAct(near)}>
-                <kbd>E</kbd> {near.label}
+                <kbd>E</kbd> {t(near.label)}
               </motion.button>
             ) : (
               <motion.p key="hint" className={styles.hint} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-                <b>{hint.title}</b>
-                {hint.text}
+                <b>{t(hint.title)}</b>
+                {t(hint.text)}
               </motion.p>
             )}
           </AnimatePresence>

@@ -7,6 +7,7 @@ import { BackIcon, CoinIcon, LockIcon } from '../components/Icons';
 import { CLOUDEE_PRICE } from '../config/economy';
 import { hasCloudee, unlockCloudee, useWallet } from '../lib/wallet';
 import { CHARACTERS, type CharacterId } from '../data/characters';
+import { useT } from '../i18n';
 import { screenMotion } from '../lib/motion';
 import styles from './CharacterSelectScreen.module.css';
 
@@ -23,6 +24,7 @@ const slide: Variants = {
 };
 
 export function CharacterSelectScreen({ initialId, onBack, onConfirm }: Props) {
+  const t = useT();
   const [[index, dir], setState] = useState<[number, number]>(() => [
     Math.max(0, CHARACTERS.findIndex((c) => c.id === initialId)),
     0,
@@ -59,7 +61,7 @@ export function CharacterSelectScreen({ initialId, onBack, onConfirm }: Props) {
     <motion.main className={`screen ${styles.select}`} {...screenMotion}>
       <header className={styles.top}>
         {onBack ? (
-          <button type="button" className="icon-btn" onClick={onBack} aria-label="Back to home">
+          <button type="button" className="icon-btn" onClick={onBack} aria-label={t('Back to home')}>
             <BackIcon />
           </button>
         ) : (
@@ -68,19 +70,19 @@ export function CharacterSelectScreen({ initialId, onBack, onConfirm }: Props) {
         <div className={styles.titles}>
           {/* On first launch (nowhere to go back to), also show the app introduction */}
           {onBack ? (
-            <span className={styles.eyebrow}>Your Cloudee</span>
+            <span className={styles.eyebrow}>{t('Your Cloudee')}</span>
           ) : (
             <>
               <img className={styles.logo} src={`${import.meta.env.BASE_URL}assets/brand/logo.png`} alt="MOODEE" />
-              <p className={styles.intro}>A cozy world for distracted minds.</p>
+              <p className={styles.intro}>{t('A cozy world for distracted minds.')}</p>
             </>
           )}
-          <h1>Who's studying today?</h1>
+          <h1>{t('Who’s studying today?')}</h1>
         </div>
         <CoinChip className={styles.coinChip} />
       </header>
 
-      <section className={styles.stage} aria-roledescription="carousel" aria-label="Characters">
+      <section className={styles.stage} aria-roledescription="carousel" aria-label={t('Characters')}>
         <div className={styles.halo} aria-hidden />
         <div className={styles.floor} aria-hidden />
 
@@ -115,10 +117,10 @@ export function CharacterSelectScreen({ initialId, onBack, onConfirm }: Props) {
           </motion.div>
         </AnimatePresence>
 
-        <button type="button" className={`${styles.arrow} ${styles.prev}`} onClick={() => go(index - 1)} aria-label="Previous character">
+        <button type="button" className={`${styles.arrow} ${styles.prev}`} onClick={() => go(index - 1)} aria-label={t('Previous character')}>
           <BackIcon />
         </button>
-        <button type="button" className={`${styles.arrow} ${styles.next}`} onClick={() => go(index + 1)} aria-label="Next character">
+        <button type="button" className={`${styles.arrow} ${styles.next}`} onClick={() => go(index + 1)} aria-label={t('Next character')}>
           <BackIcon style={{ transform: 'scaleX(-1)' }} />
         </button>
       </section>
@@ -133,12 +135,12 @@ export function CharacterSelectScreen({ initialId, onBack, onConfirm }: Props) {
             transition={{ duration: 0.18 }}
           >
             <h2>{current.name}</h2>
-            <p>{premium ? 'Locked — a premium Cloudee for MOODEE PRO members.' : locked ? 'Locked — unlock with coins you earn by studying.' : current.vibe}</p>
+            <p>{t(premium ? 'Locked — a premium Cloudee for MOODEE PRO members.' : locked ? 'Locked — unlock with coins you earn by studying.' : current.vibe)}</p>
           </motion.div>
         </AnimatePresence>
       </div>
 
-      <ul className={styles.thumbs} role="tablist" aria-label="Pick a character">
+      <ul className={styles.thumbs} role="tablist" aria-label={t('Pick a character')}>
         {CHARACTERS.map((c, i) => (
           <li key={c.id}>
             <button
@@ -163,15 +165,15 @@ export function CharacterSelectScreen({ initialId, onBack, onConfirm }: Props) {
       <div className={styles.dock}>
         {premium ? (
           <button type="button" className={`pill pill-primary ${styles.proCta}`} onClick={() => setProNote(true)}>
-            <LockIcon width={18} height={18} /> Unlock with MOODEE PRO
+            <LockIcon width={18} height={18} /> {t('Unlock with MOODEE PRO')}
           </button>
         ) : locked ? (
           <button type="button" className="pill pill-primary" onClick={unlock} disabled={short}>
-            <CoinIcon /> {short ? `${CLOUDEE_PRICE} coins · study to earn` : `${CLOUDEE_PRICE} coins to unlock`}
+            <CoinIcon /> {t(short ? '{n} coins · study to earn' : '{n} coins to unlock', { n: CLOUDEE_PRICE })}
           </button>
         ) : (
           <button type="button" className="pill pill-primary" onClick={() => onConfirm(current.id)}>
-            Continue as {current.name}
+            {t('Continue as {name}', { name: current.name })}
           </button>
         )}
       </div>
@@ -180,10 +182,10 @@ export function CharacterSelectScreen({ initialId, onBack, onConfirm }: Props) {
         {proNote && (
           <motion.div className={styles.proBackdrop} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setProNote(false)}>
             <motion.div className={styles.proModal} role="dialog" aria-modal="true" aria-label="MOODEE PRO" initial={{ scale: 0.9, y: 12 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0 }} onClick={(e) => e.stopPropagation()}>
-              <h2>Available with MOODEE PRO</h2>
-              <p>Cloudy is a paid Cloudee. No payment in this demo — bring 4 friends and Cloudy visits the world with you.</p>
+              <h2>{t('Available with MOODEE PRO')}</h2>
+              <p>{t('Cloudy is a paid Cloudee. No payment in this demo — bring 4 friends and Cloudy visits the world with you.')}</p>
               <button type="button" className="pill pill-soft" onClick={() => setProNote(false)}>
-                Got it
+                {t('Got it')}
               </button>
             </motion.div>
           </motion.div>

@@ -1,7 +1,8 @@
 // Word Relay (끝말잇기 / Last-letter chain): goes Luna → YOU → Hieu. Ends after 90 s, no winners or losers
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
-import { candidates, isValidNext, lastChar, pickRandom, WORDS, type RelayLang } from './wordPool';
+import { t } from './i18n';
+import { candidates, firstChar, isValidNext, lastChar, norm, pickRandom, WORDS, type RelayLang } from './wordPool';
 import styles from './boardcafe.module.css';
 
 const base = import.meta.env.BASE_URL;
@@ -61,7 +62,7 @@ export function WordRelay({ lang, onFinish }: { lang: RelayLang; onFinish: (word
         const opts = candidates(lang, p, u);
         if (opts.length) push({ who, word: pickRandom(opts) });
         else {
-          setNote(lang === 'ko' ? `${NAME[who]}: 새로 시작하자!` : `${NAME[who]}: Let’s start fresh!`);
+          setNote(t(lang, 'startFreshSay', { name: NAME[who] }));
           window.setTimeout(() => setNote(null), 1800);
           push({ who, word: pickRandom(candidates(lang, null, u)), fresh: true });
         }
@@ -82,14 +83,14 @@ export function WordRelay({ lang, onFinish }: { lang: RelayLang; onFinish: (word
 
   const submit = (w: string) => {
     if (who !== 'you' || done) return;
-    const word = w.trim().toLowerCase();
+    const word = norm(lang, w);
     if (!isValidNext(lang, prev, used, word)) {
       setNote(
         used.includes(word)
-          ? lang === 'ko' ? '이미 나온 단어야' : 'Already used'
-          : prev && word[0] !== lastChar(prev)
-            ? lang === 'ko' ? `‘${lastChar(prev)}’(으)로 시작해 볼까?` : `Try a word starting with “${lastChar(prev)}”`
-            : lang === 'ko' ? '카페 단어장에 없는 말이야' : 'Not in our café word list',
+          ? t(lang, 'alreadyUsed')
+          : prev && firstChar(lang, word) !== lastChar(lang, prev)
+            ? t(lang, 'tryStart', { c: lastChar(lang, prev) })
+            : t(lang, 'notInList'),
       );
       window.setTimeout(() => setNote(null), 1800);
       return;
@@ -103,9 +104,9 @@ export function WordRelay({ lang, onFinish }: { lang: RelayLang; onFinish: (word
       <div className={styles.relayHead}>
         <img src={`${base}assets/boardcafe/wordrelay-arrow.png`} alt="" />
         <div>
-          <b>{lang === 'ko' ? '끝말잇기' : 'Word Relay'}</b>
+          <b>{t(lang, 'relayTitle')}</b>
           <small>
-            {chain.length} {lang === 'ko' ? '단어 이어짐' : 'words together'}
+            {chain.length} {t(lang, 'wordsTogether')}
           </small>
         </div>
       </div>
@@ -119,13 +120,13 @@ export function WordRelay({ lang, onFinish }: { lang: RelayLang; onFinish: (word
             <motion.li key={i} className={`${styles.link} ${styles[`link_${c.who}`]}`} initial={{ opacity: 0, x: c.who === 'you' ? 30 : -30, scale: 0.9 }} animate={{ opacity: 1, x: 0, scale: 1 }} transition={{ type: 'spring', stiffness: 360, damping: 22 }}>
               <small>
                 {NAME[c.who]}
-                {c.fresh ? (lang === 'ko' ? ' · 새 시작' : ' · fresh start') : ''}
+                {c.fresh ? t(lang, 'freshTag') : ''}
               </small>
               <span className={styles.arrowBar}>
                 <b>{c.word}</b>
                 <i aria-hidden>➜</i>
               </span>
-              <span className={styles.lastCircle}>{lastChar(c.word)}</span>
+              <span className={styles.lastCircle}>{lastChar(lang, c.word)}</span>
             </motion.li>
           ))}
         </AnimatePresence>
@@ -156,7 +157,7 @@ export function WordRelay({ lang, onFinish }: { lang: RelayLang; onFinish: (word
                 ))
               ) : (
                 <button type="button" onClick={() => push({ who: 'you', word: pickRandom(candidates(lang, null, used)), fresh: true })}>
-                  {lang === 'ko' ? '새로 시작하기' : 'Start fresh'}
+                  {t(lang, 'startFresh')}
                 </button>
               )}
             </div>
@@ -170,7 +171,7 @@ export function WordRelay({ lang, onFinish }: { lang: RelayLang; onFinish: (word
               <input
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
-                placeholder={prev ? (lang === 'ko' ? `‘${lastChar(prev)}’(으)로 시작하는 단어` : `A word starting with “${lastChar(prev)}”`) : lang === 'ko' ? '아무 단어나' : 'Any word'}
+                placeholder={prev ? t(lang, 'startsWith', { c: lastChar(lang, prev) }) : t(lang, 'anyWord')}
                 aria-label="Your word"
                 autoComplete="off"
               />
@@ -180,10 +181,10 @@ export function WordRelay({ lang, onFinish }: { lang: RelayLang; onFinish: (word
             </form>
           </>
         ) : (
-          <p className={styles.waitNote}>{done ? (lang === 'ko' ? '시간이 다 됐어요 ☁️' : 'Time’s up ☁️') : `${NAME[who]}${lang === 'ko' ? '의 차례' : '’s turn'}`}</p>
+          <p className={styles.waitNote}>{done ? t(lang, 'timeUp') : t(lang, 'whoseTurn', { name: NAME[who] })}</p>
         )}
       </div>
-      <p className={styles.poolNote}>{lang === 'ko' ? `카페 단어장 ${WORDS.ko.length}개` : `${WORDS.en.length} café words`}</p>
+      <p className={styles.poolNote}>{t(lang, 'poolSize', { n: WORDS[lang].length })}</p>
     </div>
   );
 }

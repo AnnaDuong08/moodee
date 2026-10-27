@@ -11,6 +11,7 @@ import { screenMotion } from '../lib/motion';
 import { monthStudyDays } from '../lib/sessions';
 import { readStreak } from '../lib/streak';
 import { claimReward, claimStamp, demoTopUp, hasCloudee, markStampReady, ownsPart, setPlan, stampedToday, stampPending, unlockCloudee, unlockPart, useWallet } from '../lib/wallet';
+import { useLang, useT } from '../i18n';
 import styles from './ShopScreen.module.css';
 
 const base = import.meta.env.BASE_URL;
@@ -45,6 +46,8 @@ const Check = () => (
 type Pending = { kind: 'part'; id: string; img: string; noun: string; price: number } | { kind: 'cloudee'; id: (typeof CHARACTERS)[number]['id'] };
 
 export function ShopScreen({ onBack, onStudy }: { onBack: () => void; onStudy: () => void }) {
+  const tx = useT();
+  const lang = useLang();
   const wallet = useWallet();
   const days = monthStudyDays();
   const streak = readStreak();
@@ -95,7 +98,7 @@ export function ShopScreen({ onBack, onStudy }: { onBack: () => void; onStudy: (
   return (
     <motion.main className={`screen ${styles.shop}`} {...screenMotion}>
       <header className={styles.top}>
-        <button type="button" className="icon-btn" onClick={onBack} aria-label="Back">
+        <button type="button" className="icon-btn" onClick={onBack} aria-label={tx('Back')}>
           <BackIcon />
         </button>
         <img className={styles.logo} src={`${base}assets/brand/logo.png`} alt="MOODEE" />
@@ -109,22 +112,22 @@ export function ShopScreen({ onBack, onStudy }: { onBack: () => void; onStudy: (
 
       <div className={styles.scroll}>
         {/* Event banner */}
-        <section className={styles.banner} aria-roledescription="carousel" aria-label="Events">
+        <section className={styles.banner} aria-roledescription="carousel" aria-label={tx('Events')}>
           <motion.div className={styles.strip} drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.25} onDragStart={() => setDragging(true)} onDragEnd={onDragEnd} animate={{ x: 0 }}>
             <AnimatePresence initial={false} mode="popLayout">
               <motion.figure key={slide} className={styles.slide} initial={{ opacity: 0, x: 40, scale: 1.04 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.5, ease: 'easeOut' }}>
                 <img src={`${base}assets/splash-wide/${BANNERS[slide].art}.jpg`} alt="" draggable={false} />
                 <figcaption>
-                  <span>EVENT</span>
-                  {BANNERS[slide].title}
+                  <span>{tx('EVENT')}</span>
+                  {tx(BANNERS[slide].title)}
                 </figcaption>
               </motion.figure>
             </AnimatePresence>
           </motion.div>
-          <button type="button" className={`${styles.arrow} ${styles.prev}`} onClick={() => go(slide - 1)} aria-label="Previous event">
+          <button type="button" className={`${styles.arrow} ${styles.prev}`} onClick={() => go(slide - 1)} aria-label={tx('Previous event')}>
             ‹
           </button>
-          <button type="button" className={`${styles.arrow} ${styles.nextBtn}`} onClick={() => go(slide + 1)} aria-label="Next event">
+          <button type="button" className={`${styles.arrow} ${styles.nextBtn}`} onClick={() => go(slide + 1)} aria-label={tx('Next event')}>
             ›
           </button>
           <div className={styles.dots} aria-hidden>
@@ -135,9 +138,9 @@ export function ShopScreen({ onBack, onStudy }: { onBack: () => void; onStudy: (
         </section>
 
         {/* Attendance stamp card */}
-        <section className={styles.stamps} aria-label="Attendance">
+        <section className={styles.stamps} aria-label={tx('Attendance')}>
           <div className={styles.stampHead}>
-            <h2>Attendance</h2>
+            <h2>{tx('Attendance')}</h2>
             <span>
               {Math.min(wallet.stampCount, rewards.length)} / {rewards.length}
             </span>
@@ -149,7 +152,7 @@ export function ShopScreen({ onBack, onStudy }: { onBack: () => void; onStudy: (
               const big = i === rewards.length - 1;
               return (
                 <li key={i} className={`${styles.tile} ${big ? styles.big : ''} ${done ? styles.done : ''} ${today && ready ? styles.today : ''} ${today && !ready && !done ? styles.upcoming : ''}`}>
-                  <small>Day {i + 1}</small>
+                  <small>{tx('Day {n}', { n: i + 1 })}</small>
                   <img src={coinsImg} alt="" className={big ? styles.chest : ''} />
                   <b>×{coins}</b>
                   {!pro && <em>Pro ×{STAMP_REWARDS.pro[i]}</em>}
@@ -157,7 +160,7 @@ export function ShopScreen({ onBack, onStudy }: { onBack: () => void; onStudy: (
                     <motion.img
                       className={styles.stamp}
                       src={stampImg}
-                      alt="Stamped"
+                      alt={tx('Stamped')}
                       initial={burst === `stamp-${i}` ? { scale: 2.6, rotate: -25, opacity: 0 } : false}
                       animate={{ scale: 1, rotate: -10, opacity: 1 }}
                       transition={{ type: 'spring', stiffness: 380, damping: 15 }}
@@ -170,22 +173,22 @@ export function ShopScreen({ onBack, onStudy }: { onBack: () => void; onStudy: (
           </ul>
           {ready ? (
             <motion.button type="button" className={styles.claim} onClick={claimToday} animate={{ scale: [1, 1.04, 1] }} transition={{ duration: 1.3, repeat: Infinity }}>
-              <CoinIcon /> Claim today’s stamp
+              <CoinIcon /> {tx('Claim today’s stamp')}
             </motion.button>
           ) : (
             <p className={styles.stampNote}>
-              {cycleDone ? 'Board complete! A fresh one starts with your next session.' : stampedToday(wallet) ? 'Stamped for today. See you tomorrow.' : 'Finish a session today to light up the next stamp.'}
+              {tx(cycleDone ? 'Board complete! A fresh one starts with your next session.' : stampedToday(wallet) ? 'Stamped for today. See you tomorrow.' : 'Finish a session today to light up the next stamp.')}
             </p>
           )}
           {!ready && !stampedToday(wallet) && !cycleDone && (
             <button type="button" className={styles.link} onClick={onStudy}>
-              Start studying
+              {tx('Start studying')}
             </button>
           )}
         </section>
 
         {/* Shelves */}
-        <Shelf title="Cloudees">
+        <Shelf title={tx('Cloudees')}>
           {CHARACTERS.map((c) => {
             const owned = hasCloudee(wallet, c);
             return (
@@ -193,8 +196,8 @@ export function ShopScreen({ onBack, onStudy }: { onBack: () => void; onStudy: (
                 key={c.id}
                 type="button"
                 className={`${styles.card} ${c.premium ? styles.cardPro : ''}`}
-                onClick={() => (owned ? say(`${c.name} is yours`) : c.premium ? say('Available with MOODEE PRO') : setPending({ kind: 'cloudee', id: c.id }))}
-                aria-label={owned ? `${c.name}, owned` : c.premium ? `${c.name}, MOODEE PRO` : `${c.name}, ${CLOUDEE_PRICE} coins`}
+                onClick={() => (owned ? say(tx('{name} is yours', { name: c.name })) : c.premium ? say(tx('Available with MOODEE PRO')) : setPending({ kind: 'cloudee', id: c.id }))}
+                aria-label={owned ? tx('{name}, owned', { name: c.name }) : c.premium ? `${c.name}, MOODEE PRO` : `${c.name}, ${tx('{n} coins', { n: CLOUDEE_PRICE })}`}
               >
                 <span className={styles.pic}>
                   <CharacterSprite character={c} pose="front" className={`${styles.face} ${!owned ? styles.faceLocked : ''}`} style={c.premium ? { height: '190%', top: '-70%' } : { height: '220%' }} />
@@ -207,7 +210,7 @@ export function ShopScreen({ onBack, onStudy }: { onBack: () => void; onStudy: (
           })}
         </Shelf>
 
-        <Shelf title="Outfits">
+        <Shelf title={tx('Outfits')}>
           {WARDROBE.flatMap((t) => t.items.slice(0, 4).map((it) => ({ it, t }))).map(({ it, t }) => {
             const owned = ownsPart(wallet, it.id);
             return (
@@ -215,13 +218,13 @@ export function ShopScreen({ onBack, onStudy }: { onBack: () => void; onStudy: (
                 key={it.id}
                 type="button"
                 className={styles.card}
-                onClick={() => (owned ? say('Already in your wardrobe') : setPending({ kind: 'part', id: it.id, img: it.img, noun: t.noun, price: it.price }))}
-                aria-label={owned ? `${t.noun}, owned` : `${t.noun}, ${it.price} coins`}
+                onClick={() => (owned ? say(tx('Already in your wardrobe')) : setPending({ kind: 'part', id: it.id, img: it.img, noun: t.noun, price: it.price }))}
+                aria-label={owned ? tx('{name}, owned', { name: tx(t.noun) }) : `${tx(t.noun)}, ${tx('{n} coins', { n: it.price })}`}
               >
                 <span className={styles.pic}>
                   <img src={it.img} alt="" className={owned ? '' : styles.dim} loading="lazy" />
                 </span>
-                <b>{t.label}</b>
+                <b>{tx(t.label)}</b>
                 <span className={styles.price}>{owned ? <Check /> : <><CoinIcon width={14} height={14} /> {it.price}</>}</span>
                 {!owned && <LockIcon className={styles.lock} />}
               </button>
@@ -229,7 +232,7 @@ export function ShopScreen({ onBack, onStudy }: { onBack: () => void; onStudy: (
           })}
         </Shelf>
 
-        <Shelf title="This month" sub={`Day ${Math.min(days, 30)} / 30`}>
+        <Shelf title={tx('This month')} sub={`${tx('Day {n}', { n: Math.min(days, 30) })} / 30`}>
           {MONTHLY_REWARDS.map((r) => {
             const owned = wallet.rewards.includes(r.id);
             const reached = days >= r.day;
@@ -239,14 +242,14 @@ export function ShopScreen({ onBack, onStudy }: { onBack: () => void; onStudy: (
                 key={r.id}
                 type="button"
                 className={`${styles.card} ${styles.cardPro} ${canClaim ? styles.claimable : ''}`}
-                onClick={() => (canClaim ? (claimReward(r.id, days), say(`${r.name} added`, r.id)) : owned ? say('Already in your wardrobe') : say(pro ? `Unlocks on day ${r.day}` : 'Monthly items come with Pro'))}
-                aria-label={owned ? `${r.name}, owned` : canClaim ? `Claim ${r.name}` : `${r.name}, day ${r.day}, Pro`}
+                onClick={() => (canClaim ? (claimReward(r.id, days), say(tx('{name} added', { name: tx(r.name) }), r.id)) : owned ? say(tx('Already in your wardrobe')) : say(pro ? tx('Unlocks on day {n}', { n: r.day }) : tx('Monthly items come with Pro')))}
+                aria-label={owned ? tx('{name}, owned', { name: tx(r.name) }) : canClaim ? tx('Claim {name}', { name: tx(r.name) }) : `${tx(r.name)}, ${tx('Day {n}', { n: r.day })}, Pro`}
               >
                 <span className={styles.pic}>
                   <img src={r.img} alt="" className={owned || canClaim ? '' : styles.dim} />
                 </span>
-                <b>{r.name.split(' ').slice(-1)[0]}</b>
-                <span className={styles.price}>{owned ? <Check /> : canClaim ? 'Claim' : `Day ${r.day}`}</span>
+                <b>{lang === 'en' ? r.name.split(' ').slice(-1)[0] : tx(r.name)}</b>
+                <span className={styles.price}>{owned ? <Check /> : canClaim ? tx('Claim') : tx('Day {n}', { n: r.day })}</span>
                 {!owned && !canClaim && <LockIcon className={styles.lock} />}
                 {burst === r.id && <Sparkles count={12} />}
               </button>
@@ -256,11 +259,11 @@ export function ShopScreen({ onBack, onStudy }: { onBack: () => void; onStudy: (
 
         {/* For demos: lets you see the flow without studying */}
         <div className={styles.demo}>
-          <button type="button" onClick={() => (demoTopUp(), say(`+${DEMO_TOPUP} demo coins`))}>
-            <CoinIcon /> +{DEMO_TOPUP} coins
+          <button type="button" onClick={() => (demoTopUp(), say(tx('+{n} demo coins', { n: DEMO_TOPUP })))}>
+            <CoinIcon /> +{tx('{n} coins', { n: DEMO_TOPUP })}
           </button>
-          <button type="button" onClick={() => (markStampReady() ? say('Stamp ready (demo)') : say('Stamp already used today'))}>
-            ★ Demo: study day
+          <button type="button" onClick={() => (markStampReady() ? say(tx('Stamp ready (demo)')) : say(tx('Stamp already used today')))}>
+            ★ {tx('Demo: study day')}
           </button>
         </div>
       </div>
@@ -269,26 +272,26 @@ export function ShopScreen({ onBack, onStudy }: { onBack: () => void; onStudy: (
         <motion.button
           type="button"
           className={`pill ${styles.cta} ${pro ? styles.ctaOn : ''}`}
-          onClick={() => (setPlan(pro ? 'free' : 'pro'), say(pro ? 'Back on Free. Your coins and items stay.' : 'MOODEE Pro — bigger stamps, monthly outfits', 'plan'))}
+          onClick={() => (setPlan(pro ? 'free' : 'pro'), say(tx(pro ? 'Back on Free. Your coins and items stay.' : 'MOODEE Pro — bigger stamps, monthly outfits'), 'plan'))}
           whileTap={{ scale: 0.97 }}
         >
           {pro ? (
             <>
-              <Check /> Pro activated
+              <Check /> {tx('Pro activated')}
             </>
           ) : (
             <>
-              <LockIcon width={18} height={18} /> Upgrade to Pro
+              <LockIcon width={18} height={18} /> {tx('Upgrade to Pro')}
             </>
           )}
           {burst === 'plan' && <Sparkles count={12} />}
         </motion.button>
-        <p>Demo only — no payment is taken.</p>
+        <p>{tx('Demo only — no payment is taken.')}</p>
       </div>
 
       <UnlockModal
         open={!!pending}
-        title={pending?.kind === 'cloudee' ? 'Unlock this Cloudee?' : pending ? `Unlock this ${pending.noun}?` : ''}
+        title={pending?.kind === 'cloudee' ? tx('Unlock this Cloudee?') : pending ? tx('Unlock this {item}?', { item: tx(pending.noun) }) : ''}
         price={pending?.kind === 'cloudee' ? CLOUDEE_PRICE : (pending?.price ?? 0)}
         preview={
           pending?.kind === 'part' ? (
@@ -308,7 +311,7 @@ export function ShopScreen({ onBack, onStudy }: { onBack: () => void; onStudy: (
           <motion.p className={styles.toast} role="status" initial={{ opacity: 0, y: 14, x: '-50%' }} animate={{ opacity: 1, y: 0, x: '-50%' }} exit={{ opacity: 0, y: 8, x: '-50%' }}>
             {toast === `+${STAMP_REWARDS[pro ? 'pro' : 'free'][Math.max(0, wallet.stampCount - 1)]} coins` ? (
               <>
-                <CoinIcon /> <CountUp value={STAMP_REWARDS[pro ? 'pro' : 'free'][Math.max(0, wallet.stampCount - 1)]} /> coins
+                <CoinIcon /> <CountUp value={STAMP_REWARDS[pro ? 'pro' : 'free'][Math.max(0, wallet.stampCount - 1)]} /> {tx('coins')}
               </>
             ) : (
               toast

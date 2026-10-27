@@ -7,6 +7,7 @@ import type { Character, Pose } from '../data/characters';
 import type { Place } from '../data/places';
 import { CharacterSprite } from './CharacterSprite';
 import { PlaceIcon } from './PlaceIcon';
+import { tr } from '../i18n';
 import styles from './PlaceWheel.module.css';
 
 interface Props {
@@ -123,7 +124,7 @@ export function PlaceWheel({ places, character, index, onIndexChange, going, onW
     >
       <div className={styles.disc} aria-hidden />
 
-      <ul className={styles.ring} role="listbox" aria-label="Places" aria-activedescendant={`place-${places[index].id}`}>
+      <ul className={styles.ring} role="listbox" aria-label={tr('Places')} aria-activedescendant={`place-${places[index].id}`}>
         {places.map((p, i) => {
           // How many steps from the top (0°) (wrapped to -n/2 – n/2)
           const off = ((((i - c) % n) + n + n / 2) % n) - n / 2;
@@ -137,6 +138,7 @@ export function PlaceWheel({ places, character, index, onIndexChange, going, onW
               id={`place-${p.id}`}
               role="option"
               aria-selected={i === index}
+              aria-label={tr(p.name)}
               data-place-index={i}
               className={styles.slot}
               style={{

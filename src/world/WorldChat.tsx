@@ -1,6 +1,7 @@
 // World chat (Minecraft-style): "<name> message" lines stack at the bottom left of the screen and fade after a while
 // Other Cloudees occasionally talk like real people, and when I speak someone answers (local demo without a server)
 import { useEffect, useRef, useState } from 'react';
+import { useT } from '../i18n';
 import styles from './WorldChat.module.css';
 
 export interface Chatter {
@@ -28,7 +29,9 @@ const pick = <T,>(a: T[]) => a[Math.floor(Math.random() * a.length)];
 let seq = 0;
 
 export function WorldChat({ chatter, paused, onSay }: Props) {
-  const [lines, setLines] = useState<Line[]>(() => [{ key: ++seq, text: `You joined ${chatter.place}`, at: Date.now() }]);
+  const t = useT();
+  // System lines keep the English text and are translated when shown
+  const [lines, setLines] = useState<Line[]>(() => [{ key: ++seq, text: 'You joined {place}', at: Date.now() }]);
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState('');
   const [, setNow] = useState(0);
@@ -116,15 +119,15 @@ export function WorldChat({ chatter, paused, onSay }: Props) {
 
   return (
     <div className={styles.chat} onPointerDown={(e) => e.stopPropagation()}>
-      <ul className={styles.log} aria-live="polite" aria-label="Chat">
+      <ul className={styles.log} aria-live="polite" aria-label={t('Chat')}>
         {shown.map((l) => (
           <li key={l.key} className={`${l.who ? '' : styles.system} ${l.who === 'You' ? styles.mine : ''} ${!open && now - l.at > VISIBLE_MS - 2000 ? styles.fading : ''}`}>
             {l.who ? (
               <>
-                <b>&lt;{l.who}&gt;</b> {l.text}
+                <b>&lt;{l.who === 'You' ? t('You') : l.who}&gt;</b> {l.who === 'You' ? l.text : t(l.text)}
               </>
             ) : (
-              l.text
+              t(l.text, { place: t(chatter.place) })
             )}
           </li>
         ))}
@@ -135,8 +138,8 @@ export function WorldChat({ chatter, paused, onSay }: Props) {
             ref={input}
             value={draft}
             maxLength={70}
-            placeholder="Say something…"
-            aria-label="Chat message"
+            placeholder={t('Say something…')}
+            aria-label={t('Chat message')}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') send();
@@ -144,13 +147,13 @@ export function WorldChat({ chatter, paused, onSay }: Props) {
             }}
             onBlur={() => !draft && setOpen(false)}
           />
-          <button type="button" onPointerDown={(e) => e.preventDefault()} onClick={send} aria-label="Send">
+          <button type="button" onPointerDown={(e) => e.preventDefault()} onClick={send} aria-label={t('Send')}>
             ›
           </button>
         </div>
       ) : (
-        <button type="button" className={styles.toggle} onClick={() => setOpen(true)} aria-label="Open chat">
-          <kbd>T</kbd> Chat
+        <button type="button" className={styles.toggle} onClick={() => setOpen(true)} aria-label={t('Open chat')}>
+          <kbd>T</kbd> {t('Chat')}
         </button>
       )}
     </div>

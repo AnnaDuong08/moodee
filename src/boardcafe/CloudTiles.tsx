@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, type PointerEvent as RPointerEvent } from 
 import { CharacterSprite } from '../components/CharacterSprite';
 import type { Character } from '../data/characters';
 import { DrinkGlass } from '../world/DrinkGlass';
+import { t } from './i18n';
 import { chooseMove, say, type Lang } from './npc';
 import { canPlace, COLOR_HEX, isComplete, lockedColor, makeDeck, nextPattern, shuffle, validSlots, type Pattern, type Tile } from './rules';
 import styles from './boardcafe.module.css';
@@ -174,7 +175,7 @@ export function CloudTiles({ me, luna, hieu, drink, lang, onFinish }: Props) {
     }
     setBounce(tile.id);
     window.setTimeout(() => setBounce(null), 450);
-    talk('you', lang === 'ko' ? '음, 여기는 아닌가 봐' : 'Hmm, not this one');
+    talk('you', t(lang, 'notThisOne'));
   };
 
   const slotAt = (x: number, y: number) => {
@@ -247,7 +248,7 @@ export function CloudTiles({ me, luna, hieu, drink, lang, onFinish }: Props) {
               <img src={A(`pattern-${g.pattern.id}.png`)} alt="" />
               <div>
                 <b>{g.pattern.name}</b>
-                <small>{g.pattern.color === 'same' ? (lang === 'ko' ? '같은 색' : 'Same color') : g.pattern.color === 'diff' ? (lang === 'ko' ? '모두 다른 색' : 'All different colors') : lang === 'ko' ? '색 상관없음' : 'Any color'}</small>
+                <small>{t(lang, g.pattern.color === 'same' ? 'sameColor' : g.pattern.color === 'diff' ? 'diffColor' : 'anyColor')}</small>
               </div>
             </div>
             <div className={styles.slots}>
@@ -277,7 +278,7 @@ export function CloudTiles({ me, luna, hieu, drink, lang, onFinish }: Props) {
               {cloudPop && (
                 <motion.div className={styles.cloudPop} initial={{ scale: 0.3, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ opacity: 0, y: -30 }} transition={{ type: 'spring', stiffness: 300, damping: 14 }}>
                   <img src={A('reaction-celebrate.png')} alt="" />
-                  <b>{lang === 'ko' ? '구름 완성!' : 'Cloud made!'}</b>
+                  <b>{t(lang, 'cloudMade')}</b>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -299,20 +300,20 @@ export function CloudTiles({ me, luna, hieu, drink, lang, onFinish }: Props) {
             </motion.span>
           ))}
           <b>
-            {g.clouds} / {GOAL} {lang === 'ko' ? '구름' : 'Clouds'}
+            {g.clouds} / {GOAL} {t(lang, 'clouds')}
           </b>
           <img className={styles.seq} src={A(`seq-${seq}.png`)} alt="" />
         </div>
         <span className={styles.turn}>
-          {lang === 'ko' ? '차례' : 'Turn'} {Math.min(g.round, ROUNDS)} / {ROUNDS}
+          {t(lang, 'turn')} {Math.min(g.round, ROUNDS)} / {ROUNDS}
         </span>
       </div>
 
       {/* My tiles */}
       <div className={styles.handArea}>
         <div className={styles.handHead}>
-          <span>{lang === 'ko' ? '내 타일' : 'YOUR TILES'}</span>
-          <em>{myTurn ? (lang === 'ko' ? '네 차례! 끌거나 탭해서 놓기' : 'Your turn — drag or tap a tile') : thinking ? `${thinking === 'luna' ? 'Luna' : 'Hieu'} is thinking…` : ''}</em>
+          <span>{t(lang, 'yourTiles')}</span>
+          <em>{myTurn ? t(lang, 'yourTurnHint') : thinking ? t(lang, 'thinking', { name: thinking === 'luna' ? 'Luna' : 'Hieu' }) : ''}</em>
         </div>
         <div className={styles.hand}>
           {g.hands.you.map((t) => (
@@ -332,8 +333,8 @@ export function CloudTiles({ me, luna, hieu, drink, lang, onFinish }: Props) {
             </motion.button>
           ))}
           <button type="button" className={styles.passBtn} onClick={() => myTurn && pass('you')} disabled={!myTurn}>
-            {lang === 'ko' ? '패스' : 'Pass'}
-            <small>{lang === 'ko' ? '+1장' : '+1 tile'}</small>
+            {t(lang, 'pass')}
+            <small>{t(lang, 'plusTile')}</small>
           </button>
         </div>
       </div>

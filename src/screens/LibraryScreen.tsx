@@ -7,6 +7,7 @@ import { BackIcon, PeopleIcon } from '../components/Icons';
 import { getCharacter, type CharacterId } from '../data/characters';
 import { getCompanions } from '../lib/companions';
 import { screenMotion } from '../lib/motion';
+import { useLang, useT } from '../i18n';
 import { addThought, listThoughts, removeThought, updateThought, type Thought } from '../lib/thoughts';
 import { FriendsSheet } from '../world/FriendsSheet';
 import { WorldScene, type WorldConfig, type WorldNpc, type Zone } from '../world/WorldScene';
@@ -55,7 +56,7 @@ const LIBRARY_LINES = [
 ];
 const LIBRARY_REPLIES = ['(quietly) hi', 'shh :)', 'good luck', 'nice, keep going', 'same here', 'ooh what are you writing?', 'mm-hm', 'you got this'];
 
-const day = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+const day = (iso: string, lang: string) => new Date(iso).toLocaleDateString(lang, { month: 'short', day: 'numeric' });
 
 type Page = 'write' | 'notes';
 
@@ -68,6 +69,8 @@ interface Props {
 
 export function LibraryScreen({ characterId, onBack, onChangeFriends, onSoundSettings }: Props) {
   const character = getCharacter(characterId);
+  const t = useT();
+  const lang = useLang();
   const [seated, setSeated] = useState(false);
   const [open, setOpen] = useState(false); // Whether the book is open
   const [page, setPage] = useState<Page>('write');
@@ -125,12 +128,12 @@ export function LibraryScreen({ characterId, onBack, onChangeFriends, onSoundSet
 
       <AnimatePresence>
         {seated && (
-          <motion.section key="desk" className={hud.activity} aria-label="Your desk" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6 }}>
+          <motion.section key="desk" className={hud.activity} aria-label={t('Your desk')} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6 }}>
             {/* Eye-level library: slowly moves in as you sit */}
             <motion.img
               className={hud.cover}
               src={`${base}assets/library/eyelevel.jpg`}
-              alt="The library at eye level"
+              alt={t('The library at eye level')}
               draggable={false}
               initial={{ scale: 1.2 }}
               animate={{ scale: open ? 1.12 : 1, filter: open ? 'blur(5px) brightness(0.55)' : 'blur(0px) brightness(1)' }}
@@ -145,20 +148,20 @@ export function LibraryScreen({ characterId, onBack, onChangeFriends, onSoundSet
               transition={{ duration: 0.7, ease: [0.45, 0, 0.2, 1], opacity: { delay: open ? 0 : 0.5 } }}
             >
               <img src={`${base}assets/library/open-book.png`} alt="" draggable={false} />
-              {!open && <button type="button" className={styles.bookTap} onClick={() => setOpen(true)} aria-label="Open book" />}
+              {!open && <button type="button" className={styles.bookTap} onClick={() => setOpen(true)} aria-label={t('Open book')} />}
 
               {open && (
                 <>
                   {/* Left page: transparent writing area directly on the book */}
                   <motion.div className={`${styles.page} ${styles.left}`} animate={saved ? { opacity: [1, 0.55, 1], y: [0, 2, 0] } : { opacity: 1 }} transition={{ duration: 0.7 }}>
                     <label htmlFor="library-note" className={styles.pageHead}>
-                      {editing ? `Note · ${day(notes.find((n) => n.id === editing)?.createdAt ?? new Date().toISOString())}` : 'New note'}
+                      {editing ? `${t('Note')} · ${day(notes.find((n) => n.id === editing)?.createdAt ?? new Date().toISOString(), lang)}` : t('New note')}
                     </label>
-                    <textarea id="library-note" className={styles.writing} value={text} placeholder="Write what you want to keep…" spellCheck={false} onChange={(e) => setText(e.target.value)} />
+                    <textarea id="library-note" className={styles.writing} value={text} placeholder={t('Write what you want to keep…')} spellCheck={false} onChange={(e) => setText(e.target.value)} />
                     <AnimatePresence>
                       {saved && (
                         <motion.span className={styles.bookmark} initial={{ y: -40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0 }}>
-                          Saved to Library
+                          {t('Saved to Library')}
                         </motion.span>
                       )}
                     </AnimatePresence>
@@ -166,20 +169,20 @@ export function LibraryScreen({ characterId, onBack, onChangeFriends, onSoundSet
 
                   {/* Right page: my notes list (including thoughts parked in the classroom) */}
                   <div className={`${styles.page} ${styles.right}`}>
-                    <span className={styles.pageHead}>My notes</span>
+                    <span className={styles.pageHead}>{t('My notes')}</span>
                     {notes.length === 0 ? (
-                      <p className={styles.blank}>Nothing here yet. Thoughts you set down in the Classroom land on this page too.</p>
+                      <p className={styles.blank}>{t('Nothing here yet. Thoughts you set down in the Classroom land on this page too.')}</p>
                     ) : (
                       <ul className={styles.index}>
                         {notes.map((n) => (
                           <li key={n.id}>
-                            <button type="button" onClick={() => reopen(n)} aria-label={`Open note: ${n.text.slice(0, 40)}`}>
+                            <button type="button" onClick={() => reopen(n)} aria-label={t('Open note: {text}', { text: n.text.slice(0, 40) })}>
                               <b>{n.text}</b>
                               <small>
-                                {day(n.createdAt)} · {n.from ?? 'Library'}
+                                {day(n.createdAt, lang)} · {(n.from ?? 'Library').split(' · ').map((part) => t(part)).join(' · ')}
                               </small>
                             </button>
-                            <button type="button" className={styles.del} onClick={() => (removeThought(n.id), setNotes(listThoughts()), editing === n.id && newPage())} aria-label="Remove note">
+                            <button type="button" className={styles.del} onClick={() => (removeThought(n.id), setNotes(listThoughts()), editing === n.id && newPage())} aria-label={t('Remove note')}>
                               ×
                             </button>
                           </li>
@@ -196,38 +199,38 @@ export function LibraryScreen({ characterId, onBack, onChangeFriends, onSoundSet
                 <>
                   <div className={hud.row}>
                     <button type="button" className={hud.dark} onClick={() => setPage(page === 'write' ? 'notes' : 'write')}>
-                      {page === 'write' ? `My notes (${notes.length}) ›` : '‹ Back to writing'}
+                      {page === 'write' ? `${t('My notes')} (${notes.length}) ›` : `‹ ${t('Back to writing')}`}
                     </button>
                     {page === 'write' ? (
                       <button type="button" className={hud.light} onClick={saveNote} disabled={!dirty}>
-                        Save
+                        {t('Save')}
                       </button>
                     ) : (
                       <button type="button" className={hud.light} onClick={newPage}>
-                        New note
+                        {t('New note')}
                       </button>
                     )}
                   </div>
                   <div className={hud.row}>
                     {page === 'write' && editing && (
                       <button type="button" className={hud.dark} onClick={newPage}>
-                        New note
+                        {t('New note')}
                       </button>
                     )}
                     <button type="button" className={hud.dark} onClick={() => setOpen(false)}>
-                      Close book
+                      {t('Close book')}
                     </button>
                   </div>
                 </>
               ) : (
                 <>
-                  <p className={hud.caption}>A quiet desk. The book is yours.</p>
+                  <p className={hud.caption}>{t('A quiet desk. The book is yours.')}</p>
                   <div className={hud.row}>
                     <button type="button" className={hud.dark} onClick={standUp}>
-                      Stand up
+                      {t('Stand up')}
                     </button>
                     <button type="button" className={hud.light} onClick={() => setOpen(true)}>
-                      Open book
+                      {t('Open book')}
                     </button>
                   </div>
                 </>
@@ -238,12 +241,12 @@ export function LibraryScreen({ characterId, onBack, onChangeFriends, onSoundSet
       </AnimatePresence>
 
       <header className={hud.top}>
-        <button type="button" className={hud.glassBtn} onClick={open ? () => setOpen(false) : seated ? standUp : onBack} aria-label={seated ? 'Back' : 'Leave the library'}>
+        <button type="button" className={hud.glassBtn} onClick={open ? () => setOpen(false) : seated ? standUp : onBack} aria-label={t(seated ? 'Back' : 'Leave the library')}>
           <BackIcon />
         </button>
-        <span className={hud.chip}>Library</span>
+        <span className={hud.chip}>{t('Library')}</span>
         <div className={hud.topActions}>
-          <button type="button" className={hud.count} onClick={() => setFriendsOpen(true)} aria-label={`${npcs.length + 1} people here. Friends`}>
+          <button type="button" className={hud.count} onClick={() => setFriendsOpen(true)} aria-label={t('{n} people here. Friends', { n: npcs.length + 1 })}>
             <PeopleIcon /> {npcs.length + 1}
           </button>
           <BackgroundSoundButton dark onClick={onSoundSettings} />

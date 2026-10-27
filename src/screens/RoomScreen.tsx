@@ -15,6 +15,7 @@ import { placeInRoom, useWallet } from '../lib/wallet';
 import { WorldScene, type WorldConfig, type Zone } from '../world/WorldScene';
 import hud from '../world/space.module.css';
 import { RoomPanel } from './places/panels';
+import { useLang, useT } from '../i18n';
 import styles from './RoomScreen.module.css';
 
 const base = import.meta.env.BASE_URL;
@@ -58,6 +59,8 @@ interface Props {
 }
 
 export function RoomScreen({ characterId, onBack, onMembership, onChangeCharacter, onSoundSettings }: Props) {
+  const t = useT();
+  const lang = useLang();
   const character = getCharacter(characterId);
   const wallet = useWallet();
   const [slot, setSlot] = useState<(typeof SLOTS)[number] | null>(null);
@@ -73,10 +76,11 @@ export function RoomScreen({ characterId, onBack, onMembership, onChangeCharacte
 
   const zones = useMemo<Zone[]>(
     () => [
-      ...SLOTS.map((s) => ({ id: s.id, kind: 'slot', ...s.zone, label: wallet.room[s.id] ? `Change · ${s.name}` : `Place · ${s.name}`, radius: 58 })),
+      ...SLOTS.map((s) => ({ id: s.id, kind: 'slot', ...s.zone, label: t(wallet.room[s.id] ? 'Change · {spot}' : 'Place · {spot}', { spot: t(s.name) }), radius: 58 })),
       { id: 'wardrobe', kind: 'wardrobe', x: 690, y: 1240, label: 'Open wardrobe', radius: 60 },
     ],
-    [wallet.room],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [wallet.room, lang],
   );
 
   const put = (objectId: string | null) => {
@@ -122,38 +126,38 @@ export function RoomScreen({ characterId, onBack, onMembership, onChangeCharacte
       </div>
 
       <header className={hud.top}>
-        <button type="button" className={hud.glassBtn} onClick={onBack} aria-label="Leave my room">
+        <button type="button" className={hud.glassBtn} onClick={onBack} aria-label={t('Leave my room')}>
           <BackIcon />
         </button>
-        <span className={hud.chip}>My Room</span>
+        <span className={hud.chip}>{t('My Room')}</span>
         <div className={hud.topActions}><CoinChip onClick={onMembership} /><BackgroundSoundButton dark onClick={onSoundSettings} /></div>
       </header>
 
       {/* Pick an item */}
-      <Sheet open={!!slot} onClose={() => setSlot(null)} title={slot ? `On the ${slot.name.toLowerCase()}` : ''} subtitle="Things you collected. Memories from the Museum show up here.">
+      <Sheet open={!!slot} onClose={() => setSlot(null)} title={slot ? t('On the {spot}', { spot: t(slot.name).toLocaleLowerCase(lang) }) : ''} subtitle={t('Things you collected. Memories from the Museum show up here.')}>
         <div className={styles.grid}>
           {collection.map((c) => (
-            <button key={c.key} type="button" className={slot && wallet.room[slot.id] === c.objectId ? styles.on : ''} onClick={() => put(c.objectId)} aria-label={`Place ${c.label}`}>
+            <button key={c.key} type="button" className={slot && wallet.room[slot.id] === c.objectId ? styles.on : ''} onClick={() => put(c.objectId)} aria-label={t('Place {item}', { item: t(c.label) })}>
               <img src={EXHIBIT_OBJECTS[c.objectId].img} alt="" />
-              <small>{c.label}</small>
+              <small>{t(c.label)}</small>
             </button>
           ))}
         </div>
         {slot && wallet.room[slot.id] && (
           <button type="button" className="pill pill-soft" style={{ width: '100%', minHeight: 50, marginTop: 10 }} onClick={() => put(null)}>
-            Clear this spot
+            {t('Clear this spot')}
           </button>
         )}
       </Sheet>
 
-      <Sheet open={wardrobe} onClose={() => setWardrobe(false)} title="Wardrobe" subtitle="Dress your Cloudee with what you earned.">
+      <Sheet open={wardrobe} onClose={() => setWardrobe(false)} title={t('Wardrobe')} subtitle={t('Dress your Cloudee with what you earned.')}>
         <RoomPanel me={character} onChangeCharacter={onChangeCharacter} monthDays={monthStudyDays()} wardrobeOnly />
       </Sheet>
 
       <AnimatePresence>
         {justPlaced && (
           <motion.p className={hud.toast} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-            Feels a little more like yours
+            {t('Feels a little more like yours')}
           </motion.p>
         )}
       </AnimatePresence>

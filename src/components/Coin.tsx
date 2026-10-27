@@ -2,6 +2,7 @@
 import { animate, AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { useT } from '../i18n';
 import { useWallet } from '../lib/wallet';
 import { CoinIcon, LockIcon } from './Icons';
 import styles from './Coin.module.css';
@@ -21,9 +22,10 @@ export function CountUp({ value, duration = 0.7 }: { value: number; duration?: n
 // Coin balance chip (tap to go to Membership, etc.). Bounces when the balance changes
 export function CoinChip({ onClick, className }: { onClick?: () => void; className?: string }) {
   const { coins } = useWallet();
+  const t = useT();
   const Tag = (onClick ? motion.button : motion.span) as typeof motion.button;
   return (
-    <Tag key={coins} type={onClick ? 'button' : undefined} className={`${styles.chip} ${className ?? ''}`} onClick={onClick} aria-label={`${coins} coins`} initial={{ scale: 1.18 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 400, damping: 14 }}>
+    <Tag key={coins} type={onClick ? 'button' : undefined} className={`${styles.chip} ${className ?? ''}`} onClick={onClick} aria-label={t('{n} coins', { n: coins })} initial={{ scale: 1.18 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 400, damping: 14 }}>
       <CoinIcon />
       <b>
         <CountUp value={coins} />
@@ -65,6 +67,7 @@ interface UnlockProps {
 export function UnlockModal({ open, title, price, preview, onCancel, onConfirm }: UnlockProps) {
   const { coins } = useWallet();
   const [done, setDone] = useState(false);
+  const t = useT();
   const short = coins < price;
 
   useEffect(() => {
@@ -96,18 +99,18 @@ export function UnlockModal({ open, title, price, preview, onCancel, onConfirm }
               {done ? <Sparkles /> : <span className={styles.lock}><LockIcon width={16} height={16} /></span>}
             </div>
             <div className={styles.body}>
-              <h2>{done ? 'Unlocked!' : title}</h2>
+              <h2>{done ? t('Unlocked!') : title}</h2>
               <p className={styles.price}>
-                <CoinIcon /> <b>{price} coins</b>
-                <span>· you have {coins}</span>
+                <CoinIcon /> <b>{t('{n} coins', { n: price })}</b>
+                <span>{t('· you have {n}', { n: coins })}</span>
               </p>
             </div>
             <div className={styles.actions}>
               <button type="button" className="pill pill-soft" onClick={onCancel}>
-                {done ? 'Close' : 'Cancel'}
+                {t(done ? 'Close' : 'Cancel')}
               </button>
               <button type="button" className="pill pill-primary" onClick={confirm} disabled={short || done}>
-                {done ? 'Yours now' : short ? 'Study to earn coins' : `${price} coins to unlock`}
+                {done ? t('Yours now') : short ? t('Study to earn coins') : t('{n} coins to unlock', { n: price })}
               </button>
             </div>
           </motion.div>

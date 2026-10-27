@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { CLASSMATES, classmateLooks } from '../data/classmates';
 import type { Character } from '../data/characters';
+import { useT } from '../i18n';
 import { loadValue, save } from '../lib/storage';
 import { CharacterSprite } from './CharacterSprite';
 import { Sheet } from './Sheet';
@@ -18,7 +19,8 @@ interface Props {
 
 export const getFriends = () => loadValue<string[]>('friends', []);
 
-export function PeopleSheet({ open, onClose, me, mySubject, title = 'Studying in this room' }: Props) {
+export function PeopleSheet({ open, onClose, me, mySubject, title }: Props) {
+  const t = useT();
   const [friends, setFriends] = useState<string[]>(getFriends);
   const [invited, setInvited] = useState(false);
   const looks = classmateLooks(me.id);
@@ -31,7 +33,7 @@ export function PeopleSheet({ open, onClose, me, mySubject, title = 'Studying in
 
   // Invite: the device's share sheet, or copy the link if unavailable
   const invite = async () => {
-    const data = { title: 'MOODEE', text: 'Come study with me on MOODEE — same room, no chat.', url: location.href };
+    const data = { title: 'MOODEE', text: t('Come study with me on MOODEE — same room, no chat.'), url: location.href };
     try {
       if (navigator.share) await navigator.share(data);
       else await navigator.clipboard.writeText(`${data.text} ${data.url}`);
@@ -43,14 +45,14 @@ export function PeopleSheet({ open, onClose, me, mySubject, title = 'Studying in
   };
 
   return (
-    <Sheet open={open} onClose={onClose} title={title} subtitle="No chat here — you only see what everyone is working on.">
+    <Sheet open={open} onClose={onClose} title={title ?? t('Studying in this room')} subtitle={t('No chat here — you only see what everyone is working on.')}>
       <ul className={styles.list}>
         {mySubject !== undefined && (
           <li className={`${styles.row} ${styles.me}`}>
             <Avatar character={me} />
             <div className={styles.who}>
-              <b>You</b>
-              <small>{mySubject || 'Focusing'}</small>
+              <b>{t('You')}</b>
+              <small>{mySubject ? t(mySubject) : t('Focusing')}</small>
             </div>
           </li>
         )}
@@ -62,11 +64,11 @@ export function PeopleSheet({ open, onClose, me, mySubject, title = 'Studying in
               <div className={styles.who}>
                 <b>{m.name}</b>
                 <small>
-                  {m.subject} · seat {m.topSeat}
+                  {t(m.subject)} · {t('seat {n}', { n: m.topSeat })}
                 </small>
               </div>
               <button type="button" className={`${styles.add} ${isFriend ? styles.added : ''}`} aria-pressed={isFriend} onClick={() => toggle(m.id)}>
-                {isFriend ? 'Friends ✓' : 'Add friend'}
+                {t(isFriend ? 'Friends ✓' : 'Add friend')}
               </button>
             </li>
           );
@@ -74,9 +76,9 @@ export function PeopleSheet({ open, onClose, me, mySubject, title = 'Studying in
       </ul>
 
       <button type="button" className="pill pill-soft" style={{ width: '100%' }} onClick={invite}>
-        {invited ? 'Invite ready to send ✓' : 'Invite a friend to study'}
+        {t(invited ? 'Invite ready to send ✓' : 'Invite a friend to study')}
       </button>
-      <p className={styles.note}>Demo classmates. Live rooms with your real friends come with sign-in.</p>
+      <p className={styles.note}>{t('Demo classmates. Live rooms with your real friends come with sign-in.')}</p>
     </Sheet>
   );
 }

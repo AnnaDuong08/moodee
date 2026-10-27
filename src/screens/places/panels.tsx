@@ -11,6 +11,7 @@ import { CLASSMATES, classmateLooks } from '../../data/classmates';
 import { addMemory, listMemories, type Memory } from '../../lib/memories';
 import { addThought, listThoughts, removeThought, toggleThought } from '../../lib/thoughts';
 import { hasCloudee, orderDrink, ownsPart, setRoomLook, unlockCloudee, unlockPart, unlockRoomLook, useWallet, wear } from '../../lib/wallet';
+import { useT } from '../../i18n';
 import styles from './panels.module.css';
 
 const day = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -272,6 +273,7 @@ type Pending = { kind: 'cloudee'; id: CharacterId } | { kind: 'part'; id: string
 const CHARACTERS = PLAYABLE;
 
 export function RoomPanel({ me, onChangeCharacter, monthDays, wardrobeOnly }: { me: Character; onChangeCharacter: (id: CharacterId) => void; monthDays: number; wardrobeOnly?: boolean }) {
+  const tx = useT();
   const wallet = useWallet();
   const [mode, setMode] = useState<'wardrobe' | 'decorate'>('wardrobe');
   const [tab, setTab] = useState<string>('look');
@@ -291,7 +293,7 @@ export function RoomPanel({ me, onChangeCharacter, monthDays, wardrobeOnly }: { 
       <div className={styles.segment} role="tablist" hidden={wardrobeOnly}>
         {(['wardrobe', 'decorate'] as const).map((m) => (
           <button key={m} type="button" role="tab" aria-selected={mode === m} className={mode === m ? styles.segOn : ''} onClick={() => setMode(m)}>
-            {m === 'wardrobe' ? 'Wardrobe' : 'Decorate'}
+            {tx(m === 'wardrobe' ? 'Wardrobe' : 'Decorate')}
           </button>
         ))}
       </div>
@@ -300,11 +302,11 @@ export function RoomPanel({ me, onChangeCharacter, monthDays, wardrobeOnly }: { 
         <>
           <div className={styles.tabs} role="tablist">
             <button type="button" role="tab" aria-selected={tab === 'look'} className={tab === 'look' ? styles.tabOn : ''} onClick={() => setTab('look')}>
-              Cloudee
+              {tx('Cloudee')}
             </button>
             {WARDROBE.map((t) => (
               <button key={t.id} type="button" role="tab" aria-selected={tab === t.id} className={tab === t.id ? styles.tabOn : ''} onClick={() => setTab(t.id)}>
-                {t.label}
+                {tx(t.label)}
               </button>
             ))}
           </div>
@@ -314,7 +316,7 @@ export function RoomPanel({ me, onChangeCharacter, monthDays, wardrobeOnly }: { 
               {ALL_CHARACTERS.filter((c) => !c.premium || wallet.plan === 'pro').map((c) => {
                 const owned = hasCloudee(wallet, c);
                 return (
-                  <button key={c.id} type="button" className={`${styles.tile} ${me.id === c.id ? styles.tileOn : ''}`} onClick={() => (owned ? onChangeCharacter(c.id) : setPending({ kind: 'cloudee', id: c.id }))} aria-label={owned ? `Use ${c.name}` : `${c.name}, locked`}>
+                  <button key={c.id} type="button" className={`${styles.tile} ${me.id === c.id ? styles.tileOn : ''}`} onClick={() => (owned ? onChangeCharacter(c.id) : setPending({ kind: 'cloudee', id: c.id }))} aria-label={owned ? tx('Use {name}', { name: c.name }) : tx('{name}, locked', { name: c.name })}>
                     <span className={styles.lookCrop}>
                       <CharacterSprite character={c} pose="front" className={`${styles.faceSprite} ${owned ? '' : styles.dim}`} style={{ height: '230%' }} />
                     </span>
@@ -334,7 +336,7 @@ export function RoomPanel({ me, onChangeCharacter, monthDays, wardrobeOnly }: { 
                     type="button"
                     className={`${styles.tile} ${on ? styles.tileOn : ''}`}
                     onClick={() => (owned ? wear(tab, it.id) : setPending({ kind: 'part', id: it.id, img: it.img, noun: parts!.noun, price: it.price }))}
-                    aria-label={owned ? `Pick ${parts!.noun}` : `Locked ${parts!.noun}, ${it.price} coins`}
+                    aria-label={owned ? tx('Pick {item}', { item: tx(parts!.noun) }) : tx('Locked {item}, {n} coins', { item: tx(parts!.noun), n: it.price })}
                     aria-pressed={on}
                   >
                     <img src={it.img} alt="" className={owned ? '' : styles.dimPart} loading="lazy" />
@@ -345,19 +347,19 @@ export function RoomPanel({ me, onChangeCharacter, monthDays, wardrobeOnly }: { 
             </div>
           )}
 
-          <h3 className={styles.sub}>Monthly rewards · {monthDays}/30 days</h3>
+          <h3 className={styles.sub}>{tx('Monthly rewards · {n}/30 days', { n: monthDays })}</h3>
           <ul className={styles.rewardRow}>
             {MONTHLY_REWARDS.map((r) => {
               const owned = wallet.rewards.includes(r.id);
               return (
                 <li key={r.id} className={owned ? styles.rewardOn : ''}>
                   <img src={r.img} alt="" />
-                  <small>{owned ? r.name : `Day ${r.day} · Pro`}</small>
+                  <small>{owned ? tx(r.name) : `${tx('Day {n}', { n: r.day })} · Pro`}</small>
                 </li>
               );
             })}
           </ul>
-          {tab !== 'look' && <p className={styles.note}>Your picks are saved. Showing parts on your Cloudee needs layered art — that comes next.</p>}
+          {tab !== 'look' && <p className={styles.note}>{tx('Your picks are saved. Showing parts on your Cloudee needs layered art — that comes next.')}</p>}
         </>
       ) : (
         <>
@@ -366,21 +368,21 @@ export function RoomPanel({ me, onChangeCharacter, monthDays, wardrobeOnly }: { 
               const owned = wallet.roomLooks.includes(r.id);
               const on = wallet.roomLook === r.id;
               return (
-                <button key={r.id} type="button" className={`${styles.room} ${on ? styles.tileOn : ''}`} onClick={() => (owned ? setRoomLook(r.id) : setPending({ kind: 'room', id: r.id }))} aria-label={owned ? `Use ${r.name}` : `${r.name}, ${r.price} coins`} aria-pressed={on}>
+                <button key={r.id} type="button" className={`${styles.room} ${on ? styles.tileOn : ''}`} onClick={() => (owned ? setRoomLook(r.id) : setPending({ kind: 'room', id: r.id }))} aria-label={owned ? tx('Use {name}', { name: tx(r.name) }) : `${tx(r.name)}, ${tx('{n} coins', { n: r.price })}`} aria-pressed={on}>
                   <img src={r.src} alt="" className={owned ? '' : styles.dimPart} loading="lazy" />
-                  <b>{r.name}</b>
+                  <b>{tx(r.name)}</b>
                   {!owned && <LockBadge price={r.price} />}
                 </button>
               );
             })}
           </div>
-          <p className={styles.note}>Your room grows with what you earn. Tap a style to move in.</p>
+          <p className={styles.note}>{tx('Your room grows with what you earn. Tap a style to move in.')}</p>
         </>
       )}
 
       <UnlockModal
         open={!!pending}
-        title={pending?.kind === 'cloudee' ? 'Unlock this Cloudee?' : pending?.kind === 'part' ? `Unlock this ${pending.noun}?` : `Unlock ${pendingRoom?.name ?? 'this room'}?`}
+        title={pending?.kind === 'cloudee' ? tx('Unlock this Cloudee?') : pending?.kind === 'part' ? tx('Unlock this {item}?', { item: tx(pending.noun) }) : tx('Unlock {name}?', { name: tx(pendingRoom?.name ?? 'this room') })}
         price={pending?.kind === 'cloudee' ? CLOUDEE_PRICE : pending?.kind === 'part' ? pending.price : (pendingRoom?.price ?? 0)}
         preview={
           pending?.kind === 'cloudee' ? (

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { CharacterSprite } from '../components/CharacterSprite';
 import { Sheet } from '../components/Sheet';
 import type { Character } from '../data/characters';
+import { useT } from '../i18n';
 import { getCompanions, SPACE_NAME } from '../lib/companions';
 import styles from './space.module.css';
 
@@ -16,10 +17,11 @@ interface Props {
 export function FriendsSheet({ open, onClose, me, onChangeCount }: Props) {
   const friends = getCompanions(me.id);
   const [invited, setInvited] = useState(false);
+  const t = useT();
   return (
-    <Sheet open={open} onClose={onClose} title="Friends" subtitle="Demo companions — they wander the world on their own.">
+    <Sheet open={open} onClose={onClose} title={t('Friends')} subtitle={t('Demo companions — they wander the world on their own.')}>
       {friends.length === 0 ? (
-        <p className={styles.empty}>You came alone this time. That is okay too.</p>
+        <p className={styles.empty}>{t('You came alone this time. That is okay too.')}</p>
       ) : (
         <ul className={styles.friends}>
           {friends.map((f) => (
@@ -28,7 +30,7 @@ export function FriendsSheet({ open, onClose, me, onChangeCount }: Props) {
                 <CharacterSprite character={f.character} pose="front" style={{ height: '250%' }} />
               </span>
               <b>{f.name}</b>
-              <small>{SPACE_NAME[f.space]}</small>
+              <small>{t(SPACE_NAME[f.space])}</small>
             </li>
           ))}
         </ul>
@@ -43,11 +45,11 @@ export function FriendsSheet({ open, onClose, me, onChangeCount }: Props) {
             window.setTimeout(() => setInvited(false), 2200);
           }}
         >
-          {invited ? 'Invite link ready ✓ (demo)' : 'Invite a friend'}
+          {t(invited ? 'Invite link ready ✓ (demo)' : 'Invite a friend')}
         </button>
         {onChangeCount && (
           <button type="button" className="pill pill-soft" style={{ width: '100%', minHeight: 50 }} onClick={onChangeCount}>
-            Change how many friends join
+            {t('Change how many friends join')}
           </button>
         )}
       </div>

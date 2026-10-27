@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { SOUNDS, type SoundId } from '../audio/soundscape';
 import { CLASSMATES } from '../data/classmates';
+import { useT } from '../i18n';
 import { CLASSROOM, type Seat } from '../data/places';
 import { PeopleIcon } from './Icons';
 import styles from './ClassroomHud.module.css';
@@ -35,6 +36,7 @@ const LATER = [
 ];
 
 export function ClassroomHud({ seat, soundOn, onToggleSound, onMixer, raised, dimmed = false, footerHeight = 0, onTutor, overlayRevision = 0 }: Props) {
+  const t = useT();
   const [chatOpen, setChatOpen] = useState(false);
   const [messages, setMessages] = useState(SEED);
   const [draft, setDraft] = useState('');
@@ -59,9 +61,9 @@ export function ClassroomHud({ seat, soundOn, onToggleSound, onMixer, raised, di
   return (
     <>
       {/* Minimap: dots for people on the top-view classroom */}
-      <motion.aside className={styles.minimap} aria-label={`Classroom 1-1 map. ${CLASSMATES.length + 1} people here`} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
+      <motion.aside className={styles.minimap} aria-label={t('Classroom 1-1 map. {n} people here', { n: CLASSMATES.length + 1 })} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
         <div className={styles.mapHead}>
-          <span>Classroom 1-1</span>
+          <span>{t('Classroom 1-1')}</span>
           <b>
             <PeopleIcon width={14} height={14} /> {CLASSMATES.length + 1}
           </b>
@@ -83,12 +85,12 @@ export function ClassroomHud({ seat, soundOn, onToggleSound, onMixer, raised, di
         {SOUNDS.map((s) => {
           const on = soundOn(s.id);
           return (
-            <button key={s.id} type="button" className={on ? styles.soundOn : ''} onClick={() => onToggleSound(s.id)} aria-pressed={on} aria-label={`${s.label} sound ${on ? 'on' : 'off'}`} title={`${s.label} sound`} data-tip={`${s.label} sound`}>
+            <button key={s.id} type="button" className={on ? styles.soundOn : ''} onClick={() => onToggleSound(s.id)} aria-pressed={on} aria-label={t(on ? '{sound} sound on' : '{sound} sound off', { sound: t(s.label) })} title={t('{sound} sound', { sound: t(s.label) })} data-tip={t('{sound} sound', { sound: t(s.label) })}>
               <span aria-hidden>{ICON[s.id]}</span>
             </button>
           );
         })}
-        <button type="button" onClick={onMixer} aria-label="Open sound mixer" title="Sound mixer" data-tip="Sound mixer">
+        <button type="button" onClick={onMixer} aria-label={t('Open sound mixer')} title={t('Sound mixer')} data-tip={t('Sound mixer')}>
           <span aria-hidden>🎚️</span>
         </button>
       </div>
@@ -101,21 +103,21 @@ export function ClassroomHud({ seat, soundOn, onToggleSound, onMixer, raised, di
               <ul ref={list} aria-live="polite">
                 {messages.map((m, i) => (
                   <li key={i} className={m.who === 'You' ? styles.mine : ''}>
-                    <b>{m.who}</b> {m.text}
+                    <b>{m.who === 'You' ? t('You') : m.who}</b> {m.who === 'You' ? m.text : t(m.text)}
                   </li>
                 ))}
               </ul>
               <div className={styles.chatInput}>
-                <input value={draft} maxLength={60} placeholder="Type a message…" aria-label="Message" onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && send()} />
-                <button type="button" onClick={send} disabled={!draft.trim()} aria-label="Send">
+                <input value={draft} maxLength={60} placeholder={t('Type a message…')} aria-label={t('Message')} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && send()} />
+                <button type="button" onClick={send} disabled={!draft.trim()} aria-label={t('Send')}>
                   ›
                 </button>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-        <div className={styles.toggles}><button type="button" className={styles.chatToggle} onClick={onTutor}>Tutor</button><button type="button" className={styles.chatToggle} onClick={() => setChatOpen((o) => !o)} aria-expanded={chatOpen}>
-          💬 {chatOpen ? 'Hide chat' : `Chat · ${messages.length}`}
+        <div className={styles.toggles}><button type="button" className={styles.chatToggle} onClick={onTutor}>{t('Tutor')}</button><button type="button" className={styles.chatToggle} onClick={() => setChatOpen((o) => !o)} aria-expanded={chatOpen}>
+          💬 {chatOpen ? t('Hide chat') : t('Chat · {n}', { n: messages.length })}
         </button></div>
       </div>
     </>

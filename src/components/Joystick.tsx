@@ -1,5 +1,6 @@
 // Virtual joystick: emits the drag direction as a -1–1 vector (mobile-game-style movement)
 import { useRef, useState } from 'react';
+import { tr } from '../i18n';
 import styles from './Joystick.module.css';
 
 interface Props {
@@ -37,7 +38,7 @@ export function Joystick({ onChange }: Props) {
       ref={base}
       className={styles.base}
       role="application"
-      aria-label="Move stick. You can also use arrow keys or tap the floor."
+      aria-label={tr('Move stick. You can also use arrow keys or tap the floor.')}
       onPointerDown={(e) => {
         e.stopPropagation();
         active.current = e.pointerId;

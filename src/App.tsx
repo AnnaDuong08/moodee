@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { LoadingSplash, pickSplash } from './components/LoadingSplash';
 import { type CharacterId } from './data/characters';
 import type { Place } from './data/places';
+import { tr } from './i18n';
 import { loadValue, save } from './lib/storage';
 import { completeGoogleRedirect } from './lib/googleConnection';
 import { HomeScreen } from './screens/HomeScreen';
@@ -56,8 +57,8 @@ export function App() {
     const destination=query.get('oauth_destination')==='tutor' || oauthDestination()==='tutor'?'tutor':'calendar';
     const returnToTutor=(message:string)=>{setTutorMessage(message);setInitialTutorOpen(true);setOnboarding(false);setScreen('classroom');};
     if (query.has('error')) {
-      setCalendarMessage(query.get('error_description')?.slice(0, 200) || 'Google connection was cancelled.');
-      const errorMessage=query.get('error_description')?.slice(0,200)||'Google sign-in was cancelled.';
+      setCalendarMessage(query.get('error_description')?.slice(0, 200) || tr('Google connection was cancelled.'));
+      const errorMessage=query.get('error_description')?.slice(0,200)||tr('Google sign-in was cancelled.');
       query.delete('error'); query.delete('error_description');query.delete('oauth_destination');
       window.history.replaceState({}, '', `${window.location.pathname}${query.size ? `?${query}` : ''}${window.location.hash}`);
       if(destination==='tutor')returnToTutor(errorMessage);else setScreen('calendar');
@@ -65,15 +66,15 @@ export function App() {
     }
     if (!query.has('code')) return;
     if(destination==='tutor'){
-      void exchangeOAuthSession().then(()=>returnToTutor('Google sign-in complete.')).catch(()=>returnToTutor('Google sign-in failed. Please try again.'));
+      void exchangeOAuthSession().then(()=>returnToTutor(tr('Google sign-in complete.'))).catch(()=>returnToTutor(tr('Google sign-in failed. Please try again.')));
       return;
     }
     void completeGoogleRedirect().then(() => {
-      setCalendarMessage('Google Calendar connected.');
+      setCalendarMessage(tr('Google Calendar connected.'));
       setCalendarConnectionRevision((revision) => revision + 1);
       setScreen('calendar');
     }).catch((error: unknown) => {
-      setCalendarMessage(error instanceof Error ? error.message : 'Could not connect Google Calendar.');
+      setCalendarMessage(error instanceof Error ? error.message : tr('Could not connect Google Calendar.'));
       setScreen('calendar');
     });
   }, []);
@@ -100,7 +101,7 @@ export function App() {
   };
 
   const go = (p: Place) => {
-    showSplash(`Going to ${p.name}…`, () => {
+    showSplash(tr('Going to {place}…', { place: tr(p.name) }), () => {
       if (p.available) openClassroom();
       else setScreen(p.id as Screen);
     });

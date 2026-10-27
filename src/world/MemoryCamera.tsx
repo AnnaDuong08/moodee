@@ -6,6 +6,7 @@ import { Sparkles } from '../components/Coin';
 import { CAMERA_SCENES, EXHIBIT_OBJECTS, type ExhibitObjectId } from '../config/economy';
 import { addMemory, type Memory } from '../lib/memories';
 import { shutterSound } from '../screens/places/panels';
+import { useT } from '../i18n';
 import styles from './MemoryCamera.module.css';
 
 const base = import.meta.env.BASE_URL;
@@ -32,6 +33,7 @@ const STEP_LABEL: Partial<Record<Step, [string, string]>> = {
 };
 
 export function MemoryCamera({ onClose, onSaved }: { onClose: () => void; onSaved: (m: Memory) => void }) {
+  const t = useT();
   const [scene, setScene] = useState(SCENES[0]);
   const [step, setStep] = useState<Step>('connecting');
   const [live, setLive] = useState<MediaStream | null>(null); // Real camera (only when permitted)
@@ -65,7 +67,7 @@ export function MemoryCamera({ onClose, onSaved }: { onClose: () => void; onSave
     try {
       setLive(await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }));
     } catch {
-      setNote('Camera not available — using the demo moment');
+      setNote(t('Camera not available — using the demo moment'));
       window.setTimeout(() => setNote(null), 2400);
     }
   };
@@ -109,13 +111,13 @@ export function MemoryCamera({ onClose, onSaved }: { onClose: () => void; onSave
   const showVideo = live || scene.video;
 
   return (
-    <motion.div className={styles.camera} role="dialog" aria-modal="true" aria-label="Capture a memory" initial={{ opacity: 0, scale: 1.08 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
+    <motion.div className={styles.camera} role="dialog" aria-modal="true" aria-label={t('Capture a memory')} initial={{ opacity: 0, scale: 1.08 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
       <div className={styles.top}>
-        <button type="button" className={styles.round} onClick={onClose} aria-label="Back to the museum">
+        <button type="button" className={styles.round} onClick={onClose} aria-label={t('Back to the museum')}>
           ×
         </button>
         <span className={styles.status} data-on={step !== 'connecting'}>
-          <i /> {step === 'connecting' ? 'Connecting camera…' : aiming ? (live ? 'Camera connected · live' : 'Camera connected') : 'Memory object created'}
+          <i /> {t(step === 'connecting' ? 'Connecting camera…' : aiming ? (live ? 'Camera connected · live' : 'Camera connected') : 'Memory object created')}
         </span>
         {aiming ? (
           <button type="button" className={`${styles.round} ${live ? styles.roundOn : ''}`} onClick={useMyCamera} aria-pressed={!!live} aria-label={live ? 'Back to the demo moment' : 'Use my camera'}>
@@ -148,7 +150,7 @@ export function MemoryCamera({ onClose, onSaved }: { onClose: () => void; onSave
             <AnimatePresence>
               {step === 'photo' && (
                 <motion.div key="photo" className={`${styles.photo} ${still && scene.video && !live ? styles.photoRec : ''}`} initial={{ scale: 1.25, rotate: 0 }} animate={{ scale: 1, rotate: -3 }} exit={{ scale: 0.5, opacity: 0 }} transition={{ duration: 0.5 }}>
-                  {still ? <img src={still} alt="The captured moment" /> : null}
+                  {still ? <img src={still} alt={t('The captured moment')} /> : null}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -159,7 +161,7 @@ export function MemoryCamera({ onClose, onSaved }: { onClose: () => void; onSave
                   key="object"
                   className={styles.object}
                   src={object.img}
-                  alt={object.name}
+                  alt={t(object.name)}
                   initial={{ scale: 0.55, opacity: 0, rotate: -8 }}
                   animate={{ scale: step === 'icon' ? 0.72 : 1, opacity: 1, rotate: step === 'icon' ? [-6, 6, 0] : 0, filter: step === 'icon' ? 'brightness(0) invert(1) drop-shadow(0 0 0 #fff)' : 'brightness(1) invert(0) drop-shadow(0 22px 20px rgba(60,30,20,0.4))' }}
                   transition={{ duration: 0.7 }}
@@ -172,14 +174,14 @@ export function MemoryCamera({ onClose, onSaved }: { onClose: () => void; onSave
 
         {label && (
           <motion.p key={label[1]} className={styles.stepLabel} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-            <small>{label[0]}</small>
-            {label[1]}
+            <small>{t(label[0])}</small>
+            {t(label[1])}
           </motion.p>
         )}
         <AnimatePresence>{step === 'flash' && <motion.span className={styles.flash} initial={{ opacity: 1 }} animate={{ opacity: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }} />}</AnimatePresence>
         {(step === 'photo' || step === 'icon' || step === 'object') && (
           <button type="button" className={styles.skip} onClick={toObject}>
-            Skip
+            {t('Skip')}
           </button>
         )}
       </div>
@@ -187,20 +189,20 @@ export function MemoryCamera({ onClose, onSaved }: { onClose: () => void; onSave
       {step === 'form' ? (
         <motion.div className={styles.bottom} initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
           <label>
-            <span>Give this memory a name</span>
-            <input value={title} maxLength={40} placeholder={object.name} onChange={(e) => setTitle(e.target.value)} />
+            <span>{t('Give this memory a name')}</span>
+            <input value={title} maxLength={40} placeholder={t(object.name)} onChange={(e) => setTitle(e.target.value)} />
           </label>
           <label>
-            <span>What do you want to remember?</span>
-            <textarea value={story} maxLength={140} rows={2} placeholder="We stayed up building MOODEE together." onChange={(e) => setStory(e.target.value)} />
+            <span>{t('What do you want to remember?')}</span>
+            <textarea value={story} maxLength={140} rows={2} placeholder={t('We stayed up building MOODEE together.')} onChange={(e) => setStory(e.target.value)} />
           </label>
           <button type="button" className="pill pill-primary" onClick={save}>
-            Save to my Museum
+            {t('Save to my Museum')}
           </button>
         </motion.div>
       ) : (
         <div className={styles.bottom}>
-          <ul className={styles.roll} aria-label="What is in front of the camera">
+          <ul className={styles.roll} aria-label={t('What is in front of the camera')}>
             {SCENES.map((s) => (
               <li key={s.id}>
                 <button type="button" className={scene.id === s.id ? styles.rollOn : ''} onClick={() => step === 'aim' && setScene(s)} aria-label={s.label} aria-pressed={scene.id === s.id} disabled={!aiming}>
@@ -209,10 +211,10 @@ export function MemoryCamera({ onClose, onSaved }: { onClose: () => void; onSave
               </li>
             ))}
           </ul>
-          <button type="button" className={styles.shutter} onClick={shoot} disabled={step !== 'aim'} aria-label="Capture">
+          <button type="button" className={styles.shutter} onClick={shoot} disabled={step !== 'aim'} aria-label={t('Capture')}>
             <span />
           </button>
-          <p className={styles.hint}>{note ?? (live ? `Live camera · becomes “${object.name}”` : scene.label)}</p>
+          <p className={styles.hint}>{note ?? (live ? t('Live camera · becomes “{name}”', { name: t(object.name) }) : t(scene.label))}</p>
         </div>
       )}
     </motion.div>

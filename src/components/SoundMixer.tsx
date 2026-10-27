@@ -3,6 +3,7 @@
 import { AnimatePresence, motion, useDragControls } from 'framer-motion';
 import { SOUNDS, type SoundId } from '../audio/soundscape';
 import { useSoundscape } from '../audio/useSoundscape';
+import { useT } from '../i18n';
 import styles from './SoundMixer.module.css';
 
 interface Props {
@@ -26,6 +27,7 @@ const ICONS: Record<SoundId, string> = {
 };
 
 export function SoundMixer({ open, title = 'Classroom sounds', subtitle, doneLabel = 'Done', onClose, playing, onPlay, onStop }: Props) {
+  const t = useT();
   const { settings, engine } = useSoundscape();
   const drag = useDragControls();
 
@@ -55,16 +57,16 @@ export function SoundMixer({ open, title = 'Classroom sounds', subtitle, doneLab
             </div>
             <div className={styles.head}>
               <div>
-                <h2 id="mixer-title">{title}</h2>
-                {subtitle && <p className={styles.sub}>{subtitle}</p>}
+                <h2 id="mixer-title">{t(title)}</h2>
+                {subtitle && <p className={styles.sub}>{t(subtitle)}</p>}
               </div>
               <button type="button" className={`${styles.play} ${playing ? styles.playOn : ''}`} onClick={() => (playing ? onStop() : onPlay())}>
-                {playing ? 'Pause all' : 'Play'}
+                {t(playing ? 'Pause all' : 'Play')}
               </button>
             </div>
 
             <label className={styles.master}>
-              <span>Master</span>
+              <span>{t('Master')}</span>
               <input
                 type="range"
                 min={0}
@@ -90,8 +92,8 @@ export function SoundMixer({ open, title = 'Classroom sounds', subtitle, doneLab
                     >
                       <img src={ICONS[s.id]} alt="" className={styles.cardIcon} draggable={false} />
                       <span className={styles.cardText}>
-                        <b>{s.label}</b>
-                        <small>{ch.on ? s.hint : 'Off'}</small>
+                        <b>{t(s.label)}</b>
+                        <small>{t(ch.on ? s.hint : 'Off')}</small>
                       </span>
                     </button>
                     <input
@@ -100,7 +102,7 @@ export function SoundMixer({ open, title = 'Classroom sounds', subtitle, doneLab
                       max={1}
                       step={0.01}
                       value={ch.vol}
-                      aria-label={`${s.label} volume`}
+                      aria-label={t('{sound} volume', { sound: t(s.label) })}
                       onChange={(e) => engine.setSound(s.id, { vol: Number(e.target.value), on: true })}
                       style={{ ['--v' as string]: ch.on ? ch.vol : 0 }}
                     />
@@ -110,7 +112,7 @@ export function SoundMixer({ open, title = 'Classroom sounds', subtitle, doneLab
             </ul>
 
             <button type="button" className={`pill ${doneLabel === 'Done' ? 'pill-soft' : 'pill-primary'}`} style={{ width: '100%' }} onClick={onClose}>
-              {doneLabel}
+              {t(doneLabel)}
             </button>
           </motion.section>
         </motion.div>

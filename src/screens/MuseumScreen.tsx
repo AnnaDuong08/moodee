@@ -12,6 +12,7 @@ import { screenMotion } from '../lib/motion';
 import { MemoryCamera } from '../world/MemoryCamera';
 import { WorldScene, type WorldConfig, type WorldNpc, type Zone } from '../world/WorldScene';
 import hud from '../world/space.module.css';
+import { useLang, useT } from '../i18n';
 import styles from './MuseumScreen.module.css';
 
 const base = import.meta.env.BASE_URL;
@@ -57,7 +58,7 @@ const MUSEUM_LINES = [
 ];
 const MUSEUM_REPLIES = ['ooh, show me', 'that is a nice memory', 'mm, same', 'hi :)', 'i saw that one too', 'keep it, it matters', 'lovely'];
 
-const day = (iso: string) => new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+const day = (iso: string, lang: string) => new Date(iso).toLocaleDateString(lang, { year: 'numeric', month: 'long', day: 'numeric' });
 const img = (id: string) => EXHIBIT_OBJECTS[id as ExhibitObjectId]?.img;
 
 interface Props {
@@ -67,6 +68,8 @@ interface Props {
 }
 
 export function MuseumScreen({ characterId, onBack, onSoundSettings }: Props) {
+  const t = useT();
+  const lang = useLang();
   const character = getCharacter(characterId);
   const [memories, setMemories] = useState<Memory[]>(listMemories);
   const [camera, setCamera] = useState(false);
@@ -104,7 +107,7 @@ export function MuseumScreen({ characterId, onBack, onSoundSettings }: Props) {
     setMemories(listMemories());
     setCamera(false);
     setFresh(m.id);
-    setToast('Added to your Museum');
+    setToast(t('Added to your Museum'));
     window.setTimeout(() => setToast(null), 2600);
     window.setTimeout(() => setFresh(null), 3000);
   };
@@ -136,7 +139,7 @@ export function MuseumScreen({ characterId, onBack, onSoundSettings }: Props) {
                 <motion.img
                   key={s.memory.id}
                   src={img(s.memory.objectId)}
-                  alt={s.memory.moment}
+                  alt={t(s.memory.moment)}
                   draggable={false}
                   initial={s.memory.id === fresh ? { opacity: 0, scale: 0.6, y: -40 } : false}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -145,19 +148,19 @@ export function MuseumScreen({ characterId, onBack, onSoundSettings }: Props) {
               ) : (
                 <span className={styles.emptyStand}>＋</span>
               )}
-              {s.memory && s.mine && <span className={styles.plate}>{s.memory.moment}</span>}
+              {s.memory && s.mine && <span className={styles.plate}>{t(s.memory.moment)}</span>}
             </div>
           ))}
         </WorldScene>
       </motion.div>
 
       <header className={hud.top}>
-        <button type="button" className={hud.glassBtn} onClick={onBack} aria-label="Leave the museum">
+        <button type="button" className={hud.glassBtn} onClick={onBack} aria-label={t('Leave the museum')}>
           <BackIcon />
         </button>
-        <span className={hud.chip}>Museum</span>
+        <span className={hud.chip}>{t('Museum')}</span>
         <div className={hud.topActions}>
-          <span className={hud.count} aria-label={`${npcs.length + 1} people here`}>
+          <span className={hud.count} aria-label={t('{n} people here', { n: npcs.length + 1 })}>
             <PeopleIcon /> {npcs.length + 1}
           </span>
           <BackgroundSoundButton dark onClick={onSoundSettings} />
@@ -176,15 +179,15 @@ export function MuseumScreen({ characterId, onBack, onSoundSettings }: Props) {
       <AnimatePresence>
         {viewing && (
           <motion.div className={styles.backdrop} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setViewing(null)}>
-            <motion.article className={styles.card} role="dialog" aria-modal="true" aria-label={viewing.moment} initial={{ scale: 0.85, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0 }} transition={{ type: 'spring', stiffness: 260, damping: 22 }} onClick={(e) => e.stopPropagation()}>
+            <motion.article className={styles.card} role="dialog" aria-modal="true" aria-label={t(viewing.moment)} initial={{ scale: 0.85, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0 }} transition={{ type: 'spring', stiffness: 260, damping: 22 }} onClick={(e) => e.stopPropagation()}>
               <div className={styles.spot}>
                 <motion.img src={img(viewing.objectId)} alt="" animate={{ y: [0, -6, 0], rotate: [0, 1.5, 0] }} transition={{ duration: 3.4, repeat: Infinity, ease: 'easeInOut' }} />
               </div>
-              <h2>{viewing.moment}</h2>
-              <time>{day(viewing.createdAt)}</time>
-              <p>{viewing.story ? `“${viewing.story}”` : 'No story written yet — the object remembers for you.'}</p>
+              <h2>{t(viewing.moment)}</h2>
+              <time>{day(viewing.createdAt, lang)}</time>
+              <p>{viewing.story ? `“${t(viewing.story)}”` : t('No story written yet — the object remembers for you.')}</p>
               <button type="button" className="pill pill-soft" onClick={() => setViewing(null)}>
-                Close
+                {t('Close')}
               </button>
             </motion.article>
           </motion.div>

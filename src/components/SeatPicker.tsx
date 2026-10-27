@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode, type PointerEvent
 import type { Character, Pose } from '../data/characters';
 import { CLASSMATES, classmateLooks } from '../data/classmates';
 import { CLASSROOM, type Seat } from '../data/places';
+import { useT } from '../i18n';
 import { camera, useElementSize } from '../lib/useElementSize';
 import { makeWalker, type Pt } from '../lib/walkGrid';
 import { CharacterSprite } from './CharacterSprite';
@@ -27,6 +28,7 @@ type Dir = 'up' | 'down' | 'left' | 'right';
 const POSE_OF: Record<Dir, Pose> = { up: 'back', down: 'front', left: 'side', right: 'sideAlt' };
 
 export function SeatPicker({ character, onSit, onPeople, movementAction }: Props) {
+  const t = useT();
   // Seats already taken by friends
   const looks = useMemo(() => classmateLooks(character.id), [character.id]);
   const taken = useMemo(() => new Map(CLASSMATES.map((m) => [m.topSeat, m])), []);
@@ -144,7 +146,7 @@ export function SeatPicker({ character, onSit, onPeople, movementAction }: Props
     <div className={styles.wrap}>
       <div ref={viewport} className={styles.viewport} onPointerDown={onTap}>
         <div className={styles.stage} style={{ width: W, height: H, transform: `translate(${cam.x}px, ${cam.y}px) scale(${cam.s})` }}>
-          <img className={styles.bg} src={top.src} alt="Classroom seen from above" draggable={false} />
+          <img className={styles.bg} src={top.src} alt={t('Classroom seen from above')} draggable={false} />
           <SunLight variant="top" />
 
           {top.seats.map((s) => {
@@ -157,7 +159,7 @@ export function SeatPicker({ character, onSit, onPeople, movementAction }: Props
                   type="button"
                   className={styles.mate}
                   style={{ left: s.x, top: s.y, height: top.charH * H * 0.92, zIndex: Math.round(s.y) }}
-                  aria-label={`${mate.name} is studying ${mate.subject}`}
+                  aria-label={t('{name} is studying {subject}', { name: mate.name, subject: t(mate.subject) })}
                   onPointerDown={(e) => {
                     e.stopPropagation();
                     onPeople();
@@ -165,7 +167,7 @@ export function SeatPicker({ character, onSit, onPeople, movementAction }: Props
                 >
                   <CharacterSprite character={looks[mate.id]} pose="back" />
                   <span className={styles.mateTag}>
-                    <b>{mate.name}</b> {mate.subject}
+                    <b>{mate.name}</b> {t(mate.subject)}
                   </span>
                 </button>
               );
@@ -176,7 +178,7 @@ export function SeatPicker({ character, onSit, onPeople, movementAction }: Props
                 type="button"
                 className={`${styles.seat} ${isNear ? styles.seatNear : ''}`}
                 style={{ left: s.x, top: s.y }}
-                aria-label={`Walk to seat ${s.id}`}
+                aria-label={t('Walk to seat {n}', { n: s.id })}
                 onPointerDown={(e) => {
                   e.stopPropagation();
                   walkTo({ x: s.x, y: s.y });
@@ -214,12 +216,12 @@ export function SeatPicker({ character, onSit, onPeople, movementAction }: Props
               animate={{ scale: 1, opacity: 1 }}
               onClick={() => onSit(near)}
             >
-              Sit at {near.id}
+              {t('Sit at {n}', { n: near.id })}
             </motion.button>
           ) : (
             <p className={styles.hint}>
-              <b>Find your seat</b>
-              {CLASSMATES.length} classmates are studying. Walk to a glowing chair — drag the stick or tap the floor.
+              <b>{t('Find your seat')}</b>
+              {t('{n} classmates are studying. Walk to a glowing chair — drag the stick or tap the floor.', { n: CLASSMATES.length })}
             </p>
           )}
         </div>

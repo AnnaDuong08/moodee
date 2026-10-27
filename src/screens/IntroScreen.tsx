@@ -1,6 +1,7 @@
 // First screen: the MOODEE logo bounces down onto the main illustration, stars twinkle and clouds drift
 // Tapping the screen moves on to the friend count setup
 import { motion } from 'framer-motion';
+import { useT } from '../i18n';
 import { screenMotion } from '../lib/motion';
 import styles from './IntroScreen.module.css';
 
@@ -10,6 +11,7 @@ const STARS = [
 ];
 
 export function IntroScreen({ onStart }: { onStart: () => void }) {
+  const t = useT();
   return (
     <motion.main className={`screen ${styles.intro}`} {...screenMotion} onClick={onStart}>
       <motion.img className={styles.art} src={`${base}assets/splash/sky.jpg`} alt="" draggable={false} initial={{ scale: 1.14 }} animate={{ scale: 1 }} transition={{ duration: 2.4, ease: 'easeOut' }} />
@@ -25,12 +27,12 @@ export function IntroScreen({ onStart }: { onStart: () => void }) {
         <motion.img className={styles.logo} src={`${base}assets/brand/logo.png`} alt="MOODEE" animate={{ y: [0, -8, 0], rotate: [0, 1.2, 0] }} transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut', delay: 1.2 }} />
       </motion.div>
       <motion.p className={styles.tagline} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.1 }}>
-        A cozy world for distracted minds.
+        {t('A cozy world for distracted minds.')}
       </motion.p>
 
       <motion.button type="button" className={styles.start} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.5 }} onClick={onStart}>
         <motion.span animate={{ opacity: [1, 0.45, 1] }} transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}>
-          Tap to start
+          {t('Tap to start')}
         </motion.span>
       </motion.button>
     </motion.main>

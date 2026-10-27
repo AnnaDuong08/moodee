@@ -5,6 +5,7 @@ import type { SoundId } from '../audio/soundscape';
 import type { Character } from '../data/characters';
 import { CLASSMATES, classmateLooks } from '../data/classmates';
 import { CLASSROOM } from '../data/places';
+import { useT } from '../i18n';
 import { camera, useElementSize } from '../lib/useElementSize';
 import { CharacterSprite } from './CharacterSprite';
 import { SunLight } from './SunLight';
@@ -34,6 +35,7 @@ const base = import.meta.env.BASE_URL;
 const rowChairs = (row: 1 | 2) => `${base}assets/places/classroom-backview-chairs-row${row}.png`;
 
 export function SeatedScene({ character, side, focusing, raised, soundOn, onToggleSound, mySubject, onPeople }: Props) {
+  const t = useT();
   const looks = classmateLooks(character.id);
   const viewport = useRef<HTMLDivElement>(null);
   const { w: vw, h: vh } = useElementSize(viewport);
@@ -55,7 +57,7 @@ export function SeatedScene({ character, side, focusing, raised, soundOn, onTogg
           animate={{ x: to.x, y: to.y, scale: to.s }}
           transition={{ duration: 1.4, ease: [0.45, 0, 0.2, 1] }}
         >
-          <img className={styles.bg} src={back.src} alt="Classroom at eye level, seen from behind your seat" draggable={false} />
+          <img className={styles.bg} src={back.src} alt={t('Classroom at eye level, seen from behind your seat')} draggable={false} />
           <SunLight variant="back" />
           {/* Far rows first: friends seated in the front rows (rows 1 and 2) → that row's chair backrests. Nearer rows must be drawn later for correct occlusion */}
           {([1, 2] as const).map((row) => (
@@ -123,14 +125,14 @@ export function SeatedScene({ character, side, focusing, raised, soundOn, onTogg
               className={styles.tag}
               style={{ left: m.back.x, top: m.back.hipY - m.back.h * H * 0.5 }}
               onClick={onPeople}
-              aria-label={`${m.name} is studying ${m.subject}. See everyone in this room`}
+              aria-label={t('{name} is studying {subject}. See everyone in this room', { name: m.name, subject: t(m.subject) })}
             >
-              <b>{m.name}</b> {m.subject}
+              <b>{m.name}</b> {t(m.subject)}
             </button>
           ))}
           {focusing && (
             <span className={`${styles.tag} ${styles.myTag}`} style={{ left: seat.x, top: seat.hipY - cellH * 0.5 }}>
-              <b>You</b> {mySubject || 'Focusing'}
+              <b>{t('You')}</b> {mySubject ? t(mySubject) : t('Focusing')}
             </span>
           )}
 
@@ -144,7 +146,7 @@ export function SeatedScene({ character, side, focusing, raised, soundOn, onTogg
                 style={{ left: h.x, top: h.y }}
                 onClick={() => onToggleSound(h.id)}
                 aria-pressed={on}
-                aria-label={`${h.label} sound ${on ? 'on' : 'off'}`}
+                aria-label={t(on ? '{sound} sound on' : '{sound} sound off', { sound: t(h.label) })}
               >
                 <span />
               </button>

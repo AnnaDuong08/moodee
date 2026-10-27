@@ -28,6 +28,7 @@ import styles from './ClassroomScreen.module.css';
 import { formatCountdown, type FocusMode } from '../lib/focusSession';
 import type { FocusSessionController } from '../lib/useFocusSession';
 import { TutorPanel } from '../components/TutorPanel';
+import { useT, useTRich } from '../i18n';
 
 interface Props {
   characterId: CharacterId | null;
@@ -58,6 +59,8 @@ const coinsImg = `${import.meta.env.BASE_URL}assets/rewards/coins.png`;
 const FRICTION = ['Easy', 'Okay', 'So-so', 'Hard', 'Very hard'];
 
 export function ClassroomScreen({ characterId, initialSubject = '', initialEventId, agendaDate, onExit, onRecords, visible, focusTimer, onEnd, initialTutorOpen = false, tutorMessage = '' }: Props) {
+  const t = useT();
+  const tRich = useTRich();
   const character = getCharacter(characterId);
   const { settings, playing, start, stop } = useSoundscape();
   const [phase, setPhase] = useState<Phase>('explore');
@@ -118,7 +121,7 @@ export function ClassroomScreen({ characterId, initialSubject = '', initialEvent
     addThought(thought, `Classroom · ${subject || 'Focus'}`);
     setThought('');
     setThoughtOpen(false);
-    setToast('Saved to Library');
+    setToast(t('Saved to Library'));
     window.setTimeout(() => setToast(null), 2000);
   };
 
@@ -231,38 +234,38 @@ export function ClassroomScreen({ characterId, initialSubject = '', initialEvent
           </motion.div>
         ) : (
           <motion.div key="explore" className={styles.layer} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6 }}>
-            <SeatPicker character={character} onSit={sit} onPeople={() => setPeopleOpen(true)} movementAction={<button type="button" className={`${styles.tutorButton} ${styles.tutorInControls}`} onClick={openTutor}>Tutor</button>} />
+            <SeatPicker character={character} onSit={sit} onPeople={() => setPeopleOpen(true)} movementAction={<button type="button" className={`${styles.tutorButton} ${styles.tutorInControls}`} onClick={openTutor}>{t('Tutor')}</button>} />
           </motion.div>
         )}
       </AnimatePresence>
 
       <header className={styles.top}>
-        <button type="button" className="icon-btn" onClick={onExit} aria-label="Leave classroom">
+        <button type="button" className="icon-btn" onClick={onExit} aria-label={t('Leave classroom')}>
           <BackIcon />
         </button>
         {seated && seat ? (
-          <button type="button" className={styles.chip} onClick={() => setPhase('explore')} disabled={phase === 'focus'} aria-label={`Seat ${seat.id}. Change seat`}>
-            Seat {seat.id} <span>· Change</span>
+          <button type="button" className={styles.chip} onClick={() => setPhase('explore')} disabled={phase === 'focus'} aria-label={t('Seat {n}. Change seat', { n: seat.id })}>
+            {t('Seat {n}', { n: seat.id })} <span>· {t('Change')}</span>
           </button>
         ) : (
-          <span className={styles.chip}>Classroom</span>
+          <span className={styles.chip}>{t('Classroom')}</span>
         )}
         <div className={styles.topRight}>
-          <button type="button" className={`icon-btn ${styles.people}`} onClick={() => setPeopleOpen(true)} aria-label={`${CLASSMATES.length + 1} people in this room. See who`}>
+          <button type="button" className={`icon-btn ${styles.people}`} onClick={() => setPeopleOpen(true)} aria-label={t('{n} people in this room. See who', { n: CLASSMATES.length + 1 })}>
             <PeopleIcon />
             <b>{CLASSMATES.length + 1}</b>
           </button>
           {seated && (
-            <button type="button" className={`icon-btn ${playing && !muted ? styles.soundLive : ''}`} onClick={toggleMute} aria-pressed={muted} aria-label={muted ? 'Unmute all sound' : 'Mute all sound'}>
+            <button type="button" className={`icon-btn ${playing && !muted ? styles.soundLive : ''}`} onClick={toggleMute} aria-pressed={muted} aria-label={t(muted ? 'Unmute all sound' : 'Mute all sound')}>
               {muted ? <MuteIcon /> : <SoundIcon />}
             </button>
           )}
         </div>
       </header>
 
-      {phase === 'focus' && <div className={styles.intentBadge} aria-label={`Session goal: ${subject}`}>
-        <span>MY ONE THING</span>
-        <b>{subject}</b>
+      {phase === 'focus' && <div className={styles.intentBadge} aria-label={t('Session goal: {subject}', { subject: t(subject) })}>
+        <span>{t('MY ONE THING')}</span>
+        <b>{t(subject)}</b>
       </div>}
 
       {/* Focus HUD: minimap, sound icons, demo chat */}
@@ -273,29 +276,29 @@ export function ClassroomScreen({ characterId, initialSubject = '', initialEvent
       {/* While focusing: time left + what you're doing */}
       <AnimatePresence>
         {phase === 'focus' && (
-          <motion.section ref={panelRef} className={`${styles.panel} ${thoughtOpen ? styles.dimmed : ''}`} inert={thoughtOpen || tutorOpen} aria-hidden={thoughtOpen || tutorOpen || undefined} aria-label="Focus timer" initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }}>
+          <motion.section ref={panelRef} className={`${styles.panel} ${thoughtOpen ? styles.dimmed : ''}`} inert={thoughtOpen || tutorOpen} aria-hidden={thoughtOpen || tutorOpen || undefined} aria-label={t('Focus timer')} initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }}>
             <div className={styles.timerRow}>
               <div className={styles.ring} style={{ ['--p' as string]: progress }}>
                 <span className={styles.time}>{formatCountdown(remaining)}</span>
               </div>
               <div className={styles.timerSide}>
-                <span className={styles.nowLabel}>{takingBreak ? 'Pomodoro · break time' : status === 'running' ? (mode === 'pomodoro' ? `Pomodoro · round ${(session?.rounds ?? 0) + 1}` : 'Now focusing on') : 'Paused'}</span>
-                <p className={styles.state}>{subject || 'Just focus'}</p>
+                <span className={styles.nowLabel}>{takingBreak ? t('Pomodoro · break time') : status === 'running' ? (mode === 'pomodoro' ? t('Pomodoro · round {n}', { n: (session?.rounds ?? 0) + 1 }) : t('Now focusing on')) : t('Paused')}</span>
+                <p className={styles.state}>{subject ? t(subject) : t('Just focus')}</p>
                 {!takingBreak && <button type="button" className={styles.with} onClick={() => setPeopleOpen(true)}>
-                  with {CLASSMATES.length} Cloudees ›
+                  {t('with {n} Cloudees', { n: CLASSMATES.length })} ›
                 </button>}
-                {takingBreak && <p className={styles.hint}>Your seat stays yours. Wander while the break timer keeps running.</p>}
+                {takingBreak && <p className={styles.hint}>{t('Your seat stays yours. Wander while the break timer keeps running.')}</p>}
               </div>
             </div>
             <div className={styles.actions}>
               <button type="button" className={`pill pill-soft ${styles.end}`} onClick={onEnd}>
-                End
+                {t('End')}
               </button>
-              {!takingBreak && <button type="button" className={`pill pill-soft ${styles.end}`} onClick={() => setThoughtOpen(true)} aria-label="Park a thought in the Library">
-                Note
+              {!takingBreak && <button type="button" className={`pill pill-soft ${styles.end}`} onClick={() => setThoughtOpen(true)} aria-label={t('Park a thought in the Library')}>
+                {t('Note')}
               </button>}
-              {takingBreak ? <button type="button" className="pill pill-primary" onClick={onExit}>Explore spaces</button> : <button type="button" className="pill pill-primary" onClick={focusTimer.togglePause}>
-                {status === 'running' ? 'Pause' : 'Resume'}
+              {takingBreak ? <button type="button" className="pill pill-primary" onClick={onExit}>{t('Explore spaces')}</button> : <button type="button" className="pill pill-primary" onClick={focusTimer.togglePause}>
+                {t(status === 'running' ? 'Pause' : 'Resume')}
               </button>}
             </div>
           </motion.section>
@@ -316,7 +319,7 @@ export function ClassroomScreen({ characterId, initialSubject = '', initialEvent
       {/* ② Time + what to study */}
       <SessionSheet open={phase === 'plan' && !done && !peopleOpen && !mixerOpen && !tutorOpen} mode={mode} onMode={setMode} onClose={() => setPhase('explore')} minutes={minutes} subject={subject} initialEventId={initialEventId} agendaDate={agendaDate} onMinutes={setMinutes} onSubject={setSubject} onStart={startFocus} />
 
-      {!done && phase !== 'explore' && (phase !== 'focus' || takingBreak) && <button type="button" className={styles.tutorButton} style={takingBreak && footerHeight ? {bottom:footerHeight+12}:undefined} onClick={openTutor}>Tutor</button>}
+      {!done && phase !== 'explore' && (phase !== 'focus' || takingBreak) && <button type="button" className={styles.tutorButton} style={takingBreak && footerHeight ? {bottom:footerHeight+12}:undefined} onClick={openTutor}>{t('Tutor')}</button>}
       <TutorPanel open={tutorOpen && visible && !done} onClose={()=>setTutorOpen(false)} goal={subject} session={session} onPause={focusTimer.togglePause} resetRevision={tutorRevision} initialMessage={tutorMessage}/>
 
       <SoundMixer open={mixerOpen} onClose={() => setMixerOpen(false)} playing={playing} onPlay={start} onStop={stop} />
@@ -325,7 +328,7 @@ export function ClassroomScreen({ characterId, initialSubject = '', initialEvent
       <AnimatePresence>
         {(phase === 'sitting' || toast) && (
           <motion.p key={toast ?? 'sit'} className={styles.toast} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-            {toast ?? 'Taking a seat…'}
+            {toast ?? t('Taking a seat…')}
           </motion.p>
         )}
       </AnimatePresence>
@@ -338,20 +341,20 @@ export function ClassroomScreen({ characterId, initialSubject = '', initialEvent
               className={styles.thoughtCard}
               role="dialog"
               aria-modal="true"
-              aria-label="Park a thought"
+              aria-label={t('Park a thought')}
               initial={{ y: -16, opacity: 0 }}
               animate={{ y: 0, opacity: 1, transition: { duration: 0.22 } }}
               exit={{ y: -10, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <h2>Park a thought</h2>
-              <p>One line goes to your Library. The timer keeps running.</p>
+              <h2>{t('Park a thought')}</h2>
+              <p>{t('One line goes to your Library. The timer keeps running.')}</p>
               <input
                 ref={thoughtRef}
                 className={styles.thoughtInput}
                 maxLength={80}
                 value={thought}
-                placeholder="e.g. Email the professor later"
+                placeholder={t('e.g. Email the professor later')}
                 enterKeyHint="done"
                 onChange={(e) => setThought(e.target.value)}
                 onKeyDown={(e) => {
@@ -360,7 +363,7 @@ export function ClassroomScreen({ characterId, initialSubject = '', initialEvent
                 }}
               />
               <button type="button" className="pill pill-primary" onClick={saveThought} disabled={!thought.trim()}>
-                Save to Library
+                {t('Save to Library')}
               </button>
             </motion.div>
           </motion.div>
@@ -389,49 +392,52 @@ export function ClassroomScreen({ characterId, initialSubject = '', initialEvent
                   </div>
                   {done.sessionCoins > 0 ? (
                     <h2 id="done-title">
-                      You earned{' '}
-                      <em>
-                        <CountUp value={done.sessionCoins} duration={1} /> coins!
-                      </em>
+                      {tRich('You earned {coins}', {
+                        coins: (
+                          <em>
+                            {tRich('{n} coins!', { n: <CountUp value={done.sessionCoins} duration={1} /> })}
+                          </em>
+                        ),
+                      })}
                     </h2>
                   ) : (
-                    <h2 id="done-title">Session saved</h2>
+                    <h2 id="done-title">{t('Session saved')}</h2>
                   )}
                   <p>
-                    For studying <b>{fmtMinutes(done.minutes)}</b> of <b>{done.subject}</b>.
+                    {tRich('For studying {time} of {subject}.', { time: <b>{fmtMinutes(done.minutes)}</b>, subject: <b>{t(done.subject)}</b> })}
                   </p>
                   <div className={styles.doneStats}>
                     {done.sessionCoins > 0 && (
                       <span>
-                        <b>+{done.sessionCoins}</b> focus time
+                        <b>+{done.sessionCoins}</b> {t('focus time')}
                       </span>
                     )}
                     {done.stamp && (
                       <span>
-                        <b>★</b> today’s stamp is ready · claim it in the Shop
+                        <b>★</b> {t('today’s stamp is ready · claim it in the Shop')}
                       </span>
                     )}
                     <span>
-                      <b>{done.streak}</b>-day streak
+                      {tRich('{n}-day streak', { n: <b>{done.streak}</b> })}
                     </span>
                   </div>
                   {done.sessionCoins === 0 && (
                     <small className={styles.doneHint}>
-                      Sessions of {MIN_REWARD_MINUTES}+ minutes also earn focus coins (30 per hour). Your first session of the day also lights up a stamp in the Shop.
+                      {t('Sessions of {n}+ minutes also earn focus coins (30 per hour). Your first session of the day also lights up a stamp in the Shop.', { n: MIN_REWARD_MINUTES })}
                     </small>
                   )}
                   <button type="button" className="pill pill-primary" onClick={() => setDone({ ...done, step: 'checkin' })}>
-                    Continue
+                    {t('Continue')}
                   </button>
                   <button type="button" className={styles.doneLink} onClick={onExit}>
-                    Back home
+                    {t('Back home')}
                   </button>
                 </>
               ) : (
                 <>
-                  <h2 id="done-title">How hard was it to start?</h2>
-                  <p>One tap. It helps you see what makes starting easier.</p>
-                  <div className={styles.friction} role="radiogroup" aria-label="How hard was it to start">
+                  <h2 id="done-title">{t('How hard was it to start?')}</h2>
+                  <p>{t('One tap. It helps you see what makes starting easier.')}</p>
+                  <div className={styles.friction} role="radiogroup" aria-label={t('How hard was it to start?')}>
                     {FRICTION.map((label, i) => (
                       <button
                         key={label}
@@ -442,12 +448,12 @@ export function ClassroomScreen({ characterId, initialSubject = '', initialEvent
                         }}
                       >
                         <b>{i + 1}</b>
-                        <small>{label}</small>
+                        <small>{t(label)}</small>
                       </button>
                     ))}
                   </div>
                   <button type="button" className={styles.doneLink} onClick={() => setDone(null)}>
-                    Skip
+                    {t('Skip')}
                   </button>
                   <button
                     type="button"
@@ -457,7 +463,7 @@ export function ClassroomScreen({ characterId, initialSubject = '', initialEvent
                       onRecords();
                     }}
                   >
-                    See my records
+                    {t('See my records')}
                   </button>
                 </>
               )}

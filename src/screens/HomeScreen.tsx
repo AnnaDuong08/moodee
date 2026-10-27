@@ -3,9 +3,11 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { CharacterSprite } from '../components/CharacterSprite';
 import { CalendarIcon, CoinIcon, FlameIcon } from '../components/Icons';
+import { LanguageButton } from '../components/LanguageButton';
 import { PlaceWheel } from '../components/PlaceWheel';
 import { getCharacter, type CharacterId } from '../data/characters';
 import { PLACES, type Place } from '../data/places';
+import { useT, useTRich } from '../i18n';
 import { loadValue, save } from '../lib/storage';
 import { screenMotion } from '../lib/motion';
 import { readStreak } from '../lib/streak';
@@ -28,15 +30,12 @@ interface Props {
 const logo = `${import.meta.env.BASE_URL}assets/brand/logo.png`;
 
 // Time-of-day greeting + name (e.g. "Good evening, Nier" / "Still up, Nier?")
-const greeting = (name: string) => {
-  const h = new Date().getHours();
-  if (h < 5) return <>Still up, <b>{name}</b>?</>;
-  const word = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
-  return <>{word}, <b>{name}</b></>;
-};
+const greeting = (h: number) => (h < 5 ? 'Still up, {name}?' : h < 12 ? 'Good morning, {name}' : h < 18 ? 'Good afternoon, {name}' : 'Good evening, {name}');
 
 export function HomeScreen({ characterId, onGo, onChangeCharacter, onRecords, onMembership, onCalendar, onSoundSettings }: Props) {
   const wallet = useWallet();
+  const t = useT();
+  const tRich = useTRich();
   const character = getCharacter(characterId);
   const streak = readStreak();
   const [index, setIndex] = useState(() => Math.max(0, PLACES.findIndex((p) => p.id === loadValue('lastPlace', 'classroom'))));
@@ -66,9 +65,9 @@ export function HomeScreen({ characterId, onGo, onChangeCharacter, onRecords, on
   // "Going to …" while the wheel spins or after departing
   // Hint about friends in that space (without revealing too much)
   const here = getCompanions(character.id).filter((c) => c.space === place.id);
-  const presence = here.length === 1 ? `${here[0].name} is here` : here.length > 1 ? `${here.length} friends here` : null;
+  const presence = here.length === 1 ? t('{name} is here', { name: here[0].name }) : here.length > 1 ? t('{n} friends here', { n: here.length }) : null;
 
-  const status = going || walking ? `Going to ${place.name}…` : null;
+  const status = going || walking ? t('Going to {place}…', { place: t(place.name) }) : null;
 
   return (
     <motion.main className={`screen ${styles.home}`} {...screenMotion}>
@@ -80,18 +79,19 @@ export function HomeScreen({ characterId, onGo, onChangeCharacter, onRecords, on
       ))}
 
       <header className={styles.header}>
-        <button type="button" className={styles.hello} onClick={onChangeCharacter} aria-label={`Studying as ${character.name}. Change character`}>
+        <button type="button" className={styles.hello} onClick={onChangeCharacter} aria-label={t('Studying as {name}. Change character', { name: character.name })}>
           <span className={styles.avatar} aria-hidden>
             <CharacterSprite character={character} pose="front" className={styles.avatarSprite} style={{ height: '250%' }} />
           </span>
-          <span>{greeting(character.name)}</span>
+          <span>{tRich(greeting(new Date().getHours()), { name: <b>{character.name}</b> })}</span>
         </button>
         <div className={styles.chips}>
-          <button type="button" className={styles.streak} onClick={onMembership} aria-label={`${wallet.coins} coins. Open membership`}>
+          <LanguageButton className={styles.streak} />
+          <button type="button" className={styles.streak} onClick={onMembership} aria-label={t('{n} coins. Open membership', { n: wallet.coins })}>
             <CoinIcon />
             <b>{wallet.coins}</b>
           </button>
-          <button type="button" className={styles.streak} onClick={onRecords} aria-label={`${streak.count}-day focus streak. Open records`}>
+          <button type="button" className={styles.streak} onClick={onRecords} aria-label={t('{n}-day focus streak. Open records', { n: streak.count })}>
             <FlameIcon width={18} height={18} className={streak.count ? styles.flameOn : styles.flameOff} />
             <b>{streak.count}</b>
           </button>
@@ -104,13 +104,13 @@ export function HomeScreen({ characterId, onGo, onChangeCharacter, onRecords, on
       </div>
 
       <div className={styles.info} aria-live="polite">
-        <span className={styles.eyebrow}>Where to today?</span>
+        <span className={styles.eyebrow}>{t('Where to today?')}</span>
         <AnimatePresence mode="popLayout" initial={false}>
           <motion.h2 key={place.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22 }}>
-            {place.name}
+            {t(place.name)}
           </motion.h2>
         </AnimatePresence>
-        <p className={status ? styles.going : ''}>{status ?? place.blurb}</p>
+        <p className={status ? styles.going : ''}>{status ?? t(place.blurb)}</p>
         <small className={styles.presence} style={{ visibility: presence && !status ? 'visible' : 'hidden' }}>
           {presence ?? '·'}
         </small>
@@ -121,15 +121,15 @@ export function HomeScreen({ characterId, onGo, onChangeCharacter, onRecords, on
       <div className={styles.dock}>
         <div className={styles.dockActions}>
           <button type="button" className="pill pill-primary" onClick={go} disabled={going}>
-            {going ? 'On my way…' : `Go to ${place.name}`}
+            {going ? t('On my way…') : t('Go to {place}', { place: t(place.name) })}
           </button>
-          <button type="button" className={`pill pill-soft ${styles.calendarButton}`} onClick={onCalendar} aria-label={dueCount ? `Open Calendar, ${dueCount} local reminder${dueCount === 1 ? '' : 's'} due` : 'Open Calendar'}>
+          <button type="button" className={`pill pill-soft ${styles.calendarButton}`} onClick={onCalendar} aria-label={dueCount ? t(dueCount === 1 ? 'Open Calendar, {n} local reminder due' : 'Open Calendar, {n} local reminders due', { n: dueCount }) : t('Open Calendar')}>
             <CalendarIcon width={20} height={20} />
-            <span>Calendar</span>
+            <span>{t('Calendar')}</span>
             {dueCount > 0 && <i className={styles.dueDot} aria-hidden />}
           </button>
         </div>
-        <p className={styles.tip}>Drag the wheel or tap a place</p>
+        <p className={styles.tip}>{t('Drag the wheel or tap a place')}</p>
       </div>
     </motion.main>
   );

@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
+import { useT, useTRich } from '../i18n';
 import { formatCountdown, type FocusSession } from '../lib/focusSession';
 import styles from './SessionOverlays.module.css';
 
@@ -25,27 +26,30 @@ function SessionDialog({ title, alert = false, onEscape, children }: { title: st
 }
 
 export function SessionExitDialog({ kind, onCancel, onConfirm }: { kind: 'exit' | 'stop'; onCancel: () => void; onConfirm: () => void }) {
-  return <SessionDialog title={kind === 'exit' ? 'Leave this session?' : 'End this session?'} alert onEscape={onCancel}>
-    <p>You can stay with your one thing a little longer. If you end now, your focus time will be saved.</p>
-    <button type="button" className="pill pill-primary" onClick={onCancel}>Keep going</button>
-    <button type="button" className={styles.secondary} onClick={onConfirm}>{kind === 'exit' ? 'End and leave' : 'End session'}</button>
+  const t = useT();
+  return <SessionDialog title={t(kind === 'exit' ? 'Leave this session?' : 'End this session?')} alert onEscape={onCancel}>
+    <p>{t('You can stay with your one thing a little longer. If you end now, your focus time will be saved.')}</p>
+    <button type="button" className="pill pill-primary" onClick={onCancel}>{t('Keep going')}</button>
+    <button type="button" className={styles.secondary} onClick={onConfirm}>{t(kind === 'exit' ? 'End and leave' : 'End session')}</button>
   </SessionDialog>;
 }
 
 export function BreakTimer({ session, onReturn, onEnd }: { session: FocusSession; onReturn: () => void; onEnd: () => void }) {
-  if (session.stage === 'return') return <SessionDialog title="Time to return">
-    <span className={styles.eyebrow}>YOUR BREAK IS OVER</span>
-    <p>Your seat is waiting. Ready for another 25 minutes of <b>{session.subject}</b>?</p>
-    <button type="button" className="pill pill-primary" onClick={onReturn}>Back to focus</button>
-    <button type="button" className={styles.secondary} onClick={onEnd}>End session</button>
+  const t = useT();
+  const tRich = useTRich();
+  if (session.stage === 'return') return <SessionDialog title={t('Time to return')}>
+    <span className={styles.eyebrow}>{t('YOUR BREAK IS OVER')}</span>
+    <p>{tRich('Your seat is waiting. Ready for another 25 minutes of {subject}?', { subject: <b>{session.subject}</b> })}</p>
+    <button type="button" className="pill pill-primary" onClick={onReturn}>{t('Back to focus')}</button>
+    <button type="button" className={styles.secondary} onClick={onEnd}>{t('End session')}</button>
   </SessionDialog>;
   if (session.stage !== 'break') return null;
-  return <aside className={styles.breakTimer} aria-label="Pomodoro break timer">
-    <div className={styles.breakHead}><span>BREAK TIME</span><b>{formatCountdown(session.remainingMs)}</b></div>
+  return <aside className={styles.breakTimer} aria-label={t('Pomodoro break timer')}>
+    <div className={styles.breakHead}><span>{t('BREAK TIME')}</span><b>{formatCountdown(session.remainingMs)}</b></div>
     <p title={session.subject}>{session.subject}</p>
     <div className={styles.breakActions}>
-      <button type="button" onClick={onReturn}>Return to Classroom</button>
-      <button type="button" onClick={onEnd} aria-label="End Pomodoro session">End</button>
+      <button type="button" onClick={onReturn}>{t('Return to Classroom')}</button>
+      <button type="button" onClick={onEnd} aria-label={t('End Pomodoro session')}>{t('End')}</button>
     </div>
   </aside>;
 }

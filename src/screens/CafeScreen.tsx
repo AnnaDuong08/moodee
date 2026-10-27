@@ -15,6 +15,7 @@ import { DrinkGlass, drinkLayers, INGREDIENTS, ingredient, levelOf, MAX_LEVEL, m
 import { FriendsSheet } from '../world/FriendsSheet';
 import { WorldScene, type WorldConfig, type WorldNpc, type Zone } from '../world/WorldScene';
 import hud from '../world/space.module.css';
+import { useLang, useT } from '../i18n';
 import styles from './CafeScreen.module.css';
 
 const base = import.meta.env.BASE_URL;
@@ -75,6 +76,7 @@ interface Props {
 }
 
 export function CafeScreen({ characterId, onBack, onChangeFriends, onSoundSettings }: Props) {
+  const tx = useT();
   const character = getCharacter(characterId);
   const [mode, setMode] = useState<Mode>('top');
   const [drink, setDrink] = useState<CafeDrink | null>(() => loadValue<CafeDrink | null>('cafeDrink', null));
@@ -109,7 +111,7 @@ export function CafeScreen({ characterId, onBack, onChangeFriends, onSoundSettin
     setDrink(d);
     save('cafeDrink', d);
     setMode('top');
-    say('Carrying your drink — find a seat');
+    say(tx('Carrying your drink — find a seat'));
   };
 
   // Across the table: a friend in the café if there is one, otherwise another customer
@@ -137,7 +139,7 @@ export function CafeScreen({ characterId, onBack, onChangeFriends, onSoundSettin
       <AnimatePresence>
         {mode === 'maker' && <DrinkMaker key="maker" initial={drink} onCarry={carry} />}
         {mode === 'table' && (
-          <motion.section key="table" className={hud.activity} aria-label="Your table" initial={{ opacity: 0, scale: 1.12 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }}>
+          <motion.section key="table" className={hud.activity} aria-label={tx('Your table')} initial={{ opacity: 0, scale: 1.12 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }}>
             <img className={`${hud.cover} ${styles.room}`} src={`${base}assets/places/cafe-backview.jpg`} alt="" draggable={false} />
             <motion.div className={styles.across} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: [0, -3, 0] }} transition={{ opacity: { delay: 0.5 }, y: { duration: 3.4, repeat: Infinity, ease: 'easeInOut' } }}>
               <CharacterSprite character={across} pose="front" />
@@ -152,24 +154,24 @@ export function CafeScreen({ characterId, onBack, onChangeFriends, onSoundSettin
             </div>
             {quiet ? (
               <button type="button" className={styles.quiet} onClick={() => setQuiet(false)}>
-                Staying quietly · tap to come back
+                {tx('Staying quietly · tap to come back')}
               </button>
             ) : (
               <div className={hud.dock}>
-                <p className={hud.caption}>{drink ? 'Your drink is on the table. You can simply stay.' : 'Nothing on the table yet — the counter is just over there.'}</p>
+                <p className={hud.caption}>{tx(drink ? 'Your drink is on the table. You can simply stay.' : 'Nothing on the table yet — the counter is just over there.')}</p>
                 <div className={hud.row}>
                   <button type="button" className={hud.dark} onClick={() => setQuiet(true)}>
-                    Stay quietly
+                    {tx('Stay quietly')}
                   </button>
-                  <button type="button" className={hud.dark} onClick={() => say(friends[0] ? `${friends[0].name} waved back` : 'Someone smiled back')}>
-                    Talk
+                  <button type="button" className={hud.dark} onClick={() => say(friends[0] ? tx('{name} waved back', { name: friends[0].name }) : tx('Someone smiled back'))}>
+                    {tx('Talk')}
                   </button>
                 </div>
                 <button type="button" className={hud.light} onClick={() => setPlaying(true)}>
-                  🎲 Play a game
+                  🎲 {tx('Play a game')}
                 </button>
                 <button type="button" className={styles.standUp} onClick={() => setMode('top')}>
-                  Stand up
+                  {tx('Stand up')}
                 </button>
               </div>
             )}
@@ -182,12 +184,12 @@ export function CafeScreen({ characterId, onBack, onChangeFriends, onSoundSettin
 
       {/* Hide the café HUD during board games (the game screen has its own top bar) */}
       <header className={hud.top} hidden={playing}>
-        <button type="button" className={hud.glassBtn} onClick={mode === 'top' ? onBack : () => setMode('top')} aria-label={mode === 'top' ? 'Leave the café' : 'Back to the café floor'}>
+        <button type="button" className={hud.glassBtn} onClick={mode === 'top' ? onBack : () => setMode('top')} aria-label={tx(mode === 'top' ? 'Leave the café' : 'Back to the café floor')}>
           <BackIcon />
         </button>
-        <span className={hud.chip}>Café</span>
+        <span className={hud.chip}>{tx('Café')}</span>
         <div className={hud.topActions}>
-          <button type="button" className={hud.count} onClick={() => setFriendsOpen(true)} aria-label={`${npcs.length + 1} people here. Friends`}>
+          <button type="button" className={hud.count} onClick={() => setFriendsOpen(true)} aria-label={tx('{n} people here. Friends', { n: npcs.length + 1 })}>
             <PeopleIcon /> {npcs.length + 1}
           </button>
           <BackgroundSoundButton dark onClick={onSoundSettings} />
@@ -211,6 +213,8 @@ export function CafeScreen({ characterId, onBack, onChangeFriends, onSoundSettin
 function DrinkMaker({ initial, onCarry }: { initial: CafeDrink | null; onCarry: (d: CafeDrink) => void }) {
   const [steps, setSteps] = useState<string[]>(() => (initial ? drinkLayers(initial) : []));
   const [pouring, setPouring] = useState<string | null>(null);
+  const tx = useT();
+  const lang = useLang();
   const [glow, setGlow] = useState(0); // The cup sparkles the moment it's finished
   const level = levelOf(steps);
   const full = level >= MAX_LEVEL - 0.05;
@@ -226,13 +230,13 @@ function DrinkMaker({ initial, onCarry }: { initial: CafeDrink | null; onCarry: 
     }, 1350);
   };
 
-  const heading = pouring ? `Pouring ${ingredient(pouring).name.toLowerCase()}…` : ready ? 'Your drink is ready' : steps.length ? 'Add a little more' : 'Pick an ingredient';
+  const heading = pouring ? tx('Pouring {item}…', { item: tx(ingredient(pouring).name).toLocaleLowerCase(lang) }) : tx(ready ? 'Your drink is ready' : steps.length ? 'Add a little more' : 'Pick an ingredient');
 
   return (
-    <motion.section className={hud.activity} aria-label="Make a drink" initial={{ opacity: 0, scale: 1.15 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }}>
+    <motion.section className={hud.activity} aria-label={tx('Make a drink')} initial={{ opacity: 0, scale: 1.15 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }}>
       {/* Stage at the same ratio as the counter photo: places the cup exactly on the wooden coaster */}
       <div className={styles.counter}>
-        <img src={`${base}assets/cafe/counter-closeup.jpg`} alt="Café counter" draggable={false} />
+        <img src={`${base}assets/cafe/counter-closeup.jpg`} alt={tx('Café counter')} draggable={false} />
         <motion.div className={styles.cupBox} animate={pouring ? { scaleY: [1, 0.97, 1.015, 1], scaleX: [1, 1.015, 0.99, 1] } : { scaleY: 1, scaleX: 1 }} transition={{ duration: 0.9, delay: 0.3 }}>
           <DrinkGlass className={styles.cup} layers={steps} pouring={pouring} />
           {ready && glow > 0 && <Sparkles key={glow} count={10} />}
@@ -243,25 +247,25 @@ function DrinkMaker({ initial, onCarry }: { initial: CafeDrink | null; onCarry: 
         <h2 className={hud.title} aria-live="polite">
           {heading}
         </h2>
-        <ul className={styles.tray} aria-label="Ingredients">
+        <ul className={styles.tray} aria-label={tx('Ingredients')}>
           {INGREDIENTS.map((i) => {
             const count = steps.filter((s) => s === i.id).length;
             const active = pouring === i.id;
             return (
               <li key={i.id}>
-                <button type="button" onClick={() => add(i.id)} disabled={(!!pouring && !active) || full} aria-label={`Add ${i.name}`} className={active ? styles.trayOn : ''}>
+                <button type="button" onClick={() => add(i.id)} disabled={(!!pouring && !active) || full} aria-label={tx('Add {item}', { item: tx(i.name) })} className={active ? styles.trayOn : ''}>
                   {/* The chosen ingredient tilts toward the cup and back */}
                   <motion.img src={i.img} alt="" draggable={false} animate={active ? { y: [0, -16, -16, 0], rotate: [0, -24, -24, 0], scale: [1, 1.12, 1.12, 1] } : { y: 0, rotate: 0, scale: 1 }} transition={{ duration: 1.3, times: [0, 0.2, 0.75, 1] }} />
                   {count > 0 && <b>{count}</b>}
                 </button>
-                <small>{i.name}</small>
+                <small>{tx(i.name)}</small>
               </li>
             );
           })}
         </ul>
         <div className={hud.row}>
           <button type="button" className={hud.dark} onClick={() => setSteps([])} disabled={!steps.length || !!pouring}>
-            Start over
+            {tx('Start over')}
           </button>
           <button
             type="button"
@@ -272,7 +276,7 @@ function DrinkMaker({ initial, onCarry }: { initial: CafeDrink | null; onCarry: 
               onCarry({ base: steps[0], additions: steps.slice(1), color: m.color, level: m.level, createdAt: new Date().toISOString() });
             }}
           >
-            Carry drink
+            {tx('Carry drink')}
           </button>
         </div>
       </div>
