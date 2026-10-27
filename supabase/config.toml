@@ -1,0 +1,6 @@
+[functions.calendar]
+verify_jwt = false
+
+[functions.tutor]
+# Validates the Supabase user server-side, including anonymous sessions.
+verify_jwt = false

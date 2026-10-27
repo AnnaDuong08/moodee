@@ -1,0 +1,76 @@
+.list {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.7);
+}
+.me {
+  background: rgba(201, 184, 224, 0.35);
+}
+
+.avatar {
+  flex: none;
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: var(--shadow-soft);
+}
+.avatarSprite {
+  position: absolute;
+  left: 50%;
+  top: -40%;
+  transform: translateX(-50%);
+}
+
+.who {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.who b {
+  font-size: 15px;
+  font-weight: 900;
+}
+.who small {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--warm-gray);
+}
+
+.add {
+  flex: none;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  background: var(--sunset);
+}
+.added {
+  color: #4f6344;
+  background: rgba(155, 174, 140, 0.35);
+}
+
+.note {
+  margin: 8px 0 0;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--warm-gray);
+}

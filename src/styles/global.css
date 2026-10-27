@@ -1,0 +1,149 @@
+/* 컬러 토큰 & 공통 스타일 */
+:root {
+  --lavender: #c9b8e0;
+  --cream: #f5eee2;
+  --honey: #f2c46b;
+  --sunset: #e8955a;
+  --charcoal: #2e2a2a;
+  --warm-gray: #9a9590;
+  --sage: #9bae8c;
+
+  --lavender-deep: #9f88c4;
+  --card: rgba(250, 246, 239, 0.82);
+  --card-strong: rgba(252, 249, 244, 0.94);
+  --line: rgba(46, 42, 42, 0.08);
+  --shadow-soft: 0 10px 30px -12px rgba(94, 70, 120, 0.35), 0 2px 6px rgba(46, 42, 42, 0.06);
+  --shadow-pill: 0 10px 24px -8px rgba(232, 149, 90, 0.6), inset 0 -3px 0 rgba(0, 0, 0, 0.08);
+  --radius-card: 28px;
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  font-family: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color: var(--charcoal);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* 데스크톱 배경: 로고와 같은 푸른 톤의 은은한 빛 */
+body {
+  background: radial-gradient(120% 90% at 20% 0%, #d6e0fb 0%, transparent 55%),
+    radial-gradient(90% 80% at 100% 100%, #d9cbeb 0%, transparent 60%), #efe6f3;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 3px solid var(--honey);
+  outline-offset: 3px;
+}
+
+/* 폰 프레임: 모바일은 전체 화면, 넓은 화면에서는 가운데 430px 폭 */
+.phone {
+  position: relative;
+  width: min(100%, 430px);
+  height: 100dvh;
+  margin: 0 auto;
+  /* clip: 화면 밖으로 나간 휠 때문에 스크롤되지 않도록(hidden은 스크립트 스크롤을 허용) */
+  overflow: clip;
+  background: var(--cream);
+  isolation: isolate;
+}
+
+@media (min-width: 600px) {
+  #root {
+    display: grid;
+    place-items: center;
+  }
+  .phone {
+    height: min(100dvh - 40px, 932px);
+    border-radius: 44px;
+    box-shadow: 0 40px 80px -30px rgba(80, 60, 110, 0.45), 0 0 0 10px #fff8, 0 0 0 11px rgba(46, 42, 42, 0.06);
+  }
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 공용 알약 버튼 */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 60px;
+  padding: 0 28px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: 0.01em;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+.pill:active {
+  transform: scale(0.97);
+}
+.pill-primary {
+  width: 100%;
+  color: #fff;
+  background: linear-gradient(180deg, #f0a56a 0%, var(--sunset) 100%);
+  box-shadow: var(--shadow-pill);
+}
+.pill-soft {
+  background: var(--card-strong);
+  box-shadow: var(--shadow-soft);
+}
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--card-strong);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

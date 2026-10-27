@@ -1,0 +1,16 @@
+.root { position: relative; display: grid; min-width: 0; min-height: 0; overflow: hidden; }
+.viewport { min-width: 0; min-height: 0; max-height: inherit; overscroll-behavior: contain; scrollbar-width: none; border-radius: inherit; }
+.viewport::-webkit-scrollbar { display: none; }
+.viewport:focus-visible { outline: 2px solid var(--lavender-deep); outline-offset: -2px; }
+.vertical { padding-right: 14px; }
+/* Radix uses a table to measure content. Block layout lets long prose wrap. */
+.vertical > div { display: block !important; min-width: 0 !important; }
+.horizontal { padding-bottom: 14px; }
+.rail { display: flex; padding: 3px; border-radius: 999px; background: rgba(201,184,224,.16); touch-action: none; user-select: none; }
+.rail[data-orientation=vertical] { width: 12px; }
+.rail[data-orientation=horizontal] { height: 12px; flex-direction: column; }
+.thumb { flex: 1; position: relative; border-radius: 999px; background: var(--lavender-deep); min-height: 24px; transition: background .15s; }
+.rail[data-orientation=horizontal] .thumb { min-height: 0; min-width: 24px; }
+.thumb::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 100%; height: 100%; min-width: 24px; min-height: 24px; }
+.thumb:hover,.thumb:active { background: #8065a9; }
+@media (forced-colors: active) { .thumb { background: ButtonText; } .rail { background: Canvas; border: 1px solid ButtonText; } }

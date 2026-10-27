@@ -1,0 +1,109 @@
+/* 조이스틱 위, 왼쪽 아래에 쌓이는 채팅 줄 */
+.chat {
+  position: absolute;
+  z-index: 2;
+  left: 12px;
+  bottom: calc(var(--safe-bottom) + 150px);
+  width: min(300px, 76%);
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+  pointer-events: none;
+}
+.chat > * {
+  pointer-events: auto;
+}
+.log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+  pointer-events: none;
+}
+.log li {
+  padding: 3px 8px;
+  border-radius: 4px;
+  color: #fff;
+  background: rgba(20, 14, 12, 0.55);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.55);
+  overflow-wrap: anywhere;
+  animation: appear 0.2s ease-out;
+  transition: opacity 1.8s ease;
+}
+.log b {
+  font-weight: 900;
+  color: #ffe9a8;
+}
+.mine b {
+  color: #a8d8ff;
+}
+.system {
+  color: #ffe66b !important;
+  font-style: italic;
+}
+.fading {
+  opacity: 0;
+}
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px 0 5px;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(20, 14, 12, 0.5);
+  font-size: 12px;
+  font-weight: 800;
+}
+.toggle kbd {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  font: inherit;
+  color: var(--charcoal);
+  background: #fff;
+}
+.inputRow {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 38px;
+  padding: 0 4px 0 10px;
+  border-radius: 6px;
+  background: rgba(20, 14, 12, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+.inputRow input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: none;
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+}
+.inputRow input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+.inputRow button {
+  width: 30px;
+  height: 30px;
+  font-size: 20px;
+  color: #fff;
+}

@@ -1,0 +1,290 @@
+.wrap {
+  position: absolute;
+  inset: 0;
+}
+.viewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+  cursor: pointer;
+  background: #2e2420;
+}
+.stage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+}
+.bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* 인터랙션 지점: 은은한 금빛 고리 */
+.zone {
+  position: absolute;
+  width: 78px;
+  height: 46px;
+  translate: -50% -50%;
+}
+.ring {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 236, 190, 0.9);
+  background: radial-gradient(closest-side, rgba(242, 196, 107, 0) 60%, rgba(242, 196, 107, 0.35));
+  box-shadow: 0 0 12px rgba(242, 196, 107, 0.7);
+  animation: glow 2.2s ease-in-out infinite;
+}
+.zoneNear .ring {
+  border-color: #fff;
+  box-shadow: 0 0 22px rgba(255, 214, 140, 1);
+  animation: none;
+}
+@keyframes glow {
+  0%,
+  100% {
+    opacity: 0.45;
+    scale: 0.92;
+  }
+  50% {
+    opacity: 0.95;
+    scale: 1;
+  }
+}
+
+.target {
+  position: absolute;
+  width: 30px;
+  height: 16px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  animation: ping 1s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes ping {
+  from {
+    scale: 0.6;
+    opacity: 1;
+  }
+  to {
+    scale: 1.4;
+    opacity: 0;
+  }
+}
+
+/* 캐릭터: 발(컷의 78% 지점)을 좌표에 맞춤 */
+.char {
+  position: absolute;
+  aspect-ratio: 400 / 1086;
+  translate: -50% -78%;
+  pointer-events: none;
+}
+.char > div {
+  height: 100%;
+  transform-origin: 50% 78%;
+}
+.shadow {
+  position: absolute;
+  left: 50%;
+  top: 78%;
+  width: 46%;
+  height: 5%;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: rgba(60, 40, 40, 0.28);
+  filter: blur(2px);
+}
+.idle {
+  animation: breathe 3s ease-in-out infinite;
+}
+.walking {
+  animation: waddle 0.48s ease-in-out infinite alternate;
+}
+@keyframes waddle {
+  from {
+    transform: translateY(0) rotate(-4deg);
+  }
+  to {
+    transform: translateY(-5%) rotate(4deg);
+  }
+}
+@keyframes breathe {
+  50% {
+    transform: scaleY(1.015);
+  }
+}
+.tag {
+  position: absolute;
+  left: 50%;
+  top: 80%;
+  translate: -50% 0;
+  white-space: nowrap;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 3px 8px rgba(46, 42, 42, 0.2);
+  font-size: 15px;
+  font-weight: 700;
+  color: #6f6474;
+}
+.tag b {
+  color: var(--charcoal);
+  font-weight: 900;
+}
+/* 들고 있는 것: 손 높이 옆에 */
+.carry {
+  position: absolute;
+  left: 78%;
+  top: 50%;
+  width: 34%;
+}
+
+.controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 16px calc(var(--safe-bottom) + 18px);
+  pointer-events: none;
+}
+.controls > * {
+  pointer-events: auto;
+}
+.side {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: flex-end;
+}
+/* 어두운 유리 느낌의 행동 버튼 */
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  min-height: 56px;
+  padding: 0 22px 0 12px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 900;
+  background: rgba(46, 38, 40, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 10px 24px -8px rgba(30, 20, 20, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.cta kbd {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 15px;
+  color: var(--charcoal);
+  background: #fff;
+}
+.hint {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 18px;
+  color: rgba(255, 255, 255, 0.86);
+  background: rgba(46, 38, 40, 0.62);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.hint b {
+  display: block;
+  font-size: 15px;
+  font-weight: 900;
+  color: #fff;
+}
+
+/* 출구: 문 앞 바닥 표시 */
+.exit {
+  position: absolute;
+  width: 120px;
+  height: 56px;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 244, 214, 0.55), rgba(255, 244, 214, 0));
+}
+.exit span {
+  padding: 4px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+  font-size: 15px;
+  font-weight: 900;
+  color: #fff;
+  background: rgba(46, 38, 40, 0.75);
+  animation: nudge 1.6s ease-in-out infinite;
+}
+@keyframes nudge {
+  50% {
+    transform: translateY(4px);
+  }
+}
+.leaving {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 50% 60%, rgba(36, 26, 22, 0.55), rgba(36, 26, 22, 0.98) 70%);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 900;
+}
+/* NPC 말풍선 */
+.bubble {
+  position: absolute;
+  left: 50%;
+  bottom: 84%;
+  translate: -50% 0;
+  z-index: 5000;
+  width: max-content;
+  max-width: 250px;
+  padding: 6px 12px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 4px 10px rgba(46, 42, 42, 0.25);
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--charcoal);
+  text-align: center;
+  animation: pop 0.25s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+.bubble::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  margin: -1px 0 0 -6px;
+  border: 6px solid transparent;
+  border-top-color: #fff;
+}
+@keyframes pop {
+  from {
+    scale: 0.6;
+    opacity: 0;
+  }
+}

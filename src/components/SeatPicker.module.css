@@ -1,0 +1,217 @@
+.wrap {
+  position: absolute;
+  inset: 0;
+}
+
+.viewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+  cursor: pointer;
+  background: #e6dcf1;
+}
+
+.stage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+}
+.bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* 앉을 수 있는 의자 표시: 금빛 테두리 링이 숨쉬듯 반짝 */
+.seat {
+  position: absolute;
+  width: 84px;
+  height: 52px;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+}
+.ring {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 236, 190, 0.95);
+  /* 가운데는 비워 의자 색을 살리고 테두리만 빛나게 */
+  background: radial-gradient(closest-side, rgba(242, 196, 107, 0) 62%, rgba(242, 196, 107, 0.4));
+  box-shadow: 0 0 12px rgba(242, 196, 107, 0.75);
+  animation: glow 2.2s ease-in-out infinite;
+}
+.seatNear .ring {
+  border-color: #fff;
+  background: radial-gradient(closest-side, rgba(255, 244, 214, 0.15) 55%, rgba(242, 196, 107, 0.55));
+  box-shadow: 0 0 22px rgba(255, 214, 140, 1);
+  animation: none;
+}
+@keyframes glow {
+  0%,
+  100% {
+    opacity: 0.55;
+    scale: 0.92;
+  }
+  50% {
+    opacity: 1;
+    scale: 1;
+  }
+}
+/* 가까이 간 자리 번호: 캐릭터 발 아래쪽에 표시(캐릭터에 가리지 않게) */
+.tag {
+  position: absolute;
+  top: 100%;
+  margin-top: 2px;
+  z-index: 3000;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--charcoal);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 900;
+  box-shadow: 0 4px 10px rgba(46, 42, 42, 0.3);
+}
+
+.target {
+  position: absolute;
+  width: 30px;
+  height: 16px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  animation: ping 1s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes ping {
+  from {
+    scale: 0.6;
+    opacity: 1;
+  }
+  to {
+    scale: 1.4;
+    opacity: 0;
+  }
+}
+
+/* 캐릭터: 발 위치(시트 컷의 78% 지점)를 좌표에 맞춤 */
+.me {
+  position: absolute;
+  aspect-ratio: 400 / 1086;
+  translate: -50% -78%;
+  pointer-events: none;
+}
+.me > div {
+  height: 100%;
+  transform-origin: 50% 78%;
+}
+.shadow {
+  position: absolute;
+  left: 50%;
+  top: 78%;
+  width: 46%;
+  height: 5%;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: rgba(60, 40, 40, 0.25);
+  filter: blur(2px);
+}
+.idle {
+  animation: breathe 3s ease-in-out infinite;
+}
+/* 걷기: 콩콩 튀며 좌우로 뒤뚱 */
+.walking {
+  animation: waddle 0.48s ease-in-out infinite alternate;
+}
+@keyframes waddle {
+  from {
+    transform: translateY(0) rotate(-4deg);
+  }
+  to {
+    transform: translateY(-5%) rotate(4deg);
+  }
+}
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(1.015);
+  }
+}
+
+.controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  padding: 0 16px calc(var(--safe-bottom) + 18px);
+  pointer-events: none;
+}
+.controls > * {
+  pointer-events: auto;
+}
+.movementControls {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.side {
+  flex: 1;
+  min-width: 0;
+}
+.hint {
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 20px;
+  background: var(--card);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #6f6474;
+}
+.hint b {
+  display: block;
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--charcoal);
+}
+
+/* 이미 앉아 있는 친구 */
+.mate {
+  position: absolute;
+  aspect-ratio: 400 / 1086;
+  translate: -50% -78%;
+}
+.mateTag {
+  position: absolute;
+  left: 50%;
+  top: 80%;
+  translate: -50% 0;
+  white-space: nowrap;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 3px 8px rgba(46, 42, 42, 0.2);
+  font-size: 15px;
+  font-weight: 700;
+  color: #6f6474;
+}
+.mateTag b {
+  color: var(--charcoal);
+  font-weight: 900;
+}

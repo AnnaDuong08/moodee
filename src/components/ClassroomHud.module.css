@@ -1,0 +1,219 @@
+/* 어두운 반투명 유리 HUD(화면을 최대한 가리지 않게 작게) */
+.minimap,
+.chatPanel,
+.chatToggle,
+.sounds button {
+  color: #fff;
+  background: rgba(46, 38, 40, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.minimap {
+  position: absolute;
+  z-index: 2;
+  right: 12px;
+  top: calc(var(--safe-top) + 68px);
+  width: 118px;
+  padding: 6px;
+  border-radius: 16px;
+}
+.mapHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 2px 5px;
+  font-size: 10px;
+  font-weight: 800;
+}
+.mapHead b {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-weight: 900;
+}
+.map {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  aspect-ratio: 941 / 1300;
+}
+/* 교실 이미지 전체(941×1672)를 위로 14% 올려 책상 구역만 보이게 */
+.mapInner {
+  position: absolute;
+  inset: 0 0 auto;
+  aspect-ratio: 941 / 1672;
+  transform: translateY(-13%);
+}
+.map img {
+  width: 100%;
+  height: 100%;
+  user-select: none;
+}
+.map i {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  margin: -4px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(46, 38, 40, 0.6);
+}
+.map .meDot {
+  background: var(--sunset);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse {
+  50% {
+    box-shadow: 0 0 0 5px rgba(232, 149, 90, 0.35);
+  }
+}
+
+.sounds,
+.chat {
+  position: absolute;
+  z-index: 2;
+  bottom: calc(var(--safe-bottom) + 16px);
+  transition: bottom 0.3s ease;
+}
+.raised {
+  bottom: calc(var(--safe-bottom) + 218px);
+}
+.sounds {
+  right: 12px;
+  display: grid;
+  gap: 6px;
+}
+.sounds button {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  font-size: 17px;
+  opacity: 0.8;
+}
+.sounds button span {
+  filter: grayscale(1);
+}
+.sounds .soundOn {
+  opacity: 1;
+  background: rgba(232, 149, 90, 0.92);
+  box-shadow: 0 0 14px rgba(242, 196, 107, 0.7);
+}
+.sounds .soundOn span {
+  filter: none;
+}
+
+.chat {
+  left: 12px;
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+  width: min(230px, 62%);
+}
+.chatToggle {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+}
+.toggles { display: flex; align-items: center; gap: 6px; }
+.chatPanel {
+  width: 100%;
+  padding: 10px;
+  border-radius: 18px;
+}
+.chatPanel ul {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  max-height: 112px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.86);
+}
+.chatPanel b {
+  margin-right: 4px;
+  font-weight: 900;
+  color: #fff;
+}
+.mine b {
+  color: var(--honey);
+}
+.chatInput {
+  display: flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 4px 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+}
+.chatInput input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: none;
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+}
+.chatInput input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+.chatInput button {
+  width: 28px;
+  height: 28px;
+  font-size: 20px;
+  color: #fff;
+}
+.chatInput button:disabled {
+  opacity: 0.35;
+}
+
+/* 노트 창이 떠 있는 동안: 창과 겹치지 않게 잠시 숨김 */
+.dimmed {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, bottom 0.3s ease;
+}
+
+/* 소리 버튼 짧은 라벨: 마우스를 올리거나 키보드로 포커스하면 왼쪽에 뜬다 */
+.sounds button {
+  position: relative;
+}
+.sounds button[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  right: calc(100% + 8px);
+  top: 50%;
+  translate: 4px -50%;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(46, 42, 42, 0.78);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, translate 0.15s ease;
+}
+.sounds button[data-tip]:hover::after,
+.sounds button[data-tip]:focus-visible::after {
+  opacity: 1;
+  translate: 0 -50%;
+}
+@media (hover: none) {
+  .sounds button[data-tip]:hover::after {
+    opacity: 0;
+  }
+}

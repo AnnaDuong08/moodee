@@ -1,0 +1,153 @@
+/* 음료 만들기: 카운터 사진 비율(941:1672)의 무대를 화면 높이에 맞춰 가운데에 */
+.counter {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 100%;
+  aspect-ratio: 941 / 1672;
+  translate: -50% 0;
+}
+.counter > img {
+  width: 100%;
+  height: 100%;
+  user-select: none;
+}
+/* 나무 받침(이미지의 50%, 69.5%) 위 */
+.cupBox {
+  position: absolute;
+  left: 50%;
+  bottom: 29.5%;
+  width: 40%;
+  translate: -46% 0;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 14px 12px rgba(60, 30, 10, 0.35));
+}
+.cup {
+  width: 100%;
+}
+
+.tray {
+  list-style: none;
+  margin: 0;
+  padding: 10px 8px 6px;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(150, 100, 60, 0.82), rgba(112, 72, 42, 0.86));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.18);
+}
+.tray li {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+}
+.tray small {
+  font-size: 10px;
+  font-weight: 800;
+  color: rgba(255, 244, 226, 0.9);
+}
+.tray button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #f3d9b4, #dcb78a);
+  box-shadow: 0 3px 0 rgba(90, 55, 30, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  transition: transform 0.12s ease, opacity 0.2s ease;
+}
+.tray button:active:not(:disabled) {
+  transform: translateY(2px);
+}
+.tray button:disabled {
+  opacity: 0.5;
+}
+.tray .trayOn {
+  opacity: 1;
+  box-shadow: 0 0 0 3px var(--honey), 0 3px 0 rgba(90, 55, 30, 0.45);
+}
+.tray img {
+  width: 82%;
+  height: 82%;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 2px rgba(60, 30, 10, 0.3));
+}
+.tray b {
+  position: absolute;
+  right: -3px;
+  top: -5px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+  color: #fff;
+  background: var(--sunset);
+}
+
+/* 테이블 화면 */
+.room {
+  object-position: 50% 30%;
+  filter: blur(2px) brightness(0.92);
+  scale: 1.04;
+}
+.across {
+  position: absolute;
+  left: 27%;
+  bottom: 30%;
+  height: 46%;
+  translate: -50% 0;
+  filter: blur(0.6px);
+}
+.table {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  aspect-ratio: 640 / 600;
+}
+.table > img {
+  -webkit-mask-image: linear-gradient(transparent, #000 7%);
+  mask-image: linear-gradient(transparent, #000 7%);
+  width: 100%;
+  height: 100%;
+  user-select: none;
+}
+/* 받침 가운데(54.7%, 27%)에 컵 바닥을 맞춤 */
+.onTable {
+  position: absolute;
+  left: 54.7%;
+  bottom: 66%;
+  width: 34%;
+  margin-left: -16%;
+  filter: drop-shadow(0 12px 10px rgba(60, 30, 10, 0.35));
+}
+
+/* 테이블: 조용히 머물기 · 일어서기 */
+.quiet {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--safe-bottom) + 18px);
+  z-index: 4;
+  translate: -50% 0;
+  padding: 8px 16px;
+  border-radius: 999px;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(30, 20, 16, 0.4);
+}
+.standUp {
+  justify-self: center;
+  padding: 4px 12px;
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: underline;
+}

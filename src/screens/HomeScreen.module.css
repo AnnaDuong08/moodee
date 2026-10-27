@@ -1,0 +1,309 @@
+.home {
+  /* 휠 치수: PlaceWheel과 설명 영역이 같은 값을 공유 */
+  /* 화면 폭보다 큰 행성 위에 장소가 놓인다. 선택된 장소는 크게, 양옆은 작게 걸쳐 보임 */
+  /* 폰 프레임 폭 기준(데스크톱에서도 430px 프레임에 맞게) */
+  container-type: size;
+  --disc: min(172cqw, 740px);
+  --icon: min(82cqw, 360px);
+  background: linear-gradient(180deg, #ddd0ee 0%, #e8def2 40%, var(--cream) 72%);
+  overflow: hidden;
+}
+
+/* 오른쪽 위 은은한 빛(로고와 같은 푸른 톤) */
+.sun {
+  position: absolute;
+  top: -120px;
+  right: -110px;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(143, 168, 236, 0.45) 0%, rgba(143, 168, 236, 0) 68%);
+  pointer-events: none;
+}
+
+.header {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: calc(var(--safe-top) + 18px) 20px 0;
+}
+
+.hello {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  font-weight: 700;
+  color: #6f6474;
+  text-align: left;
+}
+.hello b {
+  color: var(--charcoal);
+}
+
+.avatar {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--card-strong);
+  box-shadow: var(--shadow-soft);
+  position: relative;
+}
+/* 앞모습 컷에서 얼굴 부분만 보이도록 확대 */
+.avatarSprite {
+  position: absolute;
+  left: 50%;
+  top: -40%;
+  transform: translateX(-50%);
+}
+
+.chips {
+  flex: none;
+  display: flex;
+  gap: 6px;
+}
+.streak {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px 8px 10px;
+  border-radius: 999px;
+  background: var(--card);
+  box-shadow: var(--shadow-soft);
+  font-size: 14px;
+  color: #6f6474;
+}
+.streak b {
+  color: var(--charcoal);
+  font-size: 16px;
+  font-weight: 900;
+}
+.flameOn {
+  color: var(--sunset);
+}
+.flameOff {
+  color: #cfc7c0;
+}
+
+/* 브랜드: 헤더 아래 가운데 로고만(소개 문구는 스플래시·온보딩에서) */
+.brand {
+  position: relative;
+  z-index: 2;
+  padding: 14px 24px 0;
+  text-align: center;
+}
+.brand h1 {
+  margin: 0;
+  line-height: 0;
+}
+.brand img {
+  width: 112px;
+  height: auto;
+  filter: drop-shadow(0 3px 6px rgba(90, 80, 150, 0.18));
+}
+
+/* 장소 정보: 화면 가운데 위쪽에 하나의 그룹. 이동 중에도 줄 구성이 같아 흔들리지 않음 */
+.info {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  top: calc(var(--safe-top) + 172px); /* 로고와 약 55px 간격 */
+  padding: 0 28px;
+  text-align: center;
+  pointer-events: none;
+  user-select: none;
+}
+.eyebrow {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--lavender-deep);
+}
+.info h2 {
+  margin: 4px 0 6px;
+  font-size: 40px;
+  line-height: 1.05;
+  font-weight: 900;
+  color: var(--charcoal);
+}
+.info p {
+  margin: 0 auto;
+  max-width: 330px;
+  min-height: 2.7em;
+  font-size: 15px;
+  font-weight: 700;
+  color: #5f534c;
+  line-height: 1.35;
+}
+.info .going {
+  color: var(--sunset);
+}
+
+/* 버튼은 휠 위, 엄지 영역 */
+.dock {
+  position: absolute;
+  z-index: 30;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0 24px calc(var(--safe-bottom) + 14px);
+  text-align: center;
+  pointer-events: none;
+}
+.dock > * {
+  pointer-events: auto;
+}
+.dockActions {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 10px;
+  max-width: 360px;
+  margin: 0 auto;
+}
+.dockActions > :global(.pill-primary) {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  font-size: clamp(14px, 4.2cqw, 18px);
+}
+.calendarButton {
+  position: relative;
+  flex: none;
+  width: auto;
+  min-height: 60px;
+  padding: 0 15px;
+  color: var(--charcoal);
+  font-size: 14px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.calendarButton svg {
+  color: var(--lavender-deep);
+}
+.dueDot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--sunset);
+}
+.locked {
+  color: var(--warm-gray);
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: inset 0 0 0 1.5px rgba(154, 149, 144, 0.3);
+  cursor: default;
+}
+/* 휠 위치 표시 */
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.pager button {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border-radius: 50%;
+  background: rgba(122, 109, 102, 0.3);
+  transition: all 0.25s ease;
+}
+.pager .pagerOn {
+  width: 22px;
+  border-radius: 999px;
+  background: var(--sunset);
+}
+.pager small {
+  margin-left: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #7a6d66;
+}
+.tip {
+  margin: 8px 0 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--warm-gray);
+}
+
+.presence {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #5b74cf;
+  background: rgba(127, 149, 230, 0.16);
+}
+
+/* 배경: 아주 옅은 구름과 별(Cloudy 세계관) */
+.cloud {
+  position: absolute;
+  z-index: 1;
+  width: 120px;
+  height: 36px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.5);
+  animation: drift 40s linear infinite;
+  pointer-events: none;
+}
+.cloud::before {
+  content: '';
+  position: absolute;
+  left: 28px;
+  top: -22px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: inherit;
+}
+.c1 {
+  top: 26%;
+  left: -140px;
+}
+.c2 {
+  top: 40%;
+  left: -140px;
+  scale: 0.65;
+  animation-duration: 58s;
+  animation-delay: -24s;
+}
+@keyframes drift {
+  to {
+    transform: translateX(620px);
+  }
+}
+.star {
+  position: absolute;
+  z-index: 1;
+  width: 14px;
+  height: 14px;
+  background: #fff6c9;
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cloud {
+    animation: none;
+    left: 20px;
+  }
+}
+@container (max-width: 350px) {
+  .calendarButton span { display: none; }
+  .calendarButton { width: 60px; padding: 0; }
+}
+
+.sound { position:absolute; right:20px; top:14px; }

@@ -1,0 +1,195 @@
+/* 공간 화면 공통: 어두운 유리 HUD + 활동 화면 레이어 */
+.space {
+  background: #2e2420;
+}
+.layer {
+  position: absolute;
+  inset: 0;
+}
+.top {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  padding: calc(var(--safe-top) + 14px) 16px 0;
+  pointer-events: none;
+}
+.top > * {
+  pointer-events: auto;
+}
+.top > :last-child {
+  justify-self: end;
+}
+.top > .chip { justify-self:center; max-width:100%; }
+.topActions { display:flex; align-items:center; justify-content:flex-end; gap:6px; }
+.glassBtn,
+.chip,
+.count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 42px;
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(46, 38, 40, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-weight: 900;
+}
+.glassBtn {
+  width: 42px;
+}
+.chip {
+  padding: 0 18px;
+  font-size: 15px;
+}
+.count {
+  padding: 0 14px 0 11px;
+  font-size: 15px;
+}
+
+/* 활동 화면 */
+.activity {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  overflow: hidden;
+  background: #241a16;
+}
+.cover {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+}
+.dock {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 4;
+  display: grid;
+  gap: 10px;
+  padding: 60px 16px calc(var(--safe-bottom) + 18px);
+  background: linear-gradient(transparent, rgba(30, 20, 16, 0.78) 55%);
+}
+.row {
+  display: flex;
+  gap: 8px;
+}
+.row > * {
+  flex: 1;
+}
+.dark,
+.light {
+  min-height: 52px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 900;
+}
+.dark {
+  color: #fff;
+  background: rgba(46, 38, 40, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+.light {
+  color: #fff;
+  background: linear-gradient(180deg, #f0a56a 0%, var(--sunset) 100%);
+  box-shadow: var(--shadow-pill);
+}
+.dark:disabled,
+.light:disabled {
+  opacity: 0.45;
+}
+.caption {
+  margin: 0;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 8px rgba(30, 20, 16, 0.8);
+}
+.title {
+  margin: 0;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(30, 20, 16, 0.8);
+}
+.toast {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  top: calc(var(--safe-top) + 72px);
+  translate: -50% 0;
+  margin: 0;
+  padding: 9px 18px;
+  border-radius: 999px;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 900;
+  color: #7a5a12;
+  background: linear-gradient(180deg, #fff3cf, var(--honey));
+  box-shadow: 0 8px 22px -6px rgba(242, 196, 107, 0.9);
+}
+
+/* 친구 목록 */
+.friends {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.friends li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.75);
+}
+.friends b {
+  font-weight: 900;
+}
+.friends small {
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--lavender-deep);
+}
+.face {
+  position: relative;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #fff;
+}
+.face > div {
+  position: absolute;
+  left: 50%;
+  top: -38%;
+  translate: -50% 0;
+}
+.faceCloud > div {
+  top: -118%;
+}
+.empty {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--warm-gray);
+}
+
+.top[hidden] {
+  display: none;
+}

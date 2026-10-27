@@ -1,0 +1,389 @@
+.room {
+  background: #e6dcf1;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+}
+
+.top {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: calc(var(--safe-top) + 14px) 16px 0;
+}
+.soundLive {
+  color: var(--sunset);
+}
+
+.spacer {
+  width: 44px;
+}
+.intentBadge { position: absolute; z-index: 2; top: calc(var(--safe-top) + 74px); left: 16px; width: calc(100% - 164px); padding: 9px 12px; border-radius: 18px; background: var(--card-strong); box-shadow: var(--shadow-soft); text-align: left; pointer-events: none; }
+.intentBadge span { display: block; color: var(--lavender-deep); font-size: 9px; letter-spacing: .08em; font-weight: 900; }
+.intentBadge b { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; font-size: 13px; line-height: 1.35; font-weight: 900; }
+
+/* 현재 자리 표시 + 자리 바꾸기 */
+.chip {
+  height: 40px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: var(--card);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 15px;
+  font-weight: 900;
+}
+.chip span {
+  margin-left: 4px;
+  font-weight: 700;
+  color: var(--warm-gray);
+}
+.chip:disabled span {
+  display: none;
+}
+
+.toast {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  bottom: calc(var(--safe-bottom) + 40px);
+  translate: -50% 0;
+  margin: 0;
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: rgba(46, 42, 42, 0.8);
+  color: #fff;
+  font-weight: 800;
+}
+
+/* 하단 타이머 카드 */
+.panel {
+  position: relative;
+  z-index: 2;
+  margin: auto 12px calc(var(--safe-bottom) + 12px);
+  padding: 16px 16px 16px;
+  border-radius: var(--radius-card);
+  background: var(--card);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.timerRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.ring {
+  --p: 0;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  background: conic-gradient(var(--sunset) calc(var(--p) * 360deg), rgba(201, 184, 224, 0.45) 0);
+}
+.ring::before {
+  content: '';
+  grid-area: 1 / 1;
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  background: #fffaf3;
+}
+.time {
+  grid-area: 1 / 1;
+  position: relative;
+  font-size: 22px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+.timerSide {
+  flex: 1;
+  min-width: 0;
+}
+.chips {
+  display: flex;
+  gap: 8px;
+}
+.chips button {
+  flex: 1;
+  height: 40px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 15px;
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--warm-gray);
+}
+.chips .chipOn {
+  background: var(--charcoal);
+  color: #fff;
+}
+.state {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.tutorButton { position: absolute; z-index: 2; left: 12px; bottom: calc(var(--safe-bottom) + 16px); min-height: 40px; padding: 0 18px; border-radius: 999px; background: rgba(46,38,40,.72); color: #fff; border: 1px solid rgba(255,255,255,.18); backdrop-filter: blur(10px); font-size: 13px; font-weight: 900; }
+.tutorInControls { position: static; }
+.hint {
+  margin: 8px 2px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--warm-gray);
+}
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.actions .end { padding: 0 16px; }
+.actions :global(.pill) { min-width: 0; font-size: 16px; }
+.actions :global(.icon-btn) {
+  flex: none;
+  width: 60px;
+  height: 60px;
+}
+
+/* 세션 완료 모달 */
+.doneBackdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: end center;
+  padding: 16px 16px calc(var(--safe-bottom) + 16px);
+  background: rgba(46, 42, 42, 0.28);
+}
+.doneCard {
+  width: 100%;
+  padding: 28px 22px 16px;
+  border-radius: 32px;
+  background: var(--card-strong);
+  text-align: center;
+  box-shadow: var(--shadow-soft);
+}
+.doneFlame {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 10px;
+  border-radius: 50%;
+  color: var(--sunset);
+  background: rgba(242, 196, 107, 0.3);
+}
+.doneCard h2 {
+  margin: 0 0 6px;
+  font-size: 24px;
+  font-weight: 900;
+}
+.doneCard p {
+  margin: 0 0 20px;
+  color: #6f6474;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.doneLink {
+  margin-top: 8px;
+  padding: 12px;
+  font-weight: 800;
+  color: var(--warm-gray);
+}
+
+/* ── 피드백 반영: 사람 수, 집중 중 패널, 완료 통계 ── */
+.topRight {
+  display: flex;
+  gap: 8px;
+}
+.topRight .people {
+  width: auto;
+  padding: 0 12px;
+  gap: 4px;
+  display: flex;
+  align-items: center;
+  border-radius: 999px;
+}
+.people b {
+  font-size: 15px;
+  font-weight: 900;
+}
+.nowLabel {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--lavender-deep);
+}
+.with {
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--warm-gray);
+}
+.end {
+  flex: none;
+  padding: 0 22px;
+}
+.doneStats {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: -6px 0 18px;
+  flex-wrap: wrap;
+}
+.doneStats span {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(242, 196, 107, 0.28);
+  font-size: 14px;
+  font-weight: 700;
+  color: #6f6474;
+}
+.doneStats b {
+  color: var(--charcoal);
+  font-weight: 900;
+}
+
+/* ── 보상(C8)·체크인(C9)·생각 메모(C6) ── */
+.coinPile {
+  position: relative;
+  width: 150px;
+  height: 96px;
+  margin: 0 auto 8px;
+}
+.coinPile img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+.doneCard h2 em {
+  font-style: normal;
+  color: var(--sunset);
+  white-space: nowrap;
+}
+.doneHint {
+  display: block;
+  margin: -8px 4px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--warm-gray);
+}
+.friction {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.friction button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 0 10px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: inset 0 0 0 2px rgba(46, 42, 42, 0.06);
+  transition: transform 0.12s, background 0.12s;
+}
+.friction button:active {
+  transform: scale(0.94);
+  background: rgba(242, 196, 107, 0.4);
+}
+.friction b {
+  font-size: 20px;
+  font-weight: 900;
+}
+.friction small {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--warm-gray);
+}
+.thoughtInput {
+  width: 100%;
+  height: 50px;
+  margin-bottom: 12px;
+  padding: 0 16px;
+  border: 2px solid rgba(46, 42, 42, 0.1);
+  border-radius: 16px;
+  background: #fff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--charcoal);
+}
+.doneCard :global(.pill):disabled {
+  opacity: 0.5;
+}
+
+/* ── C6 생각 내려놓기: "MY ONE THING" 배지 바로 아래에 뜨는 작은 창(키보드에 가려지지 않게) ── */
+.thoughtBackdrop {
+  --pad-top: calc(var(--safe-top) + 154px);
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: start center;
+  align-content: start;
+  padding: var(--pad-top) 16px 0;
+  background: rgba(46, 42, 42, 0.28);
+}
+.thoughtCard {
+  width: 100%;
+  /* 키보드가 올라오면 보이는 영역(visualViewport)을 따라간다 */
+  translate: 0 var(--vv-top, 0px);
+  max-height: calc(var(--vv-h, 100dvh) - var(--pad-top) - 12px);
+  overflow-y: auto;
+  padding: 20px 18px 14px;
+  border-radius: 28px;
+  background: #fffaf2;
+  text-align: center;
+  box-shadow: var(--shadow-soft);
+}
+.thoughtCard h2 {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 900;
+}
+.thoughtCard p {
+  margin: 0 0 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #6f6474;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.thoughtCard .thoughtInput {
+  font-size: 16px; /* 16px 미만이면 iOS가 화면을 확대한다 */
+  height: 48px;
+  margin-bottom: 10px;
+}
+.thoughtCard :global(.pill) {
+  width: 100%;
+}
+.thoughtCard :global(.pill):disabled {
+  opacity: 0.5;
+}
+.dimmed {
+  opacity: 0 !important;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}

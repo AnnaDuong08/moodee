@@ -1,0 +1,126 @@
+/* 펼친 책(949×692). 페이지 영역은 책 이미지 기준 % 좌표 */
+.book {
+  position: absolute;
+  z-index: 2;
+  aspect-ratio: 949 / 692;
+  filter: drop-shadow(0 18px 22px rgba(30, 16, 8, 0.55));
+}
+.book > img {
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  pointer-events: none;
+}
+.bookTap {
+  position: absolute;
+  inset: 0;
+}
+.page {
+  position: absolute;
+  top: 12.5%;
+  height: 70%;
+  width: 38.5%;
+  display: flex;
+  flex-direction: column;
+  color: #4a3b32;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+.left {
+  left: 9.5%;
+}
+.right {
+  left: 53%;
+}
+.pageHead {
+  flex: none;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: 0.04em;
+  color: #a08b7a;
+}
+/* 책 위에 직접 쓰는 것처럼: 배경·테두리·크기 조절 손잡이 없음, 줄 간격에 맞춘 옅은 괘선 */
+.writing {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  resize: none;
+  background: repeating-linear-gradient(transparent 0 29px, rgba(120, 90, 70, 0.14) 29px 30px);
+  color: inherit;
+  font: inherit;
+  font-size: 17px;
+  line-height: 30px;
+  caret-color: var(--sunset);
+}
+.writing::placeholder {
+  color: #b9a899;
+  font-style: italic;
+}
+.writing:focus-visible {
+  outline: 0;
+}
+.bookmark {
+  position: absolute;
+  right: 0;
+  top: -14%;
+  padding: 26px 10px 12px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--sunset);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 86%, 0 100%);
+}
+.blank {
+  margin: 8px 0 0;
+  font-size: 15px;
+  font-style: italic;
+  line-height: 1.5;
+  color: #a08b7a;
+}
+.index {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.index li {
+  display: flex;
+  align-items: flex-start;
+  border-bottom: 1px solid rgba(120, 90, 70, 0.16);
+}
+.index li > button:first-child {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 0;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+}
+.index b {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+  white-space: pre-wrap;
+}
+.index small {
+  font-size: 11px;
+  font-style: italic;
+  color: #a08b7a;
+}
+.del {
+  flex: none;
+  width: 32px;
+  height: 36px;
+  font-size: 18px;
+  color: #b9a899;
+}

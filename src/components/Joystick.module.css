@@ -1,0 +1,25 @@
+.base {
+  position: relative;
+  flex: none;
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.55) 70%);
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  touch-action: none;
+  display: grid;
+  place-items: center;
+}
+
+.knob {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #fff 0%, #f2ebe1 100%);
+  box-shadow: 0 6px 14px rgba(46, 42, 42, 0.25);
+  transition: transform 0.05s linear;
+  pointer-events: none;
+}

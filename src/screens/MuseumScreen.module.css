@@ -1,0 +1,116 @@
+/* 기억 전시대: 작은 받침 위에 오브젝트(좌표는 받침 윗면 가운데) */
+.stand {
+  position: absolute;
+  width: 68px;
+  height: 0;
+  translate: -50% 0;
+  pointer-events: none;
+}
+.box {
+  position: absolute;
+  left: 0;
+  top: -22px;
+  width: 68px;
+  height: 46px;
+  border-radius: 6px;
+  background: linear-gradient(#f4e9d6 0 44%, #d9c7ab 44% 100%);
+  box-shadow: 0 8px 10px -4px rgba(70, 45, 30, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+.stand img {
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  max-width: 78px;
+  max-height: 78px;
+  translate: -50% 0;
+  filter: drop-shadow(0 5px 4px rgba(70, 45, 30, 0.4));
+}
+.emptyStand {
+  position: absolute;
+  left: 50%;
+  top: -24px;
+  translate: -50% 0;
+  font-size: 20px;
+  font-weight: 900;
+  color: rgba(120, 95, 70, 0.6);
+}
+.plate {
+  position: absolute;
+  left: 50%;
+  top: 28px;
+  translate: -50% 0;
+  max-width: 130px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 800;
+  color: #6f5a44;
+  background: rgba(255, 250, 240, 0.9);
+}
+.cameraMark {
+  position: absolute;
+  translate: -50% -50%;
+  font-size: 26px;
+  filter: drop-shadow(0 2px 3px rgba(60, 40, 30, 0.5));
+  pointer-events: none;
+}
+
+/* 전시물 설명 카드 */
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(30, 22, 20, 0.62);
+}
+.card {
+  width: 100%;
+  max-width: 330px;
+  padding: 0 20px 18px;
+  border-radius: 28px;
+  overflow: hidden;
+  text-align: center;
+  background: var(--cream);
+  box-shadow: 0 30px 60px -20px rgba(20, 12, 10, 0.7);
+}
+.spot {
+  display: grid;
+  place-items: center;
+  height: 210px;
+  margin: 0 -20px 14px;
+  background: radial-gradient(circle at 50% 40%, #fff6e2 0, #f2dcc0 45%, #cfae9b 100%);
+}
+.spot img {
+  max-width: 62%;
+  max-height: 80%;
+  filter: drop-shadow(0 16px 14px rgba(60, 30, 20, 0.4));
+}
+.card h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 900;
+}
+.card time {
+  display: block;
+  margin: 2px 0 10px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--lavender-deep);
+}
+.card p {
+  margin: 0 0 16px;
+  font-size: 15px;
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1.5;
+  color: #5d5560;
+}
+.card :global(.pill) {
+  width: 100%;
+  min-height: 50px;
+}

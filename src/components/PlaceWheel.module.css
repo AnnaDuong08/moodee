@@ -1,0 +1,138 @@
+/* 휠: 화면 폭보다 큰 원. 꼭대기(선택된 장소가 서는 곳)가 화면 높이 약 63%에 온다 */
+.wheelArea {
+  --walker: calc(var(--icon) * 0.44);
+  position: absolute;
+  left: 50%;
+  top: 63%;
+  width: var(--disc);
+  height: var(--disc);
+  translate: -50% 0;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+.wheelArea:active {
+  cursor: grabbing;
+}
+
+/* 차분한 크림색 지형: 윗면 하이라이트와 얇은 윤곽만 */
+.disc {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 8%, #fffaf3 0%, #f6ece2 34%, #eee0d3 70%, #e8d8ca 100%);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.95),
+    0 0 0 1px rgba(170, 140, 120, 0.14),
+    0 -16px 44px rgba(150, 120, 170, 0.16);
+}
+
+.ring {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+}
+
+/* 각 장소: 원 중심에서 회전한 뒤 표면(반지름)까지 밀어낸 점 = 발판이 닿는 곳 */
+.slot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  transform-origin: 0 0;
+}
+.iconWrap {
+  position: absolute;
+  left: calc(var(--icon) / -2);
+  width: var(--icon);
+  scale: var(--s);
+  filter: blur(var(--blur));
+  /* 발판 아래쪽(지형에 묻힌 부분)을 서서히 가림 */
+  -webkit-mask-image: linear-gradient(#000 var(--fade1), transparent var(--fade2));
+  mask-image: linear-gradient(#000 var(--fade1), transparent var(--fade2));
+}
+.icon {
+  position: relative;
+  width: 100%;
+  height: auto;
+  display: block;
+  pointer-events: auto;
+}
+/* 선택된 장소 뒤의 아주 약한 빛 */
+.glow {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(var(--icon) * 1.2);
+  height: calc(var(--icon) * 0.95);
+  translate: -50% -70%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 248, 230, 0.8), rgba(255, 236, 200, 0.28) 60%, rgba(255, 236, 200, 0));
+  opacity: var(--here, 0);
+  pointer-events: none;
+}
+/* 접지 그림자: 짧고 부드럽게 */
+.contact {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(var(--icon) * 0.74 * var(--s));
+  height: calc(var(--icon) * 0.07 * var(--s));
+  translate: -50% -45%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(110, 80, 60, 0.26), rgba(110, 80, 60, 0));
+  pointer-events: none;
+}
+
+/* 캐릭터: 휠 꼭대기 바로 앞(조금 아래) 표면에 발(시트 컷의 78% 지점)을 둔다 */
+.walker {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--icon) * 0.035);
+  height: var(--walker);
+  aspect-ratio: 400 / 1086;
+  translate: -50% -78%;
+  pointer-events: none;
+  z-index: 20;
+}
+.walker > div {
+  height: 100%;
+  transform-origin: 50% 78%;
+}
+.shadow {
+  position: absolute;
+  left: 50%;
+  top: 78%;
+  width: 58%;
+  height: 4.5%;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(70, 48, 40, 0.34), rgba(70, 48, 40, 0));
+}
+.idle {
+  animation: breathe 3s ease-in-out infinite;
+}
+.walking {
+  animation: waddle 0.3s ease-in-out infinite alternate;
+}
+@keyframes waddle {
+  from {
+    transform: translateY(0) rotate(-4deg);
+  }
+  to {
+    transform: translateY(-5%) rotate(4deg);
+  }
+}
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(1.015);
+  }
+}
