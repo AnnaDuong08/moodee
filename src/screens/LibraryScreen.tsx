@@ -31,7 +31,6 @@ const LIBRARY: WorldConfig = {
     [650, 520, 745, 705], // Book cart
     [635, 800, 845, 1005], [610, 1110, 810, 1315], // Two desks on the right
     [0, 1030, 165, 1250], [0, 1225, 348, 1672], [583, 1335, 941, 1672], // Plant, bookshelves either side of the entrance
-    [372, 1085, 445, 1195], // Person standing in the aisle (background art)
     [800, 345, 941, 1335], // Right-wall bookshelf
   ],
   start: { x: 466, y: 1520 },
@@ -55,7 +54,6 @@ const LIBRARY_LINES = [
   'this lamp light is lovely', 'reading the same line for the 5th time lol', 'just shelved a thought',
 ];
 const LIBRARY_REPLIES = ['(quietly) hi', 'shh :)', 'good luck', 'nice, keep going', 'same here', 'ooh what are you writing?', 'mm-hm', 'you got this'];
-const BAKED_PEOPLE = 3; // Number of people already drawn in the background (included in the head count)
 
 const day = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
@@ -82,7 +80,7 @@ export function LibraryScreen({ characterId, onBack, onChangeFriends, onSoundSet
   const friends = useMemo(() => getCompanions(character.id).filter((c) => c.space === 'library'), [character.id]);
   const npcs = useMemo<WorldNpc[]>(() => friends.map((f) => ({ id: f.id, name: f.name, tag: f.doing, character: f.character, scale: f.character.premium ? 1.3 : undefined })), [friends]);
 
-  // With no friends, the people in the picture talk (chat lines only, no speech bubbles)
+  // With no friends, unseen visitors talk (chat lines only, no speech bubbles)
   const chatter = useMemo(
     () => ({ place: 'the library', speakers: [...friends.map((f) => ({ id: f.id, name: f.name })), { name: 'Noa' }, { name: 'Eli' }], lines: LIBRARY_LINES, replies: LIBRARY_REPLIES }),
     [friends],
@@ -245,8 +243,8 @@ export function LibraryScreen({ characterId, onBack, onChangeFriends, onSoundSet
         </button>
         <span className={hud.chip}>Library</span>
         <div className={hud.topActions}>
-          <button type="button" className={hud.count} onClick={() => setFriendsOpen(true)} aria-label={`${npcs.length + BAKED_PEOPLE + 1} people here. Friends`}>
-            <PeopleIcon /> {npcs.length + BAKED_PEOPLE + 1}
+          <button type="button" className={hud.count} onClick={() => setFriendsOpen(true)} aria-label={`${npcs.length + 1} people here. Friends`}>
+            <PeopleIcon /> {npcs.length + 1}
           </button>
           <BackgroundSoundButton dark onClick={onSoundSettings} />
         </div>
